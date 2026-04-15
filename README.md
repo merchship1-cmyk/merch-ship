@@ -1,3 +1,69 @@
+GB BLOCK — MERCH SHIP OPERATIONAL EXECUTION SEQUENCE
+
+STATUS:
+You are on main, inside the README editor. This is the correct place to paste updated content.
+
+OBJECTIVE:
+Update both READMEs, prepare release v0.1.0, enable GitHub Pages, and set up the repo for productization.
+
+SEQUENCE (DO IN ORDER):
+
+1. UPDATE todo-app/README.md
+   - Go to: merch-ship/todo-app/README.md
+   - Click Edit
+   - Replace entire file with the updated README provided
+   - Commit message: docs: update todo-app README
+   - Commit to: main
+
+2. UPDATE ROOT README.md
+   - You are already here (editing main/README.md)
+   - Replace entire file with the updated root README provided
+   - Commit message: docs: update root README for MERCH SHIP OS
+   - Commit to: main
+
+3. CREATE RELEASE v0.1.0
+   - Go to: Releases → Draft a new release
+   - Tag: v0.1.0
+   - Title: MERCH SHIP — To‑Do App v0.1.0
+   - Paste release notes provided
+   - (Optional) Upload ZIP of todo-app/
+   - Publish release
+
+4. ENABLE GITHUB PAGES (LIVE DEMO)
+   - Go to: Settings → Pages
+   - Source: main
+   - Folder: /
+   - Save
+   - Wait for Pages to build
+   - Copy the public URL
+   - Add URL to:
+       - root README (Live Demo)
+       - todo-app README (Live Demo)
+
+5. SHOPIFY PRODUCTIZATION
+   - Go to Shopify → Products → Add product
+   - Product type: Digital Product
+   - Shipping: No shipping required
+   - Add product description (use the one provided)
+   - Add screenshots (after Pages demo)
+   - Add download delivery (Digital Downloads app)
+   - Save product
+
+6. REPO HARDENING
+   - Add CODEOWNERS file
+   - Add PR template
+   - Add Issue templates
+   - Add SECURITY.md
+   - (Optional) Add CONTRIBUTING.md
+
+NOTES:
+- All steps are executed from main (correct).
+- You are in the correct editor tab for Step 2.
+- After committing both README updates, proceed to Releases.
+- After release, proceed to GitHub Pages.
+- After Pages, proceed to Shopify.
+
+END GB BLOCK
 
 
 # MERCH SHIP
