@@ -1,0 +1,18 @@
+<!-- Shopify Product Page Block -->
+<div class="product-page-block">
+    <h1>{{ product.title }}</h1>
+    <div class="product-description">
+        {{ product.description | escape }}
+    </div>
+    <div class="product-price">
+        {{ product.price | money }}
+    </div>
+    <div class="product-images">
+        {% for image in product.images %}
+            <img src="{{ image | img_url: 'medium' }}" alt="{{ image.alt | escape }}" />
+        {% endfor %}
+    </div>
+    <div class="add-to-cart">
+        <button type="button" class="btn btn-primary">Add to Cart</button>
+    </div>
+</div>
