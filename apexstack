@@ -1,0 +1,97 @@
+apex-stack/
+  README.md
+  LICENSE
+
+  /brand
+    /identity
+      doctrine.md
+      rules.md
+      voice.md
+    /apparel
+      product-lines.md
+    /media
+      logos/
+      covers/
+      mockups/
+
+  /assets
+    /shopify
+      product-images/
+      digital-downloads/
+    /ui
+      icons/
+      components/
+      design-tokens/
+
+  /engines
+    /rewards
+      /core
+        model.md
+        schema.json
+      /configs
+        earn-rules.json
+        tiers.json
+        rewards.json
+      /integrations
+        shopify.md
+        apps.md
+        games.md
+      /clients
+        web.md
+        api.md
+
+    /casino-style
+      /core
+      /reels
+      /paylines
+      /bonus-modes
+      /simulations
+      docs/
+
+  /apps
+    /web
+    /mobile
+    /desktop
+
+  /games
+    /prototypes
+    /systems
+    /assets
+
+  /interfaces
+    /components
+    /layouts
+    /design-tokens
+
+  /shopify
+    /products
+      digital-startup-system.md
+      founder-execution-system.md
+    /tax
+      digital-product-tax.md
+      avalara-integration.md
+      compliance-checklist.md
+    /automations
+      flows/
+      triggers/
+      docs/
+
+  /docs
+    /architecture
+      apex-system-map.md
+      multi-lane-diagram.md
+    /github
+      tokens.md
+      copilot-data-policy.md
+    /legal-ops
+      tax-regions.md
+      digital-goods-rules.md
+      avalara-legal.md
+    /operations
+      founder-playbook.md
+      workflows.md
+
+  /tools
+    /scripts
+    /automation
+    /cli
