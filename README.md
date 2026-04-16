@@ -1,3 +1,35 @@
+# MERCH SHIP — Commerce Engine
+
+## Overview
+MERCH SHIP is a governed, multi‑layer commerce engine designed to unify:
+- digital product creation
+- Shopify integration
+- pricing logic
+- dashboards
+- automation
+- documentation governance
+
+This repository is the **source of truth** for MERCH SHIP’s architecture, systems, and development workflow.
+
+---
+
+## Core Identity
+- AI‑assisted digital product factory  
+- Shopify‑aware commerce system  
+- Multi‑layer governed architecture  
+- Repo‑first, documentation‑driven development  
+- Designed for clarity, scale, and repeatability  
+
+---
+
+## Current Release
+- **Version:** v0.1.0 — Governance Foundation  
+- **Status:** active development  
+- **Focus:** architecture, governance, integration spine  
+
+---
+
+## Repository Structure
 # MERCH SHIP  
 AI‑driven digital product factory and Shopify commerce system.
 
