@@ -86,8 +86,7 @@ A browser‑ready productivity utility featuring:
 - Responsive UI  
 
 **Folder:** `todo-app/`  
-**Live Demo:** (added after GitHub Pages is enabled)  
-**Release:** v0.1.0 (created in the GB sequence)
+**Live Demo:** https://merchship1-cmyk.github.io/merch-ship/
 
 ---
 
