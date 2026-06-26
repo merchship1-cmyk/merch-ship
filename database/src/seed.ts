@@ -6,24 +6,14 @@
  * so it won't duplicate rows on re-runs.
  */
 import 'dotenv/config';
-import { createHash, randomUUID } from 'node:crypto';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { eq, sql as drizzleSql } from 'drizzle-orm';
 import * as schema from './schema/index';
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function fakeHash(password: string): string {
-  // NOT a real password hash — only for demo/seed data.
-  return `$seed$${createHash('sha256').update(password).digest('hex')}`;
-}
-
-function slug(title: string): string {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
+// Placeholder value stored for seed-only demo accounts.
+// NEVER use real passwords in seed data — these accounts must be rotated
+// or disabled before any environment is exposed externally.
+const SEED_PLACEHOLDER_HASH = '$seed$placeholder-not-a-real-hash';
 
 // ---------------------------------------------------------------------------
 // Connection
@@ -44,7 +34,7 @@ const SEED_USERS = [
   {
     id: '00000000-0000-0000-0000-000000000001',
     email: 'admin@merch-ship.dev',
-    hashedPassword: fakeHash('admin-password'),
+    hashedPassword: SEED_PLACEHOLDER_HASH,
     firstName: 'Admin',
     lastName: 'User',
     role: 'admin' as const,
@@ -52,7 +42,7 @@ const SEED_USERS = [
   {
     id: '00000000-0000-0000-0000-000000000002',
     email: 'staff@merch-ship.dev',
-    hashedPassword: fakeHash('staff-password'),
+    hashedPassword: SEED_PLACEHOLDER_HASH,
     firstName: 'Staff',
     lastName: 'Member',
     role: 'staff' as const,
@@ -60,7 +50,7 @@ const SEED_USERS = [
   {
     id: '00000000-0000-0000-0000-000000000003',
     email: 'customer@merch-ship.dev',
-    hashedPassword: fakeHash('customer-password'),
+    hashedPassword: SEED_PLACEHOLDER_HASH,
     firstName: 'Demo',
     lastName: 'Customer',
     role: 'customer' as const,
