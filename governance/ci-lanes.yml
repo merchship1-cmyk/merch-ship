@@ -1,0 +1,60 @@
+schema_version: "1.0"
+system: MERCH SHIP
+control_plane: GitHub Actions
+
+release_order:
+  - lane_a_heritage
+  - lane_b_v2_runtime
+  - lane_c_governance
+  - lane_d_registry
+
+lanes:
+  lane_a_heritage:
+    id: MS-CI-A
+    name: Heritage Integrity
+    status: active
+    component: Z-001
+    version: v1
+    scope: todo-app/
+    workflow: .github/workflows/heritage-integrity.yml
+    evidence: exact Git blob verification
+
+  lane_b_v2_runtime:
+    id: MS-CI-B
+    name: V2 Runtime
+    status: staged
+    scope: v2/
+    workflow: .github/workflows/v2-component-pipeline.yml
+    activation_requirements:
+      - v2/package.json
+      - v2/package-lock.json
+      - validate:schema script
+      - validate:structured-outputs script
+      - test script
+      - api:smoke script
+      - OPENAI_API_KEY repository secret
+
+  lane_c_governance:
+    id: MS-CI-C
+    name: Governance Verification
+    status: staged
+    scope: v2/
+    workflow: .github/workflows/v2-component-pipeline.yml
+    activation_requirements:
+      - governance:verify script
+      - lineage:verify script
+      - versioned governance packet schema
+      - versioned lineage record schema
+
+  lane_d_registry:
+    id: MS-CI-D
+    name: Registry Write
+    status: blocked
+    scope: governed release records
+    blocked_reason: Registry target, payload schema, credentials, and write authority are not defined in this repository.
+    activation_requirements:
+      - registered target system
+      - versioned registry payload schema
+      - least-privilege write credential
+      - approval gate for production writes
+      - retained write receipt as release evidence

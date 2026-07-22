@@ -1,0 +1,66 @@
+name: Z-001 Heritage Integrity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: z001-heritage-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-heritage:
+    name: Lane A / Z-001 v1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify pinned heritage source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          manifest="governance/heritage/Z-001-v1.git-blobs"
+          test -s "$manifest"
+
+          while read -r expected path; do
+            if [[ -z "${expected:-}" || "$expected" == \#* ]]; then
+              continue
+            fi
+
+            if [[ ! -f "$path" ]]; then
+              echo "::error file=$path::Required Z-001 heritage file is missing"
+              exit 1
+            fi
+
+            actual="$(git hash-object "$path")"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "::error file=$path::Heritage drift detected: expected $expected, got $actual"
+              exit 1
+            fi
+          done < "$manifest"
+
+      - name: Verify static runtime boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for file in package.json package-lock.json npm-shrinkwrap.json yarn.lock pnpm-lock.yaml; do
+            if [[ -e "todo-app/$file" ]]; then
+              echo "::error file=todo-app/$file::Z-001 v1 must remain dependency-free"
+              exit 1
+            fi
+          done
+
+          grep -Fq 'href="styles.css"' todo-app/index.html
+          grep -Fq 'src="app.js"' todo-app/index.html
+
+          echo "Z-001 v1 heritage integrity verified."
