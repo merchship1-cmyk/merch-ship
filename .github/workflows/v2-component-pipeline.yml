@@ -53,9 +53,27 @@ jobs:
         working-directory: v2
         run: npm run validate:structured-outputs
 
+      - name: Type check
+        working-directory: v2
+        run: npm run typecheck
+
+      - name: Lint
+        working-directory: v2
+        run: npm run lint
+
+      - name: Verify client secret boundary
+        working-directory: v2
+        run: npm run security:scan
+
       - name: Run evaluation tests
         working-directory: v2
         run: npm test
+
+      - name: Validate Expo bundle
+        working-directory: v2
+        env:
+          EXPO_NO_TELEMETRY: "1"
+        run: npm run build:check
 
       - name: Validate Responses API connectivity
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -1,0 +1,18 @@
+{
+  "id": "ZAC-P0-001",
+  "status": "frozen",
+  "authorityOwner": "Ryan Richard Levack-Carr",
+  "agentRole": "implementation-only",
+  "lane": "MESS → CLARITY → EXECUTION",
+  "targetPath": "v2/",
+  "protectedPaths": ["todo-app/"],
+  "loop": ["IDEA", "PLAN", "CREATE", "SCHEDULE", "REVIEW"],
+  "evidenceFields": [
+    "timeSavedMinutes",
+    "stepsRemoved",
+    "clarityGain",
+    "outputProduced",
+    "wouldUseAgain"
+  ],
+  "stopBefore": ["merge", "deployment", "phase-1"]
+}

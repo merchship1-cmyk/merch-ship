@@ -1,0 +1,17 @@
+{
+  "component": "ZP-CMP-OPS-001",
+  "predecessor": {
+    "id": "Z-001",
+    "version": "v1",
+    "name": "Task Engine — Heritage Edition",
+    "path": "todo-app/",
+    "manifest": "governance/heritage/Z-001-v1.git-blobs",
+    "mutationPolicy": "frozen"
+  },
+  "successor": {
+    "version": "v2",
+    "name": "Zenzy Phase 0 Mobile Successor",
+    "path": "v2/",
+    "releaseState": "draft"
+  }
+}
