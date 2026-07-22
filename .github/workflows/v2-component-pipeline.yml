@@ -1,0 +1,96 @@
+name: V2 Component Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "v2/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "v2/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-component-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-verification:
+    name: Lane B / V2 Runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify v2 package contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f v2/package.json
+          test -f v2/package-lock.json
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Validate schemas
+        working-directory: v2
+        run: npm run validate:schema
+
+      - name: Validate structured outputs
+        working-directory: v2
+        run: npm run validate:structured-outputs
+
+      - name: Run evaluation tests
+        working-directory: v2
+        run: npm test
+
+      - name: Validate Responses API connectivity
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: v2
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "${OPENAI_API_KEY:-}"
+          npm run api:smoke
+
+  governance-verification:
+    name: Lane C / Governance
+    needs: runtime-verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Verify governance packets
+        working-directory: v2
+        run: npm run governance:verify
+
+      - name: Verify component lineage
+        working-directory: v2
+        run: npm run lineage:verify
