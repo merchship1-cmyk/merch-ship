@@ -6,9 +6,10 @@ on:
     paths:
       - "v2/**"
   pull_request:
-    branches: [main]
+    branches: [main, agent/zenzy-phase-0-v2]
     paths:
       - "v2/**"
+      - ".github/workflows/v2-component-pipeline.yml"
 
 permissions:
   contents: read
@@ -52,6 +53,10 @@ jobs:
       - name: Validate structured outputs
         working-directory: v2
         run: npm run validate:structured-outputs
+
+      - name: Validate Sync Machine migration
+        working-directory: v2
+        run: npm run validate:sync-machine
 
       - name: Type check
         working-directory: v2
