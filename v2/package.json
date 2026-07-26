@@ -1,0 +1,45 @@
+{
+  "name": "zenzy-phase-zero",
+  "description": "Zenzy Phase 0 mobile successor: MESS to CLARITY to EXECUTION.",
+  "license": "MIT",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "dependencies": {
+    "expo": "~57.0.8",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^24.10.1",
+    "@types/react": "~19.2.2",
+    "eslint": "^9.39.2",
+    "tsx": "^4.21.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build:check": "expo export --platform android --output-dir dist",
+    "validate:schema": "node --import tsx scripts/validate-schema.ts",
+    "validate:structured-outputs": "node --import tsx scripts/validate-structured-outputs.ts",
+    "api:smoke": "node --import tsx scripts/api-smoke.ts",
+    "governance:verify": "node --import tsx scripts/verify-governance.ts",
+    "lineage:verify": "node --import tsx scripts/verify-lineage.ts",
+    "security:scan": "node --import tsx scripts/scan-client-secrets.ts",
+    "verify": "npm run validate:schema && npm run validate:structured-outputs && npm run test && npm run typecheck && npm run lint && npm run security:scan && npm run governance:verify && npm run lineage:verify && npm run build:check"
+  }
+}
