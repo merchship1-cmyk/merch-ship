@@ -78,6 +78,7 @@ Deno.serve(async (request) => {
     },
     body: JSON.stringify({
       model,
+      store: false,
       reasoning: { effort: reasoningEffort },
       instructions,
       input,

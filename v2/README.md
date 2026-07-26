@@ -30,7 +30,11 @@ lint, secret-boundary, governance, lineage, and Expo export checks.
 
 The server function uses the Responses API and strict structured output. Its
 default model is gpt-5.6-sol and may be overridden with the server-only
-OPENAI_MODEL environment variable.
+OPENAI_MODEL environment variable. Requests set `store: false` so individual
+transformations are not retained as Response objects by default.
+
+Run `npm run api:smoke` from an approved server environment to verify the live
+Responses API contract without exposing the key to the Expo client.
 
 Official references:
 
