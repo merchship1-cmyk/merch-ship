@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zenzy.local/schemas/sji-record.schema.json",
+  "title": "System Jungle Index Record",
+  "type": "object",
+  "required": [
+    "sji_record_id",
+    "system_id",
+    "system_name",
+    "jungle_type",
+    "environment",
+    "vectors"
+  ],
+  "properties": {
+    "sji_record_id": {"type": "string", "minLength": 1},
+    "system_id": {"type": "string", "minLength": 1},
+    "system_name": {"type": "string", "minLength": 1},
+    "jungle_type": {"enum": ["Org", "Product", "Cache", "Database", "Kafka", "Custom"]},
+    "environment": {"enum": ["Dev", "Staging", "Prod", "Experimental"]},
+    "authority_class": {"enum": ["Low", "Medium", "High", "Critical"]},
+    "risk_class": {"enum": ["Low", "Medium", "High", "Critical"]},
+    "vectors": {
+      "type": "object",
+      "required": ["throughput", "complexity", "dependencies", "latency", "load", "autonomy", "recovery"],
+      "properties": {
+        "throughput": {"type": "number", "minimum": 1, "maximum": 5},
+        "complexity": {"type": "number", "minimum": 1, "maximum": 5},
+        "dependencies": {"type": "number", "minimum": 1, "maximum": 5},
+        "latency": {"type": "number", "minimum": 1, "maximum": 5},
+        "load": {"type": "number", "minimum": 1, "maximum": 5},
+        "autonomy": {"type": "number", "minimum": 1, "maximum": 5},
+        "recovery": {"type": "number", "minimum": 1, "maximum": 5}
+      },
+      "additionalProperties": false
+    },
+    "previous_sji": {"type": "number", "minimum": 1, "maximum": 5},
+    "capability_score": {"type": "number", "minimum": 0, "maximum": 50},
+    "evidence_confidence": {"type": "integer", "minimum": 0, "maximum": 3},
+    "gate_state": {"enum": ["APEX", "STRONG", "FRAGILE", "WEAK", "FAILURE"]},
+    "lane": {"enum": ["Scale", "Optimize", "Stabilize", "Repair", "Rebuild"]},
+    "release_decision": {"enum": ["RED", "BLUE", "GREEN", null]},
+    "current_state": {"type": "string"},
+    "rollback_verified": {"type": "boolean"},
+    "mutation_permission": {"enum": ["Allowed", "Blocked"]}
+  },
+  "additionalProperties": true
+}
