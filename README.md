@@ -18,4 +18,11 @@ and governance.
 ## 🔱 Current Release
 v0.2.0 — Public Usability Pass
 
+## ZENZY Backend Runtime
+
+The governed Node/TypeScript runtime is located in `backend/`. It provides
+Supabase-authenticated Zenzy processing, OpenAI structured outputs, redacted
+readiness checks, and a canonical module registry. See
+`docs/zenzy-app-module-map.md` for the route and engine map.
+
 ## 🔱 Repository Structure
