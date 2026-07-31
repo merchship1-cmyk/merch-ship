@@ -8,7 +8,7 @@ const runtimeSchema = z.object({
   OPENAI_REASONING_EFFORT: z.enum(['none', 'minimal', 'low', 'medium', 'high']).default('low'),
   SUPABASE_URL: z.url(),
   SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_JWT_SECRET: z.string().min(1),
+  SUPABASE_JWT_SECRET: z.string().min(1).optional(),
 });
 
 export type RuntimeConfig = z.infer<typeof runtimeSchema>;
@@ -25,7 +25,6 @@ export function runtimeReadiness() {
     'OPENAI_API_KEY',
     'SUPABASE_URL',
     'SUPABASE_ANON_KEY',
-    'SUPABASE_JWT_SECRET',
   ] as const;
 
   const missing = names.filter((name) => !process.env[name]?.trim());

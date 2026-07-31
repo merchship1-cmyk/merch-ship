@@ -25,4 +25,4 @@ Authority: ZENZY OS
 
 ## Runtime boundary
 
-Supabase owns identity validation and persisted application state. OpenAI owns structured transformation generation. The backend owns authorization, input validation, routing, redacted health reporting, and release-safe error handling.
+Supabase owns identity validation and persisted application state. OpenAI owns structured transformation generation. The backend owns authorization, input validation, routing, redacted health reporting, and release-safe error handling. Access tokens are validated through Supabase Auth with the project URL and publishable/anon key; the legacy shared JWT secret is not required by the modern middleware.

@@ -19,11 +19,14 @@
 - Notion: connected to Ryan Levack-Carr's workspace with search, fetch, create, and update access.
 - Google Drive: connected to the expected account.
 - OpenAI Platform: new key created securely and verified in the approved local environment file.
+- Supabase: connected; project is `ACTIVE_HEALTHY` in `ca-central-1`.
+- Supabase data plane: Phase‑0 tables and the evidence foreign-key index are installed.
+- Supabase security: RLS enabled; `anon` and `authenticated` have no table DML grants.
 
 ## Runtime blockers observed
 
-The Replit app reported `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_JWT_SECRET` as missing. Supabase DB/Auth is not yet connected there. The Replit process is live, but protected transformation routes cannot operate until those secrets are installed through Replit's Secrets interface.
+The Replit app reported `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_JWT_SECRET` as missing. The modernized middleware validates access tokens through Supabase Auth, so the shared JWT secret is retained only as an optional legacy variable. The Replit process is live, but protected transformation routes cannot operate until the OpenAI key, Supabase URL, and active publishable/anon key are installed through Replit's Secrets interface.
 
 ## Verification gate
 
-This branch is eligible for GREEN only after dependency installation, type checking, automated tests, build completion, Replit secret installation, authenticated Supabase verification, and one live OpenAI transformation smoke test.
+This branch is eligible for GREEN only after Replit secret installation, authenticated Supabase verification, one database persistence test, and one live OpenAI transformation smoke test. Local dependency installation, type checking, automated tests, and production build are complete.
