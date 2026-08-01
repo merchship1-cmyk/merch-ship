@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "slice": "Phase-1A Slice-1",
+  "date": "2026-08-01",
+  "branch": "codex/phase-1a-slice-1-ownership-rls",
+  "baselineCommit": "801590f",
+  "authorityOwner": "Ryan Richard Levack-Carr",
+  "scope": {
+    "target": "v2/",
+    "protected": ["todo-app/"],
+    "liveMutationAuthorized": false,
+    "deploymentAuthorized": false,
+    "mergeAuthorized": false
+  },
+  "verifiedInputs": {
+    "githubBranch": true,
+    "supabaseSchemaReadOnly": true,
+    "notionIntegrationContract": "3af13e5c-bb9f-810b-8c19-c5f54dbe5468",
+    "replitRuntime": "UNVERIFIED_CLOUDFLARE_CHALLENGE"
+  },
+  "localVerification": {
+    "status": "PASS",
+    "command": "EXPO_NO_TELEMETRY=1 npm run verify",
+    "results": [
+      "schema_contract_pass",
+      "structured_output_contract_pass",
+      "12_of_12_tests_pass",
+      "typecheck_pass",
+      "lint_pass",
+      "client_secret_scan_pass",
+      "governance_pass",
+      "lineage_pass",
+      "android_export_pass",
+      "todo_app_zero_diff_pass",
+      "production_dependency_audit_zero_vulnerabilities"
+    ]
+  },
+  "tooling": {
+    "supabaseCli": "BLOCKED_NPM_ECOMPROMISED",
+    "fallback": "migration created from verified read-only schema; no runtime claim made"
+  },
+  "runtimeVerification": {
+    "rlsIsolation": "NOT_RUN",
+    "migrationReapply": "NOT_RUN",
+    "edgeHttpAuth": "NOT_RUN"
+  },
+  "acceptance": "PENDING"
+}

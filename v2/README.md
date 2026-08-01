@@ -21,6 +21,15 @@ component in ../todo-app/.
 Remote mode requires an approved Supabase Edge Function deployment. The OpenAI
 key belongs only in Supabase secrets, never in the Expo environment.
 
+Remote mode also requires `EXPO_PUBLIC_SUPABASE_URL` and
+`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. It authenticates with Supabase email
+and password, stores the session with Expo SecureStore, sends the access token
+to the Edge Function, and permits owner-scoped database reads only. All table
+writes remain server-authorized.
+
+Phase-1A source code does not authorize a live migration or function deploy.
+See `governance/PHASE-1A-ACCEPTANCE.md` for the runtime gates.
+
 ## Verification
 
 Run npm run verify to execute the schema, structured-output, tests, type,

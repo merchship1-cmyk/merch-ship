@@ -1,11 +1,15 @@
 import {
-  transformationResultSchema,
   type TransformationResult,
 } from '../domain/transformation';
+import { supabase } from '../lib/supabase';
 import { createMockTransformation } from './mockTransformation';
+import { executeRemoteTransformation } from './transformationTransport';
 
 const mode = process.env.EXPO_PUBLIC_ZENZY_AI_MODE ?? 'mock';
 const endpoint = process.env.EXPO_PUBLIC_ZENZY_API_URL;
+const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+export const isRemoteMode = mode === 'remote';
 
 async function runRemoteTransformation(
   input: string,
@@ -16,19 +20,22 @@ async function runRemoteTransformation(
     );
   }
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ input }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Zenzy transformation service is currently unavailable.');
+  if (!publishableKey || !supabase) {
+    throw new Error(
+      'Remote mode requires a configured Supabase publishable client.',
+    );
   }
 
-  return transformationResultSchema.parse(await response.json());
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session?.access_token) {
+    throw new Error('Sign in before running a remote transformation.');
+  }
+
+  return executeRemoteTransformation(input, {
+    endpoint,
+    publishableKey,
+    accessToken: data.session.access_token,
+  });
 }
 
 export async function runTransformation(
@@ -44,7 +51,7 @@ export async function runTransformation(
     throw new Error('Keep the starting input under 4,000 characters.');
   }
 
-  return mode === 'remote'
+  return isRemoteMode
     ? runRemoteTransformation(normalizedInput)
     : createMockTransformation(normalizedInput);
 }
