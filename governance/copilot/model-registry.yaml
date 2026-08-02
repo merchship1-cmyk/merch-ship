@@ -1,0 +1,15 @@
+schema_version: 1
+registry_id: PFU-COPILOT-MODELS-001
+status: inventory_required
+authority: github_enterprise_ai_controls
+allowed_states:
+  - enabled
+  - disabled
+  - optional
+  - unconfigured
+models: []
+inventory_instructions:
+  - Use GitHub's canonical model identifier.
+  - Record the observed enterprise state and evidence URL.
+  - Do not infer availability from public documentation alone.
+  - Mark pre-GA or frontier access for explicit human review.
