@@ -1,0 +1,14 @@
+schema_version: 1
+team_id: PFU-FRONTIER-LAB
+pfu_lane: frontier
+github_enterprise_team_slug:
+status: inventory_required
+access_mode: frontier_review
+model_grants: []
+agent_grants: []
+membership:
+  explicit_assignment_required: true
+  multi_team_union_review_required: true
+  founder_approval_required: true
+  expiry_review_required: true
+evidence_url:
