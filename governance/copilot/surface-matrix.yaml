@@ -1,0 +1,16 @@
+schema_version: 1
+matrix_id: PFU-COPILOT-SURFACES-001
+status: inventory_required
+surfaces:
+  - id: ide
+    observed_state: unverified
+    evidence_url:
+  - id: cli
+    observed_state: unverified
+    evidence_url:
+  - id: github_web
+    observed_state: unverified
+    evidence_url:
+  - id: github_mobile_or_app
+    observed_state: unverified
+    evidence_url:
