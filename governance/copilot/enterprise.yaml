@@ -1,0 +1,37 @@
+schema_version: 1
+policy_id: PFU-COPILOT-ENTERPRISE-001
+metadata:
+  owner: Ryan Richard Levack-Carr
+  status: inventory_required
+  notion_control_center: https://app.notion.com/p/3b013e5cbb9f819c9986fe68e02a6d89
+authority:
+  runtime: github_enterprise_ai_controls
+  repository_role: desired_state_and_evidence_only
+  preview_status: opt_in_public_preview
+scope:
+  enterprise_slug:
+  copilot_plan: unverified
+  enterprise_teams_mode: unverified
+model_resolution:
+  enterprise_disabled: deny
+  enterprise_enabled: allow_all_licensed
+  enterprise_optional: team_grant_required
+  multi_team_membership: union
+  cross_enterprise: explicit_external_resolution_required
+organization_policy:
+  state_when_enterprise_teams_mode_enabled: deactivated
+baseline:
+  enabled_models: []
+  disabled_models: []
+  optional_models: []
+controls:
+  audit_log_required: true
+  access_test_required: true
+  rollback_record_required: true
+  human_approval_for_frontier: true
+  live_sync_enabled: false
+evidence:
+  observed_at:
+  observed_by:
+  source_url:
+  snapshot_sha256:
