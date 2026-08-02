@@ -1,0 +1,39 @@
+name: Copilot governance policy
+
+on:
+  pull_request:
+    paths:
+      - "governance/copilot/**"
+      - ".github/workflows/copilot-governance-policy.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "governance/copilot/**"
+      - ".github/workflows/copilot-governance-policy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install pinned YAML parser
+        run: python -m pip install PyYAML==6.0.3
+      - name: Validate PFU Copilot governance manifests
+        run: python governance/copilot/validate_policy.py
+
+      - name: Enforce secret-free governance files
+        shell: bash
+        run: |
+          if grep -RInE '(ghp_|github_pat_|sk-proj-|SUPABASE_SERVICE_ROLE_KEY|BEGIN [A-Z ]*PRIVATE KEY)' governance/copilot; then
+            echo "Potential secret detected in governance manifests"
+            exit 1
+          fi
