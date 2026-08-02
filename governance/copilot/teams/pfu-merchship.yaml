@@ -1,0 +1,12 @@
+schema_version: 1
+team_id: PFU-MERCHSHIP
+pfu_lane: merchship
+github_enterprise_team_slug:
+status: inventory_required
+access_mode: optional_grants
+model_grants: []
+agent_grants: []
+membership:
+  explicit_assignment_required: true
+  multi_team_union_review_required: true
+evidence_url:
