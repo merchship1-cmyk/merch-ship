@@ -1,0 +1,44 @@
+schema_version: 1
+router_id: PFU-COPILOT-MESH-001
+status: inactive
+input_contract:
+  authenticated_user_required: true
+  enterprise_license_source_required: true
+  signed_policy_snapshot_required: true
+  maximum_snapshot_age_minutes: 60
+rules:
+  - id: enterprise_hard_deny
+    precedence: 10
+    when: enterprise_model_state_disabled
+    action: deny
+    authority: github_native
+  - id: enterprise_baseline_allow
+    precedence: 20
+    when: enterprise_model_state_enabled
+    action: allow_for_licensed_user
+    authority: github_native
+  - id: optional_team_grant
+    precedence: 30
+    when: enterprise_model_state_optional
+    action: require_verified_team_grant
+    authority: github_native
+  - id: multi_team_union_review
+    precedence: 40
+    when: user_has_multiple_enterprise_teams
+    action: compute_union_and_record_evidence
+    authority: pfu_overlay
+  - id: cross_enterprise_boundary
+    precedence: 50
+    when: multiple_enterprise_license_sources_detected
+    action: explicit_external_resolution_required
+    authority: pfu_overlay
+fallback:
+  action: human_review
+  allow_automatic_substitution: false
+  allow_automatic_cross_enterprise_merge: false
+outputs:
+  - decision
+  - authority_source
+  - selected_model_or_agent
+  - evidence_reference
+  - snapshot_hash
