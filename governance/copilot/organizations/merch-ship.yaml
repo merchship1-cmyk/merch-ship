@@ -1,0 +1,11 @@
+schema_version: 1
+organization_id: merchship1-cmyk
+status: inventory_required
+mode: legacy_reference_only
+runtime_behavior_when_enterprise_teams_mode_enabled: deactivated
+note: Organization model settings are not the active model-policy authority while Enterprise Teams mode is enabled.
+observed_policy:
+  enabled_models: []
+  disabled_models: []
+  optional_models: []
+evidence_url:
