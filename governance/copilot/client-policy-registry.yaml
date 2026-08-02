@@ -1,19 +1,19 @@
 schema_version: 1
-registry_id: PFU-COPILOT-AGENTS-001
+registry_id: PFU-COPILOT-CLIENT-POLICIES-001
 status: inventory_required
 authority: github_enterprise_ai_controls
-agents:
-  - id: copilot_cloud_agent
+client_policies:
+  - id: copilot_cli
+    client: copilot_cli
     desired_state: review_required
     observed_state: unverified
-    governance_scope: separate_agent_policy
-    allowed_repositories: []
+    governance_scope: independent_client_policy
     observed_at:
     evidence_url:
-  - id: external_coding_agents
+  - id: copilot_app
+    client: copilot_app
     desired_state: review_required
     observed_state: unverified
-    governance_scope: separate_agent_policy
-    allowed_repositories: []
+    governance_scope: independent_client_policy
     observed_at:
     evidence_url:

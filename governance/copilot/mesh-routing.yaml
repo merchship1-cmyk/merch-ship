@@ -5,6 +5,8 @@ input_contract:
   authenticated_user_required: true
   enterprise_license_source_required: true
   signed_policy_snapshot_required: true
+  snapshot_sha256_required: true
+  snapshot_observed_at_required: true
   maximum_snapshot_age_minutes: 60
 rules:
   - id: enterprise_hard_deny
@@ -15,29 +17,47 @@ rules:
   - id: enterprise_baseline_allow
     precedence: 20
     when: enterprise_model_state_enabled
-    action: allow_for_licensed_user
+    action: allow_for_users_governed_by_enterprise
+    authority: github_native
+  - id: optional_organization_control
+    precedence: 30
+    when: enterprise_model_state_optional_and_teams_mode_disabled
+    action: resolve_from_organization_policy
     authority: github_native
   - id: optional_team_grant
-    precedence: 30
-    when: enterprise_model_state_optional
+    precedence: 40
+    when: enterprise_model_state_optional_and_teams_mode_enabled
     action: require_verified_team_grant
     authority: github_native
-  - id: multi_team_union_review
-    precedence: 40
-    when: user_has_multiple_enterprise_teams
-    action: compute_union_and_record_evidence
-    authority: pfu_overlay
-  - id: cross_enterprise_boundary
+  - id: unconfigured_non_team_mode
     precedence: 50
+    when: enterprise_model_state_unconfigured_and_teams_mode_disabled
+    action: resolve_from_default_availability_policy
+    authority: github_native
+  - id: unconfigured_team_mode
+    precedence: 60
+    when: enterprise_model_state_unconfigured_and_teams_mode_enabled
+    action: deny_by_default
+    authority: github_native
+  - id: multi_team_union
+    precedence: 70
+    when: teams_mode_enabled_and_user_has_multiple_enterprise_teams
+    action: compute_union_and_record_evidence
+    authority: github_native
+  - id: cross_enterprise_boundary
+    precedence: 80
     when: multiple_enterprise_license_sources_detected
-    action: explicit_external_resolution_required
+    github_native_behavior: most_restrictive_almost_always
+    action: stop_external_mesh_routing_for_explicit_resolution
     authority: pfu_overlay
+    overrides_github_enforcement: false
 fallback:
   action: human_review
   allow_automatic_substitution: false
-  allow_automatic_cross_enterprise_merge: false
+  allow_automatic_cross_enterprise_routing: false
 outputs:
-  - decision
+  - github_native_policy_result
+  - pfu_routing_decision
   - authority_source
   - selected_model_or_agent
   - evidence_reference

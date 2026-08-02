@@ -1,11 +1,23 @@
 schema_version: 1
-organization_id: merchship1-cmyk
+record_id: PFU-COPILOT-ORG-REFERENCE-001
 status: inventory_required
-mode: legacy_reference_only
-runtime_behavior_when_enterprise_teams_mode_enabled: deactivated
-note: Organization model settings are not the active model-policy authority while Enterprise Teams mode is enabled.
+organization_slug:
+organization_membership_verified: false
+repository_owner:
+  login: merchship1-cmyk
+  account_type: user
+  is_organization: false
+mode:
+  when_enterprise_teams_mode_unverified: conditional_reference
+  when_enterprise_teams_mode_disabled: organization_controlled
+  when_enterprise_teams_mode_enabled: deactivated
 observed_policy:
+  default_model_availability: unverified
   enabled_models: []
   disabled_models: []
   optional_models: []
-evidence_url:
+evidence:
+  observed_at:
+  observed_by:
+  source_url:
+  snapshot_sha256:

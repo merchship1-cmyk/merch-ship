@@ -8,8 +8,14 @@ allowed_states:
   - optional
   - unconfigured
 models: []
+inventory_requirements:
+  canonical_github_identifier_required: true
+  observed_state_required: true
+  observed_at_required: true
+  evidence_url_required: true
+  frontier_founder_review_required: true
 inventory_instructions:
   - Use GitHub's canonical model identifier.
-  - Record the observed enterprise state and evidence URL.
+  - Record the observed enterprise state, timestamp, and evidence URL.
   - Do not infer availability from public documentation alone.
-  - Mark pre-GA or frontier access for explicit human review.
+  - Mark preview, pre-GA, or frontier access for explicit founder review and expiry.
