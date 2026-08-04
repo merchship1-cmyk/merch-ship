@@ -38,6 +38,7 @@ runtime_loop:
   - apply_release_gate
 constitutional_subsystems:
   - system_id: BMOS-CONSTITUTIONAL-OS
+    registration: registrations/pfu/bmos.system.yaml
     manifest: manifests/pfu/bmos.manifest.yaml
     status: REGISTERED_BLUE
 registered_domains:
@@ -50,7 +51,8 @@ kernel:
   lifecycle: flows/pfu/capability-lifecycle.yaml
   capability_contract: contracts/pfu/capability-registration.schema.yaml
   domain_contract: contracts/pfu/domain-runtime.schema.yaml
-  enforcement_evidence: evidence/pfu/kernel-enforcement-record.schema.yaml
+  enforcement_evidence_contract: evidence/pfu/kernel-enforcement-record.schema.yaml
+  installation_evidence: evidence/pfu/bmos-kernel-installation.record.yaml
   compliance_evaluation: evals/pfu/kernel-compliance-checklist.md
 protected_boundaries:
   - todo-app/
