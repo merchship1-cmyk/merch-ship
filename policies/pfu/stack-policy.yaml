@@ -1,0 +1,38 @@
+policy_id: PFU-STACK-POLICY-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+registration_required: true
+production_execution_requires_registration: true
+declarations:
+  models:
+    required_fields: [provider, model_id, purpose, data_boundary, fallback]
+  tools:
+    required_fields: [tool_id, purpose, permissions, environments, secret_boundary]
+  agents:
+    required_fields: [agent_id, role, capabilities, permitted_systems, permitted_tools, memory_scope, escalation]
+  surfaces:
+    required_fields: [surface_id, type, audience, permissions]
+  memory:
+    required_fields: [store_id, data_classification, retention, access_policy]
+  runtime:
+    required_fields: [runtime_id, orchestrator, state_model, retry_policy, rollback_policy]
+permissions:
+  default: deny
+  universal_mutation_authority: false
+  universal_release_authority: false
+  secrets_in_prompts: forbidden
+  secrets_in_client_code: forbidden
+  secrets_in_repository: forbidden
+evidence:
+  required_for:
+    - external_tool_action
+    - state_mutation
+    - validation
+    - release_decision
+  destination_must_be_declared: true
+failure_controls:
+  retry_limit_required: true
+  timeout_required: true
+  idempotency_required_for_mutations: true
+  escalation_required: true
+  rollback_required_when_reversible: true
