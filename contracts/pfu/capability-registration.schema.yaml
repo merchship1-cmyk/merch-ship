@@ -1,0 +1,97 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: pfu/capability-registration.schema.yaml
+title: PFU Capability Registration
+version: "1.0.0"
+type: object
+additionalProperties: false
+required:
+  - capability_id
+  - canonical_name
+  - capability_class
+  - version
+  - owner
+  - authority_source
+  - lifecycle_state
+  - scope
+  - domain_bindings
+  - dependencies
+  - actor_assignments
+  - evidence_record_ids
+  - mutation_history
+  - kernel_admission_outcome
+  - release_state
+properties:
+  capability_id:
+    type: string
+    pattern: "^[A-Z0-9-]{3,}$"
+  canonical_name:
+    type: string
+    minLength: 1
+  aliases:
+    type: array
+    uniqueItems: true
+    items: {type: string}
+  capability_class:
+    type: string
+    enum: [CONSTITUTIONAL, OPERATIONAL, DOMAIN, SHARED, PFU_WIDE]
+  version:
+    type: string
+    minLength: 1
+  owner:
+    type: string
+    minLength: 1
+  authority_source:
+    type: object
+    required: [authority_id, authority_type]
+    properties:
+      authority_id: {type: string, minLength: 1}
+      authority_type:
+        type: string
+        enum: [FOUNDER, FORMAL_DELEGATION, POLICY, DOMAIN_OWNER]
+      delegation_record: {type: [string, "null"]}
+  lifecycle_state:
+    type: string
+    enum: [IDEA, DESIGN, BUILD, TEST, RFTO_LAUNCH, THE_JUNGLE, THE_MOUNTAIN, THE_THESIS]
+  scope:
+    type: string
+    enum: [DOMAIN, SHARED, PFU_WIDE, CONSTITUTIONAL]
+  domain_bindings:
+    type: array
+    uniqueItems: true
+    items: {type: string, minLength: 1}
+  dependencies:
+    type: array
+    uniqueItems: true
+    items: {type: string, minLength: 1}
+  actor_assignments:
+    type: array
+    items:
+      type: object
+      required: [actor_id, role, permissions]
+      properties:
+        actor_id: {type: string, minLength: 1}
+        role: {type: string, minLength: 1}
+        permissions:
+          type: array
+          uniqueItems: true
+          items: {type: string}
+  evidence_record_ids:
+    type: array
+    uniqueItems: true
+    items: {type: string, minLength: 1}
+  mutation_history:
+    type: array
+    items:
+      type: object
+      required: [mutation_id, from_version, to_version, timestamp]
+      properties:
+        mutation_id: {type: string, minLength: 1}
+        from_version: {type: string}
+        to_version: {type: string}
+        timestamp: {type: string, format: date-time}
+  kernel_admission_outcome:
+    type: string
+    enum: [HOLD, CORRECTION_REQUIRED, PROVISIONAL, ADMITTED]
+  release_state:
+    type: string
+    enum: [RED, BLUE, GREEN]
