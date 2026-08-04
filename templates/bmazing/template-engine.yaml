@@ -1,0 +1,69 @@
+engine_id: BMAZING-TPL-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+parent_system: BMAZING-FIVE-MODULE-PACK
+purpose: Govern reusable B.MAZING creation assets and bind them to registered product families and creator activation stages.
+template_types:
+  - WORKSHEET
+  - SCRIPT
+  - GUIDE
+  - SOP
+  - CHECKLIST
+  - PROMPT_PACK
+  - WORKFLOW_PACK
+  - CREATOR_TOOL
+  - ACTIVATION_SCRIPT
+  - VISUAL_HOOK
+required_template_fields:
+  - template_id
+  - name
+  - version
+  - template_type
+  - purpose
+  - audience
+  - owner
+  - source_file
+  - input_contract
+  - output_contract
+  - family_bindings
+  - activation_stage_bindings
+  - lore_binding
+  - validation_rules
+  - rights_and_usage
+  - lifecycle_state
+lifecycle_states:
+  - DRAFT
+  - REVIEW
+  - VALIDATED
+  - APPROVED
+  - ACTIVE
+  - DEPRECATED
+workflow:
+  - receive_template_request
+  - resolve_family_and_audience
+  - select_permitted_template_type
+  - apply_bmazing_identity_and_pfu_governance
+  - produce_draft
+  - validate_structure_claims_rights_and_accessibility
+  - bind_to_activation_stage
+  - record_evidence
+  - apply_release_gate
+stick_man_hooks:
+  enabled_by_default: false
+  requirement: Visual hooks must use an approved identity asset, usage rule, and product-family binding.
+lore_integration:
+  plane: PFU Lore Plane
+  required: false
+  rule: Lore may support comprehension and continuity but may not replace product instructions, claims evidence, or delivery requirements.
+validation:
+  require_clear_input_and_output: true
+  require_editable_source: true
+  require_accessible_export: true
+  require_rights_confirmation: true
+  prohibit_unverified_claims: true
+  prohibit_secret_material: true
+runtime:
+  generation_automation: disabled
+  bulk_export: disabled
+  channel_publish: disabled
