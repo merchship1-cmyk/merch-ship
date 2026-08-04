@@ -1,0 +1,43 @@
+registry_id: PFU-SURFACES-001
+version: "1.0.0"
+default_policy:
+  registration_required: true
+  identity_resolution_required: true
+  permissions_must_match_surface: true
+required_fields:
+  - surface_id
+  - type
+  - audience
+  - permissions
+  - data_boundary
+surfaces:
+  - surface_id: ChatGPT
+    type: conversational_control
+    audience: founder_and_authorized_operators
+    permissions: connector_and_conversation_scoped
+    data_boundary: active_context_and_explicit_retrieval
+  - surface_id: GitHub
+    type: versioned_code_control
+    audience: builders_and_reviewers
+    permissions: repository_branch_and_role_scoped
+    data_boundary: repository
+  - surface_id: Notion
+    type: registry_control_plane
+    audience: founder_and_operators
+    permissions: workspace_page_and_database_scoped
+    data_boundary: workspace
+  - surface_id: CLI
+    type: engineering_runtime
+    audience: authorized_builders
+    permissions: environment_and_identity_scoped
+    data_boundary: local_or_approved_runtime
+  - surface_id: Web
+    type: user_interface
+    audience: declared_product_users
+    permissions: application_identity_scoped
+    data_boundary: application_contract
+  - surface_id: Mobile
+    type: user_interface
+    audience: declared_product_users
+    permissions: application_identity_scoped
+    data_boundary: application_contract
