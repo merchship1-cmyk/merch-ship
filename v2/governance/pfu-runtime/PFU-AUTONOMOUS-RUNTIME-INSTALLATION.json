@@ -1,0 +1,60 @@
+{
+  "installation_id": "PFU-RUNTIME-INSTALL-001",
+  "system_id": "PFU-AUTONOMOUS-RUNTIME",
+  "version": "1.0.0",
+  "installed_at": "2026-08-04T14:47:00-04:00",
+  "repository": "merchship1-cmyk/merch-ship",
+  "base_branch": "agent/install-bmos-pfu-kernel-v1",
+  "base_sha": "c0e3d40b366eccea8b05f0381665b9e467c0272f",
+  "feature_branch": "agent/install-pfu-autonomous-runtime-v1",
+  "pre_record_head_sha": "531270c21b4365321ffe80259ec6e5b0705a3c7a",
+  "stack_dependency": "PR #17 — BMOS constitutional OS and PFU kernel v1",
+  "scope": {
+    "worker": "GitHub signed-webhook ingress, canonical event construction, repository allowlist authorization, deduplication, and Supabase persistence",
+    "ledger": "Append-only event, processing, mutation, evidence, and authorization tables with reconciliation and runtime registries",
+    "ci": "TypeScript, security-vector, canonical-envelope, and SQL control validation"
+  },
+  "diff_evidence_before_record": {
+    "commits_ahead": 15,
+    "commits_behind": 0,
+    "files_changed": 13,
+    "additions": 1317,
+    "deletions": 0,
+    "todo_app_files_changed": 0
+  },
+  "controls": {
+    "github_signature_verification": true,
+    "provider_delivery_deduplication": true,
+    "repository_allowlist_required": true,
+    "persist_before_projection": true,
+    "append_only_event_history": true,
+    "append_only_evidence_history": true,
+    "rls_enabled": true,
+    "anon_access_revoked": true,
+    "authenticated_access_revoked": true,
+    "service_role_server_only": true,
+    "automation_registered_disabled": true,
+    "notion_projection_enabled": false,
+    "ghl_dispatch_enabled": false,
+    "ai_mutation_enabled": false
+  },
+  "authorization_boundary": {
+    "migration_applied": false,
+    "notion_worker_deployed": false,
+    "github_app_created_or_modified": false,
+    "webhook_activated": false,
+    "secrets_created_or_mutated": false,
+    "notion_mutated": false,
+    "ghl_mutated": false,
+    "merged": false,
+    "deployed": false
+  },
+  "verdict": {
+    "github_structure": "INSTALLED_ON_STACKED_FEATURE_BRANCH",
+    "runtime_code": "CODE_GREEN_CANDIDATE",
+    "database_schema": "MIGRATION_READY_NOT_APPLIED",
+    "external_integrations": "DORMANT",
+    "pfu_release_state": "BLUE",
+    "next_gate": "CI_AND_AUTHORIZED_STAGING_VALIDATION"
+  }
+}
