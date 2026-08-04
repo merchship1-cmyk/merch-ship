@@ -28,8 +28,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: v2/pfu-runtime/worker/package.json
       - name: Install pinned dependencies
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Verify worker
