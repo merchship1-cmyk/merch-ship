@@ -1,0 +1,64 @@
+schema_version: "1.0"
+system_id: BMAZING-FIVE-MODULE-PACK
+system_version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+parent_system: PFU-FULLSTACK-AGENTIC-STACK
+purpose: Govern the B.MAZING product family, template creation, creator activation, pricing, and distribution surfaces as one bounded PFU subsystem.
+authority_chain:
+  - FOUNDER
+  - ZENZY_PRIME_CORE
+  - ZENZY_ARCHON
+  - ZENZY_FUSION_ENGINE
+  - PFU_RUNTIME
+  - BMAZING_SUBSYSTEM
+modules:
+  - module_id: BMAZING-PFR-001
+    name: Product Family Registry
+    contract: registry/bmazing/product-family-registry.yaml
+  - module_id: BMAZING-TPL-001
+    name: Template Engine
+    contract: templates/bmazing/template-engine.yaml
+  - module_id: BMAZING-CAM-001
+    name: Creator Activation Module
+    contract: modules/bmazing/creator-activation.yaml
+  - module_id: BMAZING-PRC-001
+    name: Pricing Logic
+    contract: commerce/bmazing/pricing-logic.yaml
+  - module_id: BMAZING-DST-001
+    name: Distribution Module
+    contract: distribution/bmazing/distribution-module.yaml
+registry:
+  human_control_plane: Notion
+  control_page: PFU B.MAZING
+  executable_source_of_truth: GitHub
+planes:
+  commerce: PFU Commerce Plane
+  lore: PFU Lore Plane
+  governance: PFU Fullstack Agentic Stack
+surfaces:
+  - Notion
+  - GitHub
+  - Gumroad
+  - Shopify
+  - Web
+  - Mobile
+runtime:
+  state: dormant
+  activation_authorized: false
+commerce_integrations:
+  gumroad_sync: disabled
+  shopify_sync: disabled
+  pfu_commerce_routing: disabled
+release:
+  verdict: BLUE
+  merge_authorized: false
+  deployment_authorized: false
+  production_authorized: false
+  public_release_authorized: false
+protected_boundaries:
+  - todo-app/
+release_policy: policies/pfu/release-policy.yaml
+registration_contract: contracts/pfu/system-registration.schema.yaml
+evidence_contract: evidence/pfu/evidence-record.schema.yaml
+acceptance_checklist: evals/bmazing/acceptance-checklist.md
