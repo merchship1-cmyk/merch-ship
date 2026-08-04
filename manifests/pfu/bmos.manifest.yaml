@@ -7,6 +7,7 @@ status: REGISTERED_BLUE
 owner: Ryan Richard Levack-Carr
 parent_system: PFU-FULLSTACK-AGENTIC-STACK
 purpose: Provide permanent constitutional capabilities, bounded operational engines, lifecycle governance, evidence controls, and anti-drift enforcement for PFU domains.
+registration_instance: registrations/pfu/bmos.system.yaml
 constitutional_capabilities:
   - id: BMOS-CAP-CABMM
     name: CABMM
@@ -43,6 +44,7 @@ enforcement_policy: policies/pfu/kernel-enforcement-rules.yaml
 capability_contract: contracts/pfu/capability-registration.schema.yaml
 domain_contract: contracts/pfu/domain-runtime.schema.yaml
 evidence_contract: evidence/pfu/kernel-enforcement-record.schema.yaml
+installation_evidence: evidence/pfu/bmos-kernel-installation.record.yaml
 release_policy: policies/pfu/release-policy.yaml
 human_control_plane: Notion
 executable_source_of_truth: GitHub
