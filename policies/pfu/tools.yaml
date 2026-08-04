@@ -1,0 +1,31 @@
+registry_id: PFU-TOOLS-001
+version: "1.0.0"
+default_policy:
+  permission_model: deny_by_default
+  registration_required: true
+  least_privilege_required: true
+  secret_boundary_required: true
+  mutation_evidence_required: true
+required_fields:
+  - tool_id
+  - purpose
+  - permissions
+  - environments
+  - secret_boundary
+  - mutation_class
+  - failure_behavior
+tools:
+  - tool_id: GitHub
+    purpose: Versioned code, policy, workflow, evidence, and release-history operations
+    permissions: repository_and_branch_scoped
+    environments: [development, staging, production_control]
+    secret_boundary: connector_managed
+    mutation_class: scoped_write
+    failure_behavior: stop_and_record
+  - tool_id: Notion
+    purpose: Human-readable registry, ownership, operational context, and governance records
+    permissions: page_and_database_scoped
+    environments: [control_plane]
+    secret_boundary: connector_managed
+    mutation_class: scoped_write
+    failure_behavior: stop_and_record
