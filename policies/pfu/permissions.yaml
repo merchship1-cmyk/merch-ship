@@ -1,0 +1,28 @@
+policy_id: PFU-PERMISSIONS-001
+version: "1.0.0"
+default: deny
+identity_required: true
+authority_required: true
+subsystem_registration_required: true
+rules:
+  - action: read
+    requires: [identity, registered_system, declared_surface]
+  - action: external_tool_call
+    requires: [identity, authority, registered_system, declared_tool, declared_agent]
+  - action: state_mutation
+    requires: [identity, authority, registered_system, declared_tool, declared_agent, execution_id, evidence_destination]
+  - action: protected_write
+    requires: [explicit_scope, boundary_check, rollback_plan, evidence_record]
+  - action: merge
+    requires: [explicit_founder_merge_authority, green_validation, release_manifest]
+  - action: deploy
+    requires: [explicit_founder_deploy_authority, green_validation, release_manifest]
+  - action: public_release
+    requires: [explicit_founder_release_authority, green_validation, release_manifest]
+forbidden:
+  - self_grant_permissions
+  - infer_release_authority
+  - expose_secrets
+  - bypass_registry
+  - weaken_security_to_pass
+  - mutate_protected_path_without_explicit_authority
