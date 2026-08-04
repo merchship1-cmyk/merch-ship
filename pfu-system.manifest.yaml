@@ -1,0 +1,43 @@
+schema_version: "1.0"
+system_id: PFU-FULLSTACK-AGENTIC-STACK
+system_version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, and release authority.
+authority_chain:
+  - FOUNDER
+  - ZENZY_PRIME_CORE
+  - ZENZY_ARCHON
+  - ZENZY_FUSION_ENGINE
+  - PFU_RUNTIME
+  - AUTHORIZED_SUBSYSTEM
+registry:
+  human_control_plane: Notion
+  executable_source_of_truth: GitHub
+required_declarations:
+  - models
+  - tools
+  - agents
+  - surfaces
+  - memory
+  - runtime
+  - permissions
+  - inputs
+  - outputs
+  - evidence_destination
+  - failure_policy
+  - release_authority
+runtime_loop:
+  - read_governance
+  - read_registry
+  - select_authorized_subsystem
+  - load_contracts
+  - execute_bounded_workflow
+  - validate_output
+  - record_evidence
+  - apply_release_gate
+protected_boundaries:
+  - todo-app/
+release_policy: policies/pfu/release-policy.yaml
+registration_contract: contracts/pfu/system-registration.schema.yaml
+evidence_contract: evidence/pfu/evidence-record.schema.yaml
