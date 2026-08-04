@@ -1,0 +1,23 @@
+registry_id: PFU-MODELS-001
+version: "1.0.0"
+default_policy:
+  registration_required: true
+  production_use_requires_validation: true
+  model_selection_requires_declared_purpose: true
+  fallback_required: true
+required_fields:
+  - provider
+  - model_id
+  - purpose
+  - data_boundary
+  - capabilities
+  - limitations
+  - fallback
+models:
+  - provider: OpenAI
+    model_id: runtime-selected
+    purpose: Planning, reasoning, synthesis, and registered workflow intelligence
+    data_boundary: Subsystem-declared and permission-scoped
+    capabilities: [reasoning, generation, classification, multimodal]
+    limitations: [no_self_granted_authority, no_secret_access_without_declared_tool]
+    fallback: subsystem-defined
