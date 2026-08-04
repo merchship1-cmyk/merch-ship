@@ -124,11 +124,11 @@ export async function appendProcessing(
 
 export async function appendEvidence(record: EvidenceRecord): Promise<void> {
   await request<unknown>(
-    "pfu_evidence",
+    "pfu_evidence?on_conflict=evidence_id",
     {
       method: "POST",
       body: JSON.stringify([record]),
     },
-    "return=minimal",
+    "resolution=ignore-duplicates,return=minimal",
   );
 }
