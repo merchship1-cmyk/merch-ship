@@ -1,48 +1,72 @@
 {
-  "schemaVersion": "1.0",
-  "slice": "Phase-1A Slice-1",
-  "date": "2026-08-01",
-  "branch": "codex/phase-1a-slice-1-ownership-rls",
-  "baselineCommit": "801590f",
-  "authorityOwner": "Ryan Richard Levack-Carr",
-  "scope": {
-    "target": "v2/",
-    "protected": ["todo-app/"],
-    "liveMutationAuthorized": false,
-    "deploymentAuthorized": false,
-    "mergeAuthorized": false
+  "project": "merchship1-cmyk/merch-ship",
+  "phase": "PHASE-1A",
+  "slice": "SLICE-1",
+  "branch": {
+    "name": "codex/phase-1a-slice-1-ownership-rls",
+    "commit_sha": "PENDING"
   },
-  "verifiedInputs": {
-    "githubBranch": true,
-    "supabaseSchemaReadOnly": true,
-    "notionIntegrationContract": "3af13e5c-bb9f-810b-8c19-c5f54dbe5468",
-    "replitRuntime": "UNVERIFIED_CLOUDFLARE_CHALLENGE"
+  "migration": {
+    "version": "20260801193000_phase_one_a_auth_ownership_rls",
+    "path": "v2/supabase/migrations/20260801193000_phase_one_a_auth_ownership_rls.sql",
+    "preflight_unowned_runs_count": "NOT_RUN",
+    "execution_result": "NOT_RUN",
+    "reapply_result": "NOT_RUN",
+    "schema_checks": {
+      "columns": "NOT_RUN",
+      "foreign_keys": "NOT_RUN",
+      "indexes": "NOT_RUN",
+      "grants": "NOT_RUN",
+      "policies": "NOT_RUN"
+    }
   },
-  "localVerification": {
-    "status": "PASS",
-    "command": "EXPO_NO_TELEMETRY=1 npm run verify",
-    "results": [
-      "schema_contract_pass",
-      "structured_output_contract_pass",
-      "12_of_12_tests_pass",
-      "typecheck_pass",
-      "lint_pass",
-      "client_secret_scan_pass",
-      "governance_pass",
-      "lineage_pass",
-      "android_export_pass",
-      "todo_app_zero_diff_pass",
-      "production_dependency_audit_zero_vulnerabilities"
-    ]
+  "secrets": {
+    "OPENAI_API_KEY": "PRESENT_REDACTED",
+    "OPENAI_MODEL": "PRESENT_REDACTED",
+    "OPENAI_REASONING_EFFORT": "PRESENT_REDACTED",
+    "ALLOWED_ORIGIN": "PRESENT_REDACTED",
+    "SUPABASE_URL": "PRESENT_REDACTED",
+    "SUPABASE_SECRET_KEY": "PRESENT_REDACTED"
   },
-  "tooling": {
-    "supabaseCli": "BLOCKED_NPM_ECOMPROMISED",
-    "fallback": "migration created from verified read-only schema; no runtime claim made"
+  "edge_function": {
+    "name": "transform",
+    "source_path": "v2/supabase/functions/transform/index.ts",
+    "deployment_result": "NOT_RUN",
+    "gateway_auth": {
+      "missing_token": "NOT_RUN",
+      "invalid_token": "NOT_RUN"
+    },
+    "function_auth": {
+      "inactive_user_token": "NOT_RUN",
+      "active_user_token": "NOT_RUN"
+    }
   },
-  "runtimeVerification": {
-    "rlsIsolation": "NOT_RUN",
-    "migrationReapply": "NOT_RUN",
-    "edgeHttpAuth": "NOT_RUN"
+  "test_users": {
+    "user_a": {
+      "id": "REDACTED",
+      "creation_result": "NOT_RUN"
+    },
+    "user_b": {
+      "id": "REDACTED",
+      "creation_result": "NOT_RUN"
+    }
   },
-  "acceptance": "PENDING"
+  "runtime_tests": {
+    "create_run_via_edge": "NOT_RUN",
+    "user_a_access": "NOT_RUN",
+    "user_b_isolation": "NOT_RUN"
+  },
+  "advisors": {
+    "security": "NOT_RUN",
+    "performance": "NOT_RUN",
+    "phase1a_specific_findings": []
+  },
+  "protected_paths_diff": "NOT_RUN",
+  "acceptance": {
+    "runtime_acceptance": "PENDING",
+    "technical_gates": "PENDING",
+    "merge_authorization": "PENDING_FOUNDER_COMMAND"
+  },
+  "timestamp": "PENDING",
+  "operator": "PENDING"
 }
