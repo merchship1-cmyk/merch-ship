@@ -1,0 +1,40 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: pfu/system-registration.schema.yaml
+title: PFU System Registration
+version: "1.0.0"
+type: object
+additionalProperties: false
+required:
+  - system_id
+  - system_version
+  - owner
+  - purpose
+  - models
+  - tools
+  - agents
+  - surfaces
+  - memory
+  - runtime
+  - permissions
+  - inputs
+  - outputs
+  - evidence_destination
+  - failure_policy
+  - release_authority
+properties:
+  system_id: {type: string, minLength: 3}
+  system_version: {type: string, minLength: 1}
+  owner: {type: string, minLength: 1}
+  purpose: {type: string, minLength: 1}
+  models: {type: array, minItems: 1, items: {type: object}}
+  tools: {type: array, items: {type: object}}
+  agents: {type: array, minItems: 1, items: {type: object}}
+  surfaces: {type: array, minItems: 1, items: {type: object}}
+  memory: {type: array, minItems: 1, items: {type: object}}
+  runtime: {type: object}
+  permissions: {type: object}
+  inputs: {type: array, items: {type: object}}
+  outputs: {type: array, items: {type: object}}
+  evidence_destination: {type: object}
+  failure_policy: {type: object}
+  release_authority: {type: object}

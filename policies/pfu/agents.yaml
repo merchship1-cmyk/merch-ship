@@ -1,0 +1,45 @@
+registry_id: PFU-AGENTS-001
+version: "1.0.0"
+default_policy:
+  registration_required: true
+  universal_mutation_authority: false
+  universal_release_authority: false
+  self_expansion_of_permissions: forbidden
+required_fields:
+  - agent_id
+  - role
+  - capabilities
+  - permitted_systems
+  - permitted_tools
+  - permitted_surfaces
+  - memory_scope
+  - mutation_rights
+  - escalation_rule
+  - feedback_loops
+  - evaluation_criteria
+  - release_authority
+agents:
+  - agent_id: PFU-AGT-PLANNER-001
+    role: planner_strategist
+    mutation_rights: draft_only
+    release_authority: recommend
+  - agent_id: PFU-AGT-CODE-001
+    role: code_intelligence
+    mutation_rights: draft_only
+    release_authority: none
+  - agent_id: PFU-AGT-ORCH-001
+    role: workflow_orchestrator
+    mutation_rights: scoped_write
+    release_authority: none
+  - agent_id: PFU-AGT-REGISTRY-001
+    role: registry_controller
+    mutation_rights: scoped_write
+    release_authority: none
+  - agent_id: PFU-AGT-RUNTIME-001
+    role: runtime_controller
+    mutation_rights: scoped_write
+    release_authority: recommend
+  - agent_id: PFU-AGT-EVAL-001
+    role: evaluator
+    mutation_rights: none
+    release_authority: recommend

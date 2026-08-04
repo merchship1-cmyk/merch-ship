@@ -1,0 +1,38 @@
+policy_id: PFU-RELEASE-001
+version: "1.0.0"
+default_verdict: BLUE
+verdicts:
+  RED:
+    meaning: Execution blocked by a failed safety, authority, integrity, or boundary control.
+  BLUE:
+    meaning: Designed or implemented but not fully evidenced or authorized for production release.
+  GREEN:
+    meaning: Required validations, evidence, approvals, and release authority are satisfied.
+release_manifest_required: true
+required_manifest_fields:
+  - release_id
+  - system_id
+  - system_version
+  - policy_version
+  - workflow_version
+  - prompt_version
+  - agent_versions
+  - commit_sha
+  - evidence_bundle
+  - approval
+release_gates:
+  - identity
+  - doctrine
+  - authority
+  - permission
+  - boundary
+  - integrity
+  - mutation
+  - verification
+  - founder_release
+prohibited_without_explicit_authority:
+  - merge
+  - deploy
+  - production_secret_change
+  - public_release
+  - destructive_migration

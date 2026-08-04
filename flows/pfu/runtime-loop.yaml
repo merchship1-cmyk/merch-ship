@@ -1,0 +1,50 @@
+flow_id: PFU-RUNTIME-LOOP-001
+version: "1.0.0"
+initial_state: REQUEST_RECEIVED
+states:
+  REQUEST_RECEIVED:
+    next: RESOLVE_IDENTITY_AUTHORITY
+  RESOLVE_IDENTITY_AUTHORITY:
+    on_pass: READ_GOVERNANCE
+    on_fail: STOP_RED
+  READ_GOVERNANCE:
+    on_pass: READ_REGISTRY
+    on_fail: STOP_RED
+  READ_REGISTRY:
+    on_registered: SELECT_SUBSYSTEM
+    on_unregistered: STOP_BLUE
+  SELECT_SUBSYSTEM:
+    on_authorized: LOAD_POLICIES_CONTRACTS
+    on_denied: STOP_RED
+  LOAD_POLICIES_CONTRACTS:
+    on_pass: SELECT_MODELS_AGENTS_TOOLS
+    on_fail: STOP_RED
+  SELECT_MODELS_AGENTS_TOOLS:
+    on_pass: EXECUTE_BOUNDED_WORKFLOW
+    on_fail: STOP_RED
+  EXECUTE_BOUNDED_WORKFLOW:
+    on_success: VALIDATE_OUTPUT
+    on_failure: APPLY_FAILURE_POLICY
+  APPLY_FAILURE_POLICY:
+    next: RECORD_EVIDENCE
+  VALIDATE_OUTPUT:
+    on_pass: RECORD_EVIDENCE
+    on_fail: APPLY_FAILURE_POLICY
+  RECORD_EVIDENCE:
+    on_pass: APPLY_RELEASE_GATE
+    on_fail: STOP_RED
+  APPLY_RELEASE_GATE:
+    on_green: UPDATE_REGISTRY_STATE
+    on_blue: STOP_BLUE
+    on_red: STOP_RED
+  UPDATE_REGISTRY_STATE:
+    next: RETURN_RESULT
+terminal_states:
+  - RETURN_RESULT
+  - STOP_BLUE
+  - STOP_RED
+invariants:
+  - no_tool_action_before_permission_resolution
+  - no_state_mutation_without_evidence_id
+  - no_release_without_release_manifest
+  - no_secret_material_in_prompt_or_log
