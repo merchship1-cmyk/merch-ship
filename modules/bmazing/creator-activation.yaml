@@ -1,0 +1,64 @@
+module_id: BMAZING-CAM-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+parent_system: BMAZING-FIVE-MODULE-PACK
+purpose: Turn a buyer or participant into an active creator through bounded identity, creation, repetition, and expansion milestones.
+activation_stages:
+  - stage_id: ORIENT
+    name: Identity Orientation
+    outcome: The participant can state what they want to create, for whom, and why it matters.
+    required_evidence:
+      - creator_statement
+      - intended_audience
+      - first_outcome
+  - stage_id: CREATE
+    name: First Creation
+    outcome: The participant completes one usable artifact with an approved template or workflow.
+    required_evidence:
+      - completed_artifact
+      - template_id
+      - self_review
+  - stage_id: BUILD
+    name: Repeatable Builder
+    outcome: The participant repeats the workflow and records a stable creation method.
+    required_evidence:
+      - second_artifact
+      - repeatable_steps
+      - friction_log
+  - stage_id: SYSTEMIZE
+    name: System Formation
+    outcome: The participant packages the method into a governed workflow or product candidate.
+    required_evidence:
+      - workflow_record
+      - product_family_candidate
+      - validation_result
+  - stage_id: EXPAND
+    name: Governed Expansion
+    outcome: The participant receives a bounded next path without automatic production or public-release authority.
+    required_evidence:
+      - expansion_choice
+      - authority_check
+      - next_milestone
+milestone_rules:
+  - milestones_are_evidence_based
+  - stage_progression_requires_required_evidence
+  - identity_language_must_not_override_user_agency
+  - lore_is_optional_and_must_support_clarity
+  - no_stage_grants_merge_deploy_or_release_authority
+narrative:
+  plane: PFU Lore Plane
+  stick_man_hooks: optional
+  rule: Narrative may frame progress but must not introduce false claims, coercive identity pressure, or hidden commercial commitments.
+feedback_loop:
+  capture:
+    - outcome
+    - friction
+    - confidence
+    - next_action
+  destination: Notion B.MAZING activation evidence
+runtime:
+  automated_messaging: disabled
+  milestone_automation: disabled
+  entitlement_changes: disabled
+  production_activation: disabled
