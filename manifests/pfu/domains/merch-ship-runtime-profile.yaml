@@ -1,5 +1,5 @@
 domain_id: PFU-DOMAIN-MERCH-SHIP
-domain_version: "1.0.0"
+version: "1.0.0"
 canonical_name: MERCH SHIP
 owner: Ryan Richard Levack-Carr
 purpose: Operate the MERCH SHIP commerce and creator-technology domain under PFU governance and BMOS constitutional controls.
