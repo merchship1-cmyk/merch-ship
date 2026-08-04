@@ -1,0 +1,74 @@
+module_id: BMAZING-DST-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+parent_system: BMAZING-FIVE-MODULE-PACK
+purpose: Govern how approved B.MAZING SKUs are packaged, delivered, synchronized, and surfaced across commerce and narrative channels.
+channels:
+  - channel_id: GUMROAD
+    role: Digital product checkout and delivery
+    state: disabled
+  - channel_id: SHOPIFY
+    role: Storefront, product family, bundle, and physical or digital commerce surface
+    state: disabled
+  - channel_id: PFU_COMMERCE
+    role: Universe-native product routing and commercial registry
+    state: disabled
+  - channel_id: BMAZING_WEB
+    role: Visitor-facing discovery and conversion surface
+    state: disabled
+  - channel_id: DIRECT_DELIVERY
+    role: Authorized private delivery for testing or controlled cohorts
+    state: disabled
+required_distribution_record_fields:
+  - distribution_id
+  - sku_id
+  - channel_id
+  - channel_product_id
+  - delivery_asset_ids
+  - fulfillment_mode
+  - customer_terms
+  - refund_policy_reference
+  - price_record_id
+  - launch_window
+  - owner
+  - activation_state
+  - evidence_destination
+routing_flow:
+  - resolve_registered_sku
+  - verify_release_verdict
+  - verify_price_record
+  - verify_delivery_assets
+  - verify_customer_terms_and_rights
+  - resolve_permitted_channel
+  - create_or_update_channel_record
+  - validate_channel_state
+  - record_evidence
+  - return_result
+lore_based_distribution:
+  enabled_by_default: false
+  rule: Narrative framing may route discovery but cannot obscure price, deliverables, terms, ownership, or the commercial call to action.
+activation_states:
+  - DRAFT
+  - STAGED
+  - APPROVED
+  - ACTIVE
+  - PAUSED
+  - RETIRED
+mutation_controls:
+  create_product: explicit_authority_required
+  update_product: explicit_authority_required
+  publish_product: founder_release_required
+  change_price: approved_price_record_required
+  delete_product: destructive_mutation_authority_required
+invariants:
+  - no_channel_publish_without_green_sku_verdict
+  - no_delivery_without_verified_assets
+  - no_price_write_without_approved_price_record
+  - no_cross_channel_sync_without_recorded_channel_ids
+  - no_lore_surface_may_hide_commercial_terms
+runtime:
+  gumroad_sync: disabled
+  shopify_sync: disabled
+  pfu_commerce_routing: disabled
+  public_distribution: disabled
