@@ -8,7 +8,7 @@ models:
     purpose: Models are selected by bounded workflows; BMOS itself is model-independent.
     data_boundary: No model receives universal access or authority.
     fallback: human_authority_and_deterministic_policy
- tools:
+tools:
   - tool_id: GitHub
     purpose: Executable policies, contracts, manifests, evidence, and release history.
     permissions: [read, feature_branch_write, draft_pr]
