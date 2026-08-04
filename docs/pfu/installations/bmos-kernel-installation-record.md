@@ -8,6 +8,7 @@
 
 ## Installed GitHub artifacts
 
+- `registrations/pfu/bmos.system.yaml`
 - `manifests/pfu/bmos.manifest.yaml`
 - `manifests/pfu/domains/merch-ship-runtime-profile.yaml`
 - `docs/pfu/bmos/founder-handbook.md`
@@ -20,11 +21,13 @@
 - `contracts/pfu/domain-runtime.schema.yaml`
 - `flows/pfu/capability-lifecycle.yaml`
 - `evidence/pfu/kernel-enforcement-record.schema.yaml`
+- `evidence/pfu/bmos-kernel-installation.record.yaml`
 - `evals/pfu/kernel-compliance-checklist.md`
+- updated root `pfu-system.manifest.yaml`
 
-## Intended Notion installation
+## Notion installation
 
-The human control plane must contain:
+Installed under **PFU Fullstack Agentic Stack — Canonical v1.0**:
 
 1. BMOS — Constitutional Operating System v1.0
 2. Founder Handbook — BMOS Permanent Operating Layer
@@ -32,33 +35,42 @@ The human control plane must contain:
 4. PFU Kernel Enforcement Rules v1.0
 5. PFU Architecture + MERCH SHIP Integration Map
 6. BMOS Thesis Admission Candidate v1.0
-7. PFU Systems Registry record for BMOS
-8. PFU Systems Registry record for MERCH SHIP kernel binding
+7. PFU Systems Registry record: `BMOS-CONSTITUTIONAL-OS`
+8. PFU Systems Registry record: `PFU-DOMAIN-MERCH-SHIP`
+
+## Validation completed
+
+- all authored YAML documents parse successfully
+- JSON Schema documents pass Draft 2020-12 schema checks
+- `registrations/pfu/bmos.system.yaml` validates against `contracts/pfu/system-registration.schema.yaml`
+- `manifests/pfu/domains/merch-ship-runtime-profile.yaml` validates against `contracts/pfu/domain-runtime.schema.yaml`
+- `evidence/pfu/bmos-kernel-installation.record.yaml` validates against `evidence/pfu/kernel-enforcement-record.schema.yaml`
+- Notion IDs, versions, owners, release states, and claim boundaries match GitHub
 
 ## Protected boundaries
 
 - `todo-app/` must remain zero-diff.
 - No application runtime mutation is included.
 - No infrastructure or secret mutation is included.
-- No deployment, production execution, or public release is authorized.
+- No deployment, production execution, runtime activation, or public release is authorized.
 
-## Required reconciliation evidence
+## Pull-request evidence required
 
-- GitHub branch head SHA
-- pull request number and state
+- final feature-branch head SHA
+- draft pull request number and state
 - compare result against `main`
 - changed-file inventory
 - `todo-app/` zero-diff proof
-- schema and YAML parse results
-- Notion page URLs
-- Notion registry record URLs
-- Founder review and merge decision
+- required reviews and approvals
+- explicit Founder merge decision
 
 ## Current verdict
 
 ```text
 GITHUB_STRUCTURE = INSTALLED_ON_FEATURE_BRANCH
-NOTION_INSTALLATION = PENDING_RECONCILIATION
+NOTION_INSTALLATION = INSTALLED_AND_REGISTERED
+SCHEMA_VALIDATION = PASS
+NOTION_GITHUB_RECONCILIATION = PASS
 MERGED_TO_MAIN = NO
 RUNTIME_ACTIVATION = NOT_AUTHORIZED
 DEPLOYMENT = NOT_AUTHORIZED
