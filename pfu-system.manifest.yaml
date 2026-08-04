@@ -1,9 +1,9 @@
 schema_version: "1.0"
 system_id: PFU-FULLSTACK-AGENTIC-STACK
-system_version: "1.0.0"
+system_version: "1.1.0"
 status: CANON_CANDIDATE
 owner: Ryan Richard Levack-Carr
-purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, and release authority.
+purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
 authority_chain:
   - FOUNDER
   - ZENZY_PRIME_CORE
@@ -36,8 +36,30 @@ runtime_loop:
   - validate_output
   - record_evidence
   - apply_release_gate
+constitutional_subsystems:
+  - system_id: BMOS-CONSTITUTIONAL-OS
+    manifest: manifests/pfu/bmos.manifest.yaml
+    status: REGISTERED_BLUE
+registered_domains:
+  - domain_id: PFU-DOMAIN-MERCH-SHIP
+    profile: manifests/pfu/domains/merch-ship-runtime-profile.yaml
+    status: STRUCTURAL_ONLY
+kernel:
+  specification: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
+  enforcement_policy: policies/pfu/kernel-enforcement-rules.yaml
+  lifecycle: flows/pfu/capability-lifecycle.yaml
+  capability_contract: contracts/pfu/capability-registration.schema.yaml
+  domain_contract: contracts/pfu/domain-runtime.schema.yaml
+  enforcement_evidence: evidence/pfu/kernel-enforcement-record.schema.yaml
+  compliance_evaluation: evals/pfu/kernel-compliance-checklist.md
 protected_boundaries:
   - todo-app/
 release_policy: policies/pfu/release-policy.yaml
 registration_contract: contracts/pfu/system-registration.schema.yaml
 evidence_contract: evidence/pfu/evidence-record.schema.yaml
+claim_boundaries:
+  feature_branch_structure: allowed
+  merge: explicit_founder_authority_required
+  deployment: not_authorized
+  runtime_activation: not_authorized
+  production_execution: not_authorized
