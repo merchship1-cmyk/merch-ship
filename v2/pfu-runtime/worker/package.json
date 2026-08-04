@@ -1,0 +1,24 @@
+{
+  "name": "@pfu/autonomous-runtime-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Governed GitHub event ingress and Supabase evidence spine for PFU.",
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
+  "dependencies": {
+    "@notionhq/workers": "0.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "verify": "npm run typecheck && npm test"
+  }
+}
