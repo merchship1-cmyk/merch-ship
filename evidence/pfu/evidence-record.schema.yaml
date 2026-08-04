@@ -1,0 +1,39 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: pfu/evidence-record.schema.yaml
+title: PFU Evidence Record
+version: "1.0.0"
+type: object
+additionalProperties: false
+required:
+  - execution_id
+  - timestamp
+  - system_id
+  - system_version
+  - actor
+  - authority
+  - inputs
+  - tools_invoked
+  - outputs
+  - validation
+  - mutations
+  - defects
+  - residual_risks
+  - verdict
+properties:
+  execution_id: {type: string, minLength: 1}
+  timestamp: {type: string, format: date-time}
+  system_id: {type: string}
+  system_version: {type: string}
+  actor: {type: object}
+  authority: {type: object}
+  inputs: {type: array}
+  tools_invoked: {type: array}
+  outputs: {type: array}
+  validation: {type: array}
+  mutations: {type: array}
+  artifacts: {type: array}
+  defects: {type: array}
+  residual_risks: {type: array}
+  release_manifest: {type: object}
+  verdict: {type: string, enum: [RED, BLUE, GREEN]}
+  next_authorized_action: {type: string}
