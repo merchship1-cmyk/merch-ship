@@ -1,0 +1,90 @@
+system_id: BMOS-CONSTITUTIONAL-OS
+system_version: "1.0.0"
+owner: Ryan Richard Levack-Carr
+purpose: Provide constitutional capability, lifecycle, evidence, mutation, authority, domain, and anti-drift governance for registered PFU systems and domains.
+models:
+  - provider: governed_runtime_selection
+    model_id: none_required_for_structural_governance
+    purpose: Models are selected by bounded workflows; BMOS itself is model-independent.
+    data_boundary: No model receives universal access or authority.
+    fallback: human_authority_and_deterministic_policy
+tools:
+  - tool_id: GitHub
+    purpose: Executable policies, contracts, manifests, evidence, and release history.
+    permissions: [read, feature_branch_write, draft_pr]
+    environments: [repository]
+    secret_boundary: Secrets forbidden in repository and evidence.
+  - tool_id: Notion
+    purpose: Human control plane, registries, ownership, decisions, and operational context.
+    permissions: [read, governed_page_write, governed_registry_write]
+    environments: [workspace]
+    secret_boundary: Secrets forbidden in governance pages and registry records.
+agents:
+  - agent_id: PFU-AUTHORIZED-IMPLEMENTOR
+    role: bounded_implementation
+    capabilities: [create_governed_artifacts, validate_structure, prepare_evidence]
+    permitted_systems: [BMOS-CONSTITUTIONAL-OS, PFU-DOMAIN-MERCH-SHIP]
+    permitted_tools: [GitHub, Notion]
+    memory_scope: task_and_governance_context_only
+    escalation: Founder or explicitly delegated authority
+  - agent_id: PFU-AUTHORIZED-EVIDENCE-ANALYST
+    role: independent_verification
+    capabilities: [inspect, validate, report_drift, issue_hold, issue_correction_required]
+    permitted_systems: [BMOS-CONSTITUTIONAL-OS, PFU-DOMAIN-MERCH-SHIP]
+    permitted_tools: [GitHub, Notion]
+    memory_scope: evidence_and_registry_context_only
+    escalation: Founder or explicitly delegated authority
+surfaces:
+  - surface_id: Notion
+    type: human_control_plane
+    audience: Founder and authorized operators
+    permissions: governed_read_write
+  - surface_id: GitHub
+    type: executable_source_of_truth
+    audience: Founder, reviewers, and authorized implementors
+    permissions: feature_branch_and_review_bounded
+memory:
+  - store_id: PFU-Systems-Registry
+    data_classification: governance
+    retention: permanent_until_deprecated_by_authority
+    access_policy: authorized_workspace_members
+  - store_id: GitHub-History
+    data_classification: versioned_governance_and_evidence
+    retention: repository_history
+    access_policy: repository_permissions
+runtime:
+  runtime_id: BMOS-KERNEL-RUNTIME
+  orchestrator: dormant_until_explicit_activation
+  state_model: registry_plus_versioned_evidence
+  retry_policy: bounded_and_idempotent_for_mutations
+  rollback_policy: required_when_reversible
+permissions:
+  default: deny
+  universal_mutation_authority: false
+  universal_release_authority: false
+  merge_requires_founder_authority: true
+  runtime_activation_requires_founder_authority: true
+inputs:
+  - type: governed_request
+    required_fields: [request_id, actor_id, requested_action, target_system]
+  - type: registry_context
+    required_fields: [system_id, version, status, release_state]
+outputs:
+  - type: governed_artifact
+    required_fields: [artifact_id, version, source_location]
+  - type: enforcement_record
+    required_fields: [record_id, gates, kernel_admission_outcome, release_state]
+evidence_destination:
+  notion: PFU Systems Registry and BMOS installation pages
+  github: evidence/pfu and pull-request history
+  runtime: dormant_until_authorized
+failure_policy:
+  timeout: required_before_runtime_activation
+  retry: bounded
+  idempotency: required_for_mutations
+  escalation: Founder or explicitly delegated authority
+  rollback: required_when_reversible
+release_authority:
+  authority: Founder
+  policy: policies/pfu/release-policy.yaml
+  prohibited_without_explicit_authority: [merge, deploy, production_secret_change, public_release, destructive_migration, runtime_activation]

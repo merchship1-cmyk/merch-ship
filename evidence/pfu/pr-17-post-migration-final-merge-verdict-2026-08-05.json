@@ -1,0 +1,101 @@
+{
+  "authority": {
+    "approval_reference": "Founder authorized profile migration and evaluation, while explicitly prohibiting merge and deployment.",
+    "authority_id": "RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "migrate_merch_ship_domain_profile",
+      "validate_domain_contract",
+      "rerun_final_conformance",
+      "rerun_merge_verdict"
+    ]
+  },
+  "blockers": [],
+  "decision": "GREEN_READY",
+  "deployment_authorization": "NOT_GRANTED",
+  "domain_mutation_authorization": "HOLD",
+  "evaluated_at": "2026-08-05T21:20:00Z",
+  "evaluator": {
+    "actor_id": "OPENAI-CHATGPT-GPT-5-6",
+    "actor_type": "AGENT",
+    "display_name": "ChatGPT",
+    "role": "PFU Authorized Implementor and Evidence Analyst"
+  },
+  "evidence_event_ids": [
+    "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+  ],
+  "expires_at": null,
+  "gates": {
+    "authority": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "notes": "Authority covers migration and evaluation only; merge and deployment are explicitly prohibited.",
+      "status": "PASS"
+    },
+    "boundary": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "status": "PASS"
+    },
+    "doctrine": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "status": "PASS"
+    },
+    "founder_release": {
+      "evidence_event_ids": [],
+      "notes": "The current command explicitly prohibited merge and deployment.",
+      "status": "NOT_APPLICABLE"
+    },
+    "identity": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "status": "PASS"
+    },
+    "integrity": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "status": "PASS"
+    },
+    "mutation": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "status": "PASS"
+    },
+    "permission": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "status": "PASS"
+    },
+    "verification": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003"
+      ],
+      "notes": "Domain-contract validation passed and heritage CI run 31048232813 succeeded.",
+      "status": "PASS"
+    }
+  },
+  "kernel_admission_outcome": "PROVISIONAL",
+  "merge_authorization": "NOT_GRANTED",
+  "merge_readiness": "READY_FOR_FOUNDER_DECISION",
+  "notes": "All technical and governance readiness gates pass for the migrated profile. GREEN_READY does not authorize merge or deployment; both remain explicitly prohibited.",
+  "release_state": "BLUE",
+  "runtime_activation_authorization": "NOT_GRANTED",
+  "target": {
+    "commit_sha": "750de6dfb1ce3906baa077ae15bcaf552956371a",
+    "pull_request": 17,
+    "target_id": "PFU-DOMAIN-MERCH-SHIP",
+    "target_type": "DOMAIN",
+    "version": "1.0.0"
+  },
+  "verdict_id": "PFU-MERGE-VERDICT-PR17-2026-08-05-003"
+}

@@ -1,0 +1,58 @@
+schema_version: "1.0"
+system_id: BMOS-CONSTITUTIONAL-OS
+system_version: "1.0.0"
+name: BMOS
+system_class: CONSTITUTIONAL_OS
+status: REGISTERED_BLUE
+owner: Ryan Richard Levack-Carr
+parent_system: PFU-FULLSTACK-AGENTIC-STACK
+purpose: Provide permanent constitutional capabilities, bounded operational engines, lifecycle governance, evidence controls, and anti-drift enforcement for PFU domains.
+registration_instance: registrations/pfu/bmos.system.yaml
+constitutional_capabilities:
+  - id: BMOS-CAP-CABMM
+    name: CABMM
+    function: capability_design_measurement_and_maturation
+  - id: BMOS-CAP-LUGH
+    name: LUGH
+    function: foundation_presence_and_growth
+  - id: BMOS-CAP-OORCK
+    name: OORCK
+    function: infrastructure_support_and_optimization
+  - id: BMOS-CAP-LOR
+    name: LoR
+    function: truth_memory_and_knowledge
+  - id: BMOS-CAP-ROCK
+    name: ROCK
+    function: coordination_execution_and_connection
+  - id: BMOS-CAP-ATLAS
+    name: ATLAS
+    function: navigation_discovery_and_guidance
+  - id: BMOS-CAP-HI
+    name: HI
+    function: human_interface_engagement_and_launch
+operational_engines:
+  - Architect
+  - Experience Studio
+  - Implementor
+  - Operations Coordinator
+  - Evidence Analyst
+  - Librarian
+  - Brock HQ
+lifecycle_contract: flows/pfu/capability-lifecycle.yaml
+kernel_specification: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
+enforcement_policy: policies/pfu/kernel-enforcement-rules.yaml
+capability_contract: contracts/pfu/capability-registration.schema.yaml
+domain_contract: contracts/pfu/domain-runtime.schema.yaml
+evidence_contract: evidence/pfu/kernel-enforcement-record.schema.yaml
+installation_evidence: evidence/pfu/bmos-kernel-installation.record.yaml
+release_policy: policies/pfu/release-policy.yaml
+human_control_plane: Notion
+executable_source_of_truth: GitHub
+protected_boundaries:
+  - todo-app/
+claim_boundaries:
+  structural_installation: authorized_on_feature_branch
+  merge: requires_explicit_founder_authority
+  deployment: not_authorized
+  runtime_activation: not_authorized
+  production_execution: not_authorized

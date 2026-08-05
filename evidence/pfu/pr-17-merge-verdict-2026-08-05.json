@@ -1,0 +1,115 @@
+{
+  "authority": {
+    "approval_reference": "Founder command: RUN FINAL MERCH SHIP REPOSITORY CONFORMANCE AND MERGE-VERDICT EVALUATION",
+    "authority_id": "RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "run_final_merch_ship_repository_conformance",
+      "evaluate_pr_17_merge_readiness",
+      "record_conformance_evidence"
+    ]
+  },
+  "blockers": [
+    "Missing constitution object in MERCH SHIP domain profile.",
+    "Missing lifecycle object and presence of legacy lifecycle_mapping property.",
+    "Owner and execution authority are legacy strings instead of governed reference objects.",
+    "Authorized actor entries are not nested actorReference records.",
+    "Release authority lacks current_authority."
+  ],
+  "decision": "CORRECTION_REQUIRED",
+  "deployment_authorization": "NOT_GRANTED",
+  "domain_mutation_authorization": "HOLD",
+  "evaluated_at": "2026-08-05T21:08:00Z",
+  "evaluator": {
+    "actor_id": "OPENAI-CHATGPT-GPT-5-6",
+    "actor_type": "AGENT",
+    "display_name": "ChatGPT",
+    "role": "PFU Authorized Evidence Analyst"
+  },
+  "evidence_event_ids": [
+    "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001",
+    "PFU-MACHINE-LAYER-VALIDATION-2026-08-05-001",
+    "PFU-CONST-RAT-2026-08-05-001"
+  ],
+  "expires_at": null,
+  "gates": {
+    "authority": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "Founder-authorized evaluation only; no merge authority inferred.",
+      "status": "PASS"
+    },
+    "boundary": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "todo-app/ and runtime boundaries preserved.",
+      "status": "PASS"
+    },
+    "doctrine": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001",
+        "PFU-CONST-RAT-2026-08-05-001"
+      ],
+      "notes": "Constitution and kernel authority order preserved.",
+      "status": "PASS"
+    },
+    "founder_release": {
+      "evidence_event_ids": [],
+      "notes": "No merge authorization was requested; user explicitly prohibited merge and deployment.",
+      "status": "NOT_APPLICABLE"
+    },
+    "identity": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "Stable PFU and MERCH SHIP identities preserved.",
+      "status": "PASS"
+    },
+    "integrity": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "MERCH SHIP profile does not satisfy the final domain machine contract.",
+      "status": "FAIL"
+    },
+    "mutation": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "No domain, runtime, infrastructure, secret, migration, merge, or deployment mutation performed.",
+      "status": "PASS"
+    },
+    "permission": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "Evidence writes permitted; merge and deployment prohibited.",
+      "status": "PASS"
+    },
+    "verification": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "notes": "Final domain-contract validation produced 12 violations.",
+      "status": "FAIL"
+    }
+  },
+  "kernel_admission_outcome": "CORRECTION_REQUIRED",
+  "merge_authorization": "NOT_GRANTED",
+  "merge_readiness": "NOT_READY",
+  "notes": "Repository, protected-path, heritage CI, Constitution, kernel, and machine-schema gates pass. Merge readiness fails only at final MERCH SHIP domain-contract conformance.",
+  "release_state": "BLUE",
+  "runtime_activation_authorization": "NOT_GRANTED",
+  "target": {
+    "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+    "pull_request": 17,
+    "target_id": "PFU-DOMAIN-MERCH-SHIP",
+    "target_type": "DOMAIN",
+    "version": "1.0.0"
+  },
+  "verdict_id": "PFU-MERGE-VERDICT-PR17-2026-08-05-001"
+}

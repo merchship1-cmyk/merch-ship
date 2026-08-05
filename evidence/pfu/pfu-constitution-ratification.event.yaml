@@ -1,0 +1,80 @@
+execution_id: PFU-CONST-RAT-2026-08-05-001
+timestamp: "2026-08-05T16:20:00Z"
+system_id: PFU-CONSTITUTION
+system_version: "1.0.0"
+actor:
+  actor_id: RYAN-RICHARD-LEVACK-CARR
+  actor_type: human_founder
+  display_name: Ryan Richard Levack-Carr
+  role: Founder / Identity Root
+authority:
+  source: explicit_founder_command
+  scope:
+    - ratify_pfu_constitution_v1
+    - record_ratification_in_github
+    - record_ratification_in_notion
+    - authorize_kernel_governance_enforcement
+  delegation: none
+  approval_reference: "Founder command: Update repo and Notion"
+inputs:
+  - type: constitution
+    path: docs/pfu/constitution/pfu-constitution-v1.md
+    content_sha256: ac50a6bdb8c90e717395b2cc5bb10754cc165d18e24802013b14fc1dd6204b89
+    constitution_commit_sha: ff979dd9ce58b129fbbe178f219e4b8da2327a70
+  - type: notion_page
+    page_id: 3b313e5c-bb9f-81dd-a129-e1181f6e7f45
+    title: PFU Constitution v1
+  - type: governed_branch
+    repository: merchship1-cmyk/merch-ship
+    branch: agent/install-bmos-pfu-kernel-v1
+tools_invoked:
+  - GitHub contents API
+  - Notion control-plane connector
+outputs:
+  - constitutional_state: RATIFIED
+  - kernel_constitutional_authorization: ACTIVE_GOVERNANCE_ONLY
+  - pfu_release_state: BLUE
+  - domain_mutation: HOLD
+validation:
+  - control: founder_authority_present
+    status: PASS
+  - control: constitution_version_bound
+    status: PASS
+  - control: constitution_hash_recorded
+    status: PASS
+  - control: governed_branch_preserved
+    status: PASS
+  - control: protected_runtime_boundaries_preserved
+    status: PASS
+mutations:
+  - target: GitHub governed feature branch
+    type: governance_record
+    permitted: true
+  - target: Notion canonical control plane
+    type: governance_projection
+    permitted: true
+  - target: main branch
+    type: merge
+    permitted: false
+  - target: domain runtime
+    type: activation_or_mutation
+    permitted: false
+artifacts:
+  - docs/pfu/constitution/pfu-constitution-v1.md
+  - evidence/pfu/pfu-constitution-ratification.event.yaml
+  - https://app.notion.com/p/3b313e5cbb9f81dda129e1181f6e7f45
+defects: []
+residual_risks:
+  - machine-layer JSON schemas are not yet generated or validated
+  - MERCH SHIP repository conformance has not been executed against the final machine layer
+  - PR 17 remains an unmerged draft
+release_manifest:
+  constitutional_state: RATIFIED
+  kernel_admission_outcome: PROVISIONAL
+  pfu_release_state: BLUE
+  merge_authorization: NOT_GRANTED
+  deployment_authorization: NOT_GRANTED
+  runtime_activation: NOT_GRANTED
+  domain_mutation: HOLD
+verdict: BLUE
+next_authorized_action: Generate and validate the six PFU machine-layer JSON schemas on the governed feature branch.

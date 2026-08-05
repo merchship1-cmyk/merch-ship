@@ -1,38 +1,51 @@
 # PFU Fullstack Agentic Stack — Acceptance Checklist
 
-## Registration
+**Evaluation:** `PFU-ACCEPTANCE-EVAL-2026-08-05-001`  
+**Subject commit:** `3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7`  
+**Evaluated at:** `2026-08-05T19:09:00Z`  
+**Release state:** `BLUE`  
+**Merge verdict:** `GREEN_READY`  
+**Merge authorization:** `NOT_GRANTED`
 
-- [ ] System identity, version, owner, and purpose are declared.
-- [ ] Models, tools, agents, surfaces, memory, and runtime are registered.
-- [ ] Inputs, outputs, evidence destination, failure policy, and release authority are declared.
+## Registration
+- [x] System identity, version, owner, and purpose are declared.
+- [x] Models, tools, agents, surfaces, memory, runtime, inputs, outputs, evidence destination, failure policy, and release authority are registered.
 
 ## Authority and permissions
+- [x] Identity and active authority resolve before execution.
+- [x] Permissions are deny-by-default.
+- [x] No universal mutation or release authority exists.
+- [x] Protected paths and environments are explicit.
 
-- [ ] Identity and active authority resolve before execution.
-- [ ] Permissions are deny-by-default.
-- [ ] No universal mutation or release authority exists.
-- [ ] Protected paths and environments are explicit.
-
-## Runtime
-
-- [ ] Governance and registry are read before subsystem selection.
-- [ ] Only declared models, tools, agents, surfaces, and memory stores are used.
-- [ ] Timeouts, retries, idempotency, escalation, and rollback are defined.
-
-## Security
-
-- [ ] No secrets appear in prompts, client code, commits, logs, or evidence.
-- [ ] Tool actions and state mutations use least privilege.
-- [ ] External outputs are validated before persistence or release.
+## Runtime and security
+- [x] Governance and registry are read before subsystem selection.
+- [x] Only declared resources may be used.
+- [x] Timeout, retry, idempotency, escalation, and rollback requirements are defined.
+- [x] PR #17 contains no runtime, deployment, infrastructure, secret, webhook, worker, Supabase, or protected `todo-app/` mutation.
+- [x] External outputs require validation before persistence or release.
 
 ## Evidence and release
+- [x] Governance executions have event or execution IDs.
+- [x] Mutations, outputs, controls, defects, and residual risks are recorded.
+- [x] Schema validation is hash-reconciled and bound to `3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7`.
+- [x] The release manifest contains policy, workflow, prompt, agent, commit, evidence, and approval fields.
+- [x] Merge, deployment, activation, and public release remain separately authorized.
 
-- [ ] Every meaningful execution has an execution ID.
-- [ ] Tool calls, mutations, outputs, validation, defects, and residual risks are recorded.
-- [ ] Release manifest versions policy, workflow, prompt, agents, and commit SHA together.
-- [ ] RED, BLUE, or GREEN verdict is justified.
-- [ ] Merge, deployment, and public release require explicit matching authority.
+## Evidence bundle
+- `evidence/pfu/pfu-constitution-ratification.event.yaml`
+- `evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json`
+- `evidence/pfu/machine-layer-schema-validation-2026-08-05.commit-bound.event.json`
+- `evidence/pfu/final-merch-ship-conformance-2026-08-05.event.json`
+- `evidence/pfu/pfu-merge-verdict-2026-08-05.verdict.json`
+- `releases/pfu/pfu-merge-release-2026-08-05.manifest.yaml`
+- GitHub Actions run `31030468345` — PASS
 
-## Installation verdict
+```text
+ACCEPTANCE_CHECKLIST = PASS
+MERGE_VERDICT = GREEN_READY
+MERGE_READINESS = READY_FOR_FOUNDER_DECISION
+MERGE_AUTHORIZATION = NOT_GRANTED
+PFU_RELEASE_STATE = BLUE
+```
 
-A repository installation is BLUE until the registry rows are populated, a subsystem passes this checklist, and an authorized release gate produces evidence.
+**PASS:** all pre-Founder merge-readiness controls are satisfied. A separate explicit Founder command is still required to merge PR #17.

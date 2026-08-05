@@ -1,0 +1,138 @@
+domain_id: PFU-DOMAIN-MERCH-SHIP
+canonical_name: MERCH SHIP
+version: "1.0.0"
+owner:
+  actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+  actor_type: HUMAN
+  display_name: Ryan Richard Levack-Carr
+  role: constitutional_and_release_authority
+purpose: Operate the MERCH SHIP commerce and creator-technology domain under PFU governance and BMOS constitutional controls.
+parent_system: PFU-FULLSTACK-AGENTIC-STACK
+constitutional_system: BMOS-CONSTITUTIONAL-OS
+constitution:
+  constitution_id: PFU-CONSTITUTION
+  version: "1.0.0"
+  state: RATIFIED
+  ratification_event_id: PFU-CONST-RAT-2026-08-05-001
+  enforcement_scope: GOVERNANCE_ONLY
+status: VALIDATED_GREEN
+runtime_boundary:
+  environments:
+    - repository_structural
+  execution_authority:
+    authority_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+    authority_type: FOUNDER
+    scope:
+      - authorize_runtime_activation
+      - authorize_domain_execution
+    approval_reference: Explicit Founder authorization is required; runtime activation is not granted by this profile.
+    delegation_record: null
+    expires_at: null
+  activation_state: STRUCTURAL_ONLY
+data_boundary:
+  owned_data:
+    - MERCH_SHIP_domain_state
+    - MERCH_SHIP_governance_records
+    - authorized_v2_application_state
+  prohibited_access:
+    - other_domain_protected_state_without_contract
+    - credentials_or_secrets_in_repository
+  cross_domain_contract_required: true
+authorized_actors:
+  - actor:
+      actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+      actor_type: HUMAN
+      display_name: Ryan Richard Levack-Carr
+      role: constitutional_and_release_authority
+    permissions:
+      - approve_structure
+      - authorize_merge
+      - authorize_runtime_activation
+      - authorize_release
+  - actor:
+      actor_id: PFU-AUTHORIZED-IMPLEMENTOR
+      actor_type: AGENT
+      display_name: PFU Authorized Implementor
+      role: bounded_implementation
+    permissions:
+      - create_branch_changes
+      - test
+      - prepare_evidence
+  - actor:
+      actor_id: PFU-AUTHORIZED-EVIDENCE-ANALYST
+      actor_type: AGENT
+      display_name: PFU Authorized Evidence Analyst
+      role: independent_verification
+    permissions:
+      - inspect
+      - validate
+      - issue_hold
+      - issue_correction_required
+bmos_services:
+  - CABMM
+  - LUGH
+  - OORCK
+  - LoR
+  - ROCK
+  - ATLAS
+  - HI
+field_operations:
+  - Architect
+  - Experience Studio
+  - Implementor
+  - Operations Coordinator
+  - Evidence Analyst
+  - Librarian
+  - Brock HQ
+lifecycle:
+  contract: contracts/pfu/machine/lifecycle-state.schema.json
+  current_state: TEST
+  transition_evidence_required: true
+  state_skipping_allowed: false
+evidence_destination:
+  notion: PFU Systems Registry and BMOS installation pages
+  github: evidence/pfu and pull-request history
+  runtime: not_activated
+failure_policy:
+  timeout: required_before_runtime_activation
+  retry: bounded_and_idempotent_for_mutations
+  escalation: Founder or explicitly delegated authority
+  rollback: required_when_reversible
+release_authority:
+  founder_required: true
+  policy: policies/pfu/release-policy.yaml
+  current_authority:
+    authority_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+    authority_type: FOUNDER
+    scope:
+      - authorize_merge
+      - authorize_release
+      - authorize_runtime_activation
+    approval_reference: Explicit Founder authorization is required for merge, release, or runtime activation.
+    delegation_record: null
+    expires_at: null
+protected_paths:
+  - todo-app/
+implementation_scope:
+  allowed:
+    - docs/pfu/
+    - manifests/pfu/
+    - contracts/pfu/
+    - policies/pfu/
+    - flows/pfu/
+    - evidence/pfu/
+    - evals/pfu/
+  excluded:
+    - application_runtime_mutation
+    - infrastructure_mutation
+    - secret_change
+    - deployment
+    - public_release
+claim_boundaries:
+  kernel_governed_structure: installed_on_feature_branch
+  merged_to_main: false
+  runtime_active: false
+  production_ready: false
+  deployed: false
+kernel_admission_outcome: PROVISIONAL
+release_state: BLUE

@@ -1,0 +1,159 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: pfu/domain-runtime.schema.yaml
+title: PFU Domain Runtime Contract
+version: "1.0.1"
+type: object
+additionalProperties: false
+required:
+  - domain_id
+  - canonical_name
+  - version
+  - owner
+  - purpose
+  - parent_system
+  - status
+  - runtime_boundary
+  - data_boundary
+  - authorized_actors
+  - bmos_services
+  - field_operations
+  - lifecycle_mapping
+  - evidence_destination
+  - failure_policy
+  - release_authority
+  - protected_paths
+  - release_state
+  - kernel_admission_outcome
+properties:
+  domain_id:
+    type: string
+    pattern: "^[A-Z0-9-]{3,}$"
+  canonical_name: {type: string, minLength: 1}
+  version: {type: string, minLength: 1}
+  owner: {type: string, minLength: 1}
+  purpose: {type: string, minLength: 1}
+  parent_system:
+    type: string
+    const: PFU-FULLSTACK-AGENTIC-STACK
+  constitutional_system:
+    type: string
+    const: BMOS-CONSTITUTIONAL-OS
+  status:
+    type: string
+    enum: [DRAFT, REGISTERED_BLUE, VALIDATED_GREEN, BLOCKED_RED, DEPRECATED]
+  runtime_boundary:
+    type: object
+    additionalProperties: false
+    required: [environments, execution_authority, activation_state]
+    properties:
+      environments:
+        type: array
+        uniqueItems: true
+        items: {type: string}
+      execution_authority: {type: string, minLength: 1}
+      activation_state:
+        type: string
+        enum: [DORMANT, STRUCTURAL_ONLY, TEST, STAGING, PRODUCTION]
+  data_boundary:
+    type: object
+    additionalProperties: false
+    required: [owned_data, prohibited_access, cross_domain_contract_required]
+    properties:
+      owned_data:
+        type: array
+        items: {type: string}
+      prohibited_access:
+        type: array
+        items: {type: string}
+      cross_domain_contract_required: {type: boolean}
+  authorized_actors:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [actor_id, role, permissions]
+      properties:
+        actor_id: {type: string, minLength: 1}
+        role: {type: string, minLength: 1}
+        permissions:
+          type: array
+          uniqueItems: true
+          items: {type: string}
+  bmos_services:
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+      enum: [CABMM, LUGH, OORCK, LoR, ROCK, ATLAS, HI]
+  field_operations:
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+      enum: [Architect, Experience Studio, Implementor, Operations Coordinator, Evidence Analyst, Librarian, Brock HQ]
+  lifecycle_mapping:
+    type: object
+    additionalProperties: false
+    required: [workflow, transition_evidence_required]
+    properties:
+      workflow:
+        type: string
+        const: flows/pfu/capability-lifecycle.yaml
+      transition_evidence_required: {type: boolean, const: true}
+  evidence_destination:
+    type: object
+    additionalProperties: false
+    required: [notion, github, runtime]
+    properties:
+      notion: {type: string}
+      github: {type: string}
+      runtime: {type: string}
+  failure_policy:
+    type: object
+    additionalProperties: false
+    required: [timeout, retry, escalation, rollback]
+    properties:
+      timeout: {type: string}
+      retry: {type: string}
+      escalation: {type: string}
+      rollback: {type: string}
+  release_authority:
+    type: object
+    additionalProperties: false
+    required: [founder_required, policy]
+    properties:
+      founder_required: {type: boolean}
+      policy: {type: string, const: policies/pfu/release-policy.yaml}
+  protected_paths:
+    type: array
+    uniqueItems: true
+    items: {type: string, minLength: 1}
+  implementation_scope:
+    type: object
+    additionalProperties: false
+    required: [allowed, excluded]
+    properties:
+      allowed:
+        type: array
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      excluded:
+        type: array
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+  claim_boundaries:
+    type: object
+    additionalProperties: false
+    required: [kernel_governed_structure, merged_to_main, runtime_active, production_ready, deployed]
+    properties:
+      kernel_governed_structure: {type: string, minLength: 1}
+      merged_to_main: {type: boolean}
+      runtime_active: {type: boolean}
+      production_ready: {type: boolean}
+      deployed: {type: boolean}
+  release_state:
+    type: string
+    enum: [RED, BLUE, GREEN]
+  kernel_admission_outcome:
+    type: string
+    enum: [HOLD, CORRECTION_REQUIRED, PROVISIONAL, ADMITTED]

@@ -1,0 +1,89 @@
+record_id: KER-BMOS-KERNEL-INSTALL-001
+request_id: INSTALL-BMOS-PFU-KERNEL-V1
+system_id: BMOS-CONSTITUTIONAL-OS
+domain_id: PFU-DOMAIN-MERCH-SHIP
+capability_id: null
+actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+requested_action: Install BMOS constitutional governance and PFU kernel structure across Notion and GitHub without merge, deployment, or runtime activation.
+gates:
+  identity:
+    status: PASS
+    control_ids: [KER-ID-001, KER-ID-002, KER-ID-003]
+    evidence:
+      - manifests/pfu/bmos.manifest.yaml
+      - registrations/pfu/bmos.system.yaml
+      - manifests/pfu/domains/merch-ship-runtime-profile.yaml
+    notes: Canonical IDs, classes, versions, owners, and domain binding are explicit.
+  authority:
+    status: PASS
+    control_ids: [KER-AUTH-001, KER-AUTH-002, KER-AUTH-003, KER-AUTH-004]
+    evidence:
+      - policies/pfu/kernel-enforcement-rules.yaml
+      - registrations/pfu/bmos.system.yaml
+    notes: Founder authority and independent verification boundaries are preserved.
+  registration:
+    status: PASS
+    control_ids: [KER-REG-001, KER-REG-002, KER-REG-003, KER-REG-004]
+    evidence:
+      - contracts/pfu/system-registration.schema.yaml
+      - registrations/pfu/bmos.system.yaml
+      - contracts/pfu/domain-runtime.schema.yaml
+      - manifests/pfu/domains/merch-ship-runtime-profile.yaml
+    notes: BMOS system registration and MERCH SHIP domain profile validate against their contracts.
+  boundary:
+    status: PASS
+    control_ids: [KER-DOM-001, KER-DOM-002, KER-DOM-003, KER-DOM-004]
+    evidence:
+      - docs/pfu/architecture/bmos-pfu-merch-ship-map.md
+      - manifests/pfu/domains/merch-ship-runtime-profile.yaml
+    notes: The todo-app heritage path remains protected; no runtime, infrastructure, secret, deployment, or public-release mutation is included.
+  lifecycle:
+    status: NOT_EVALUATED
+    control_ids: []
+    evidence:
+      - flows/pfu/capability-lifecycle.yaml
+    notes: Lifecycle structure is installed; no live capability transition or proving-ground execution occurred.
+  evidence:
+    status: PASS
+    control_ids: [KER-EV-001, KER-EV-002, KER-EV-003]
+    evidence:
+      - evidence/pfu/kernel-enforcement-record.schema.yaml
+      - docs/pfu/installations/bmos-kernel-installation-record.md
+      - Notion BMOS installation pages and PFU Systems Registry records
+    notes: Structural installation evidence is attributable and cross-surface reconciliation is recorded.
+  mutation:
+    status: PASS
+    control_ids: [KER-MUT-001, KER-MUT-002, KER-MUT-003]
+    evidence:
+      - GitHub feature branch agent/install-bmos-pfu-kernel-v1
+      - GitHub commit history and draft pull request
+    notes: All mutations are versioned, reviewable, and reversible before merge.
+  anti_drift:
+    status: PASS
+    control_ids: [AD-01, AD-02, AD-03, AD-04, AD-05, AD-06, AD-07, AD-08, AD-09, AD-10]
+    evidence:
+      - policies/pfu/kernel-enforcement-rules.yaml
+      - evals/pfu/kernel-compliance-checklist.md
+    notes: Identity, authority, domain, lifecycle, evidence, mutation, version, release, and Thesis boundaries are explicit.
+  release:
+    status: NOT_EVALUATED
+    control_ids: []
+    evidence:
+      - policies/pfu/release-policy.yaml
+    notes: Merge, deployment, runtime activation, production execution, and public release remain unauthorized.
+kernel_admission_outcome: PROVISIONAL
+release_state: BLUE
+reasons:
+  - Structural governance is installed across Notion and a GitHub feature branch.
+  - Runtime enforcement, controlled proving, merge, deployment, and production release have not been authorized or completed.
+required_corrections: []
+evidence_references:
+  - docs/pfu/installations/bmos-kernel-installation-record.md
+  - evals/pfu/kernel-compliance-checklist.md
+  - Notion BMOS root and PFU Systems Registry records
+approved_by:
+  - FOUNDER-RYAN-RICHARD-LEVACK-CARR
+verified_by:
+  - PFU-AUTHORIZED-EVIDENCE-ANALYST
+commit_sha: null
+timestamp: "2026-08-04T17:20:00Z"

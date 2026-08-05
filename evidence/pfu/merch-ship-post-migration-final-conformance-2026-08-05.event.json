@@ -1,0 +1,181 @@
+{
+  "actor": {
+    "actor_id": "OPENAI-CHATGPT-GPT-5-6",
+    "actor_type": "AGENT",
+    "display_name": "ChatGPT",
+    "role": "PFU Authorized Implementor and Evidence Analyst"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "PFU-MERCH-SHIP-DOMAIN-PROFILE",
+      "artifact_type": "yaml_domain_contract_instance",
+      "commit_sha": "750de6dfb1ce3906baa077ae15bcaf552956371a",
+      "location": "manifests/pfu/domains/merch-ship-runtime-profile.yaml",
+      "sha256": "242a8f04bce7b244868db0a44369aaa3f19a5bbd47078a86c9d15467665a0ba9"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-DOMAIN-CONTRACT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "750de6dfb1ce3906baa077ae15bcaf552956371a",
+      "location": "contracts/pfu/machine/domain-contract.schema.json",
+      "sha256": "62513370791085fea65cd7c47ec9b168cb5ef8cb0c275a9ef919213c4f573c60"
+    }
+  ],
+  "authority": {
+    "approval_reference": "Founder authorized profile migration and evaluation, while explicitly prohibiting merge and deployment.",
+    "authority_id": "RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "migrate_merch_ship_domain_profile",
+      "validate_domain_contract",
+      "rerun_final_conformance",
+      "rerun_merge_verdict"
+    ]
+  },
+  "controls": [
+    {
+      "control_id": "PAP-004-EVIDENCE-PACKET",
+      "evidence": [
+        "Version-bound final post-migration conformance packet generated."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PAP-007-PROTECTED-PATH",
+      "evidence": [
+        "Comparison with main contains no todo-app/ changes."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PAP-008-REPOSITORY-DIVERGENCE",
+      "evidence": [
+        "Current evidence head is 45 commits ahead and 0 behind main."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-DOMAIN-CONTRACT",
+      "evidence": [
+        "Migrated MERCH SHIP profile validates with zero errors against domain-contract.schema.json v1.0.0."
+      ],
+      "notes": "All 12 legacy-shape violations are resolved.",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-HERITAGE-CI",
+      "evidence": [
+        "Z-001 Heritage Integrity workflow run 31048232813 completed successfully for the migration commit."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-KERNEL-BINDING",
+      "evidence": [
+        "Constitution remains RATIFIED; kernel remains ACTIVE_GOVERNANCE_ONLY; PFU release remains BLUE."
+      ],
+      "notes": "",
+      "status": "PASS"
+    }
+  ],
+  "defects": [],
+  "event_id": "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-003",
+  "event_type": "CONFORMANCE",
+  "immutable": true,
+  "inputs": [
+    {
+      "implementation_subject_commit": "750de6dfb1ce3906baa077ae15bcaf552956371a"
+    },
+    {
+      "evidence_head_before_final_record": "c79c44f285f1f95e3b6535cd557336839c9de881"
+    },
+    {
+      "previous_hold_event_id": "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+    },
+    {
+      "heritage_integrity_workflow_run": 31048232813
+    },
+    {
+      "pull_request": 17
+    }
+  ],
+  "kernel_admission_outcome": "PROVISIONAL",
+  "mutations": [
+    {
+      "mutation_type": "domain_profile_contract_migration",
+      "permitted": true,
+      "target": "manifests/pfu/domains/merch-ship-runtime-profile.yaml"
+    },
+    {
+      "mutation_type": "evidence_record_creation",
+      "permitted": true,
+      "target": "evidence/pfu/merch-ship-post-migration-final-conformance-2026-08-05.event.json"
+    },
+    {
+      "mutation_type": "merge",
+      "permitted": false,
+      "target": "main"
+    },
+    {
+      "mutation_type": "deployment_or_runtime_activation",
+      "permitted": false,
+      "target": "deployment_or_runtime"
+    }
+  ],
+  "next_authorized_action": "No merge or deployment is authorized in this action. A separate future Founder command would be required to change that boundary.",
+  "occurred_at": "2026-08-05T21:20:00Z",
+  "outputs": [
+    {
+      "domain_contract_validation": "PASS",
+      "violation_count": 0
+    },
+    {
+      "repository_divergence": "45_AHEAD_0_BEHIND"
+    },
+    {
+      "protected_path_integrity": "PASS",
+      "todo_app_diff": 0
+    },
+    {
+      "heritage_ci": "PASS",
+      "workflow_run_id": 31048232813
+    },
+    {
+      "merge_verdict": "GREEN_READY"
+    },
+    {
+      "merge_authorization": "NOT_GRANTED"
+    }
+  ],
+  "provenance": {
+    "branch": "agent/install-bmos-pfu-kernel-v1",
+    "repository": "merchship1-cmyk/merch-ship",
+    "source_refs": [
+      "manifests/pfu/domains/merch-ship-runtime-profile.yaml",
+      "contracts/pfu/machine/domain-contract.schema.json",
+      "contracts/pfu/machine/evidence-event.schema.json",
+      "contracts/pfu/machine/release-verdict.schema.json",
+      "evidence/pfu/merch-ship-post-migration-conformance-2026-08-05.event.json",
+      "evidence/pfu/pr-17-post-migration-merge-verdict-2026-08-05.json"
+    ]
+  },
+  "recorded_at": "2026-08-05T21:20:00Z",
+  "release_state": "BLUE",
+  "residual_risks": [
+    "PR #17 remains draft and unmerged.",
+    "Deployment, runtime activation, domain mutation, and public release remain unauthorized."
+  ],
+  "subject": {
+    "commit_sha": "750de6dfb1ce3906baa077ae15bcaf552956371a",
+    "subject_id": "PFU-DOMAIN-MERCH-SHIP",
+    "subject_type": "DOMAIN",
+    "version": "1.0.0"
+  },
+  "verdict": "PASS"
+}

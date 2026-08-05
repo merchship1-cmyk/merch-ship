@@ -1,0 +1,245 @@
+{
+  "actor": {
+    "actor_id": "OPENAI-CHATGPT-GPT-5-6",
+    "actor_type": "AGENT",
+    "display_name": "ChatGPT",
+    "role": "PFU Authorized Evidence Analyst"
+  },
+  "artifacts": [],
+  "authority": {
+    "approval_reference": "Founder command: RUN FINAL MERCH SHIP REPOSITORY CONFORMANCE AND MERGE-VERDICT EVALUATION",
+    "authority_id": "RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "run_final_merch_ship_repository_conformance",
+      "evaluate_pr_17_merge_readiness",
+      "record_conformance_evidence"
+    ]
+  },
+  "controls": [
+    {
+      "control_id": "PAP-004-EVIDENCE-PACKET",
+      "evidence": [
+        "Version-bound conformance evidence packet generated for target commit."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PAP-007-PROTECTED-PATH",
+      "evidence": [
+        "Comparison against main shows zero todo-app/ changes."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-HERITAGE-CI",
+      "evidence": [
+        "Z-001 Heritage Integrity workflow run 31030468345 completed successfully."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-MACHINE-SCHEMAS",
+      "evidence": [
+        "Six Draft 2020-12 machine schemas are present and their generation evidence reports PASS."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-KERNEL-BINDING",
+      "evidence": [
+        "Constitution, kernel, manifest, and machine-layer bindings remain governance-only and release BLUE."
+      ],
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-DOMAIN-CONTRACT",
+      "evidence": [
+        "MERCH SHIP runtime profile produced 12 violations against domain-contract.schema.json."
+      ],
+      "notes": "Legacy profile shape was not migrated when the final machine contract was introduced.",
+      "status": "FAIL"
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "MS-CONF-001",
+      "message": "Missing required property: constitution.",
+      "path": "<root>",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-002",
+      "message": "Missing required property: lifecycle.",
+      "path": "<root>",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-003",
+      "message": "Unexpected legacy property: lifecycle_mapping.",
+      "path": "<root>",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-004",
+      "message": "Actor entry must use nested actor object; actor_id and role are unexpected at the item root.",
+      "path": "authorized_actors/0",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-005",
+      "message": "Actor entry must use nested actor object; actor_id and role are unexpected at the item root.",
+      "path": "authorized_actors/1",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-006",
+      "message": "Actor entry must use nested actor object; actor_id and role are unexpected at the item root.",
+      "path": "authorized_actors/2",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-007",
+      "message": "Owner must be an actorReference object, not a string.",
+      "path": "owner",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-008",
+      "message": "Missing required property: current_authority.",
+      "path": "release_authority",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-009",
+      "message": "Execution authority must be an authorityReference object, not a string.",
+      "path": "runtime_boundary/execution_authority",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-010",
+      "message": "Missing required nested actor object.",
+      "path": "authorized_actors/0/actor",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-011",
+      "message": "Missing required nested actor object.",
+      "path": "authorized_actors/1/actor",
+      "severity": "BLOCKER"
+    },
+    {
+      "defect_id": "MS-CONF-012",
+      "message": "Missing required nested actor object.",
+      "path": "authorized_actors/2/actor",
+      "severity": "BLOCKER"
+    }
+  ],
+  "event_id": "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-001",
+  "event_type": "CONFORMANCE",
+  "immutable": true,
+  "inputs": [
+    {
+      "target_commit": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7"
+    },
+    {
+      "pattern_ids": [
+        "PAP-004",
+        "PAP-005",
+        "PAP-007",
+        "PAP-008"
+      ]
+    },
+    {
+      "pull_request": 17
+    }
+  ],
+  "kernel_admission_outcome": "CORRECTION_REQUIRED",
+  "mutations": [
+    {
+      "mutation_type": "evidence_record_creation",
+      "permitted": true,
+      "target": "evidence/pfu/merch-ship-final-conformance-2026-08-05.event.json"
+    },
+    {
+      "mutation_type": "release_verdict_creation",
+      "permitted": true,
+      "target": "evidence/pfu/pr-17-merge-verdict-2026-08-05.json"
+    },
+    {
+      "mutation_type": "merge",
+      "permitted": false,
+      "target": "main"
+    },
+    {
+      "mutation_type": "deployment",
+      "permitted": false,
+      "target": "deployment"
+    },
+    {
+      "mutation_type": "runtime_activation_or_domain_mutation",
+      "permitted": false,
+      "target": "PFU-DOMAIN-MERCH-SHIP runtime"
+    }
+  ],
+  "next_authorized_action": "Migrate manifests/pfu/domains/merch-ship-runtime-profile.yaml to domain-contract.schema.json v1.0.0, validate it, then rerun final conformance and merge-verdict evaluation.",
+  "occurred_at": "2026-08-05T21:08:00Z",
+  "outputs": [
+    {
+      "repository_divergence": "35_AHEAD_0_BEHIND"
+    },
+    {
+      "protected_path_integrity": "PASS",
+      "todo_app_diff": 0
+    },
+    {
+      "heritage_ci": "PASS",
+      "workflow_run_id": 31030468345
+    },
+    {
+      "machine_schema_presence": "PASS",
+      "schema_count": 6
+    },
+    {
+      "domain_contract_validation": "FAIL",
+      "violation_count": 12
+    },
+    {
+      "merge_verdict": "CORRECTION_REQUIRED"
+    }
+  ],
+  "provenance": {
+    "branch": "agent/install-bmos-pfu-kernel-v1",
+    "repository": "merchship1-cmyk/merch-ship",
+    "source_refs": [
+      "manifests/pfu/domains/merch-ship-runtime-profile.yaml",
+      "contracts/pfu/machine/domain-contract.schema.json",
+      "contracts/pfu/machine/evidence-event.schema.json",
+      "contracts/pfu/machine/release-verdict.schema.json",
+      "docs/pfu/constitution/pfu-constitution-v1.md",
+      "docs/pfu/kernel/pfu-os-kernel-spec-v1.md",
+      "evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json"
+    ]
+  },
+  "recorded_at": "2026-08-05T21:08:00Z",
+  "release_state": "BLUE",
+  "residual_risks": [
+    "The MERCH SHIP runtime profile cannot be treated as machine-contract conformant until its legacy shape is migrated and revalidated.",
+    "PR #17 remains draft and unmerged.",
+    "Deployment, runtime activation, and domain mutation remain unauthorized."
+  ],
+  "subject": {
+    "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+    "subject_id": "PFU-DOMAIN-MERCH-SHIP",
+    "subject_type": "DOMAIN",
+    "version": "1.0.0"
+  },
+  "verdict": "CORRECTION_REQUIRED"
+}

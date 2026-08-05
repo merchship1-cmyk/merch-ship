@@ -1,0 +1,110 @@
+policy_id: PFU-KERNEL-ENFORCEMENT-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+parent_policy: policies/pfu/stack-policy.yaml
+release_policy: policies/pfu/release-policy.yaml
+default_behavior: deny
+sequence:
+  - intake
+  - identity
+  - authority
+  - registration
+  - boundary
+  - lifecycle
+  - evidence
+  - mutation
+  - anti_drift
+  - release
+stop_on_failure: true
+rules:
+  identity:
+    - id: KER-ID-001
+      requirement: Every governed object has a recognized ID, class, version, owner, state, and domain binding.
+      failure: HOLD
+    - id: KER-ID-002
+      requirement: BMOS, PFU, CORE SEVEN, and domain identities cannot be silently renamed or reinterpreted.
+      failure: CORRECTION_REQUIRED
+    - id: KER-ID-003
+      requirement: Capability classes, operational engines, domains, and acting identities remain distinct.
+      failure: CORRECTION_REQUIRED
+  authority:
+    - id: KER-AUTH-001
+      requirement: Requester, executor, verifier, approver, and release authority are explicit.
+      failure: HOLD
+    - id: KER-AUTH-002
+      requirement: Material mutation requires independent verification.
+      failure: HOLD
+    - id: KER-AUTH-003
+      requirement: Constitutional amendments and Thesis admission require Founder authority unless formal delegation is recorded.
+      failure: HOLD
+    - id: KER-AUTH-004
+      requirement: Domains cannot redefine BMOS, mutate another domain, bypass lifecycle, or self-admit.
+      failure: RED
+  registration:
+    - id: KER-REG-001
+      requirement: Capability and domain records satisfy their normative schemas.
+      failure: HOLD
+    - id: KER-REG-002
+      requirement: Canonical IDs are unique and aliases resolve to one identity.
+      failure: CORRECTION_REQUIRED
+    - id: KER-REG-003
+      requirement: Material changes increment version and preserve history.
+      failure: CORRECTION_REQUIRED
+    - id: KER-REG-004
+      requirement: Dependencies are declared before BUILD.
+      failure: HOLD
+  boundary:
+    - id: KER-DOM-001
+      requirement: Runtime, data, actor, evidence, and release boundaries are declared.
+      failure: HOLD
+    - id: KER-DOM-002
+      requirement: PFU kernel and BMOS constitutional controls supersede conflicting domain rules.
+      failure: RED
+    - id: KER-DOM-003
+      requirement: Cross-domain state access requires an explicit contract.
+      failure: RED
+    - id: KER-DOM-004
+      requirement: Capability scope is declared as domain, shared, PFU-wide, or constitutional.
+      failure: HOLD
+  evidence:
+    - id: KER-EV-001
+      requirement: Evidence appropriate to the lifecycle stage exists before advancement.
+      failure: HOLD
+    - id: KER-EV-002
+      requirement: Evidence is attributable, timestamped, version-bound, and traceable.
+      failure: CORRECTION_REQUIRED
+    - id: KER-EV-003
+      requirement: Material contradictory evidence is explicitly resolved.
+      failure: CORRECTION_REQUIRED
+  mutation:
+    - id: KER-MUT-001
+      requirement: Material changes carry a mutation packet, risk record, evidence plan, and rollback path where reversible.
+      failure: HOLD
+    - id: KER-MUT-002
+      requirement: Protected constitutional mutations receive constitutional review.
+      failure: RED
+    - id: KER-MUT-003
+      requirement: Mutation history is append-only and predecessor states remain traceable.
+      failure: CORRECTION_REQUIRED
+  anti_drift:
+    controls:
+      - identity_preservation
+      - authority_preservation
+      - boundary_preservation
+      - lifecycle_preservation
+      - evidence_preservation
+      - mutation_traceability
+      - version_integrity
+      - domain_isolation
+      - release_integrity
+      - thesis_integrity
+    critical_failure_release_state: RED
+kernel_admission_outcomes:
+  HOLD: Missing registration, authority, evidence, dependencies, or boundary definition.
+  CORRECTION_REQUIRED: Evidence or validation disproves correctness or reveals drift.
+  PROVISIONAL: Controlled proving is authorized; permanent admission remains incomplete.
+  ADMITTED: Admission evidence and authority are complete.
+claim_controls:
+  installed_requires: [merged_source, notion_reconciliation, evidence_record]
+  runtime_active_requires: [implementation, validation, explicit_authorization]
+  production_ready_requires: [GREEN_release_state, deployment_evidence]

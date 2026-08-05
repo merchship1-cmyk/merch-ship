@@ -1,15 +1,24 @@
 schema_version: "1.0"
 system_id: PFU-FULLSTACK-AGENTIC-STACK
-system_version: "1.0.0"
+system_version: "1.1.0"
 status: CANON_CANDIDATE
 owner: Ryan Richard Levack-Carr
-purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, and release authority.
+purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
+constitution:
+  constitution_id: PFU-CONSTITUTION
+  version: "1.0.0"
+  state: RATIFIED
+  document: docs/pfu/constitution/pfu-constitution-v1.md
+  ratification_event: evidence/pfu/pfu-constitution-ratification.event.yaml
+  ratified_by: Ryan Richard Levack-Carr
+  ratified_at: "2026-08-05T16:20:00Z"
+  enforcement_scope: GOVERNANCE_ONLY
+  release_state: BLUE
 authority_chain:
   - FOUNDER
-  - ZENZY_PRIME_CORE
-  - ZENZY_ARCHON
-  - ZENZY_FUSION_ENGINE
-  - PFU_RUNTIME
+  - PFU_CONSTITUTION
+  - PFU_KERNEL
+  - BMOS_CONSTITUTIONAL_OS
   - AUTHORIZED_SUBSYSTEM
 registry:
   human_control_plane: Notion
@@ -36,8 +45,49 @@ runtime_loop:
   - validate_output
   - record_evidence
   - apply_release_gate
+constitutional_subsystems:
+  - system_id: BMOS-CONSTITUTIONAL-OS
+    registration: registrations/pfu/bmos.system.yaml
+    manifest: manifests/pfu/bmos.manifest.yaml
+    status: REGISTERED_BLUE
+registered_domains:
+  - domain_id: PFU-DOMAIN-MERCH-SHIP
+    profile: manifests/pfu/domains/merch-ship-runtime-profile.yaml
+    status: STRUCTURAL_ONLY
+kernel:
+  specification: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
+  constitutional_authorization: ACTIVE_GOVERNANCE_ONLY
+  enforcement_policy: policies/pfu/kernel-enforcement-rules.yaml
+  lifecycle: flows/pfu/capability-lifecycle.yaml
+  capability_contract: contracts/pfu/capability-registration.schema.yaml
+  domain_contract: contracts/pfu/domain-runtime.schema.yaml
+  enforcement_evidence_contract: evidence/pfu/kernel-enforcement-record.schema.yaml
+  installation_evidence: evidence/pfu/bmos-kernel-installation.record.yaml
+  ratification_evidence: evidence/pfu/pfu-constitution-ratification.event.yaml
+  compliance_evaluation: evals/pfu/kernel-compliance-checklist.md
+machine_layer:
+  version: "1.0.0"
+  status: GENERATED_VALIDATED
+  validation_standard: JSON_SCHEMA_DRAFT_2020_12
+  validation_evidence: evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json
+  schemas:
+    capability: contracts/pfu/machine/capability.schema.json
+    domain_contract: contracts/pfu/machine/domain-contract.schema.json
+    lifecycle_state: contracts/pfu/machine/lifecycle-state.schema.json
+    evidence_event: contracts/pfu/machine/evidence-event.schema.json
+    mutation_request: contracts/pfu/machine/mutation-request.schema.json
+    release_verdict: contracts/pfu/machine/release-verdict.schema.json
 protected_boundaries:
   - todo-app/
 release_policy: policies/pfu/release-policy.yaml
 registration_contract: contracts/pfu/system-registration.schema.yaml
 evidence_contract: evidence/pfu/evidence-record.schema.yaml
+claim_boundaries:
+  feature_branch_structure: allowed
+  constitutional_ratification: recorded_on_governed_branch_and_notion
+  machine_layer: generated_and_validated_on_governed_feature_branch
+  merge: explicit_founder_authority_required
+  deployment: not_authorized
+  runtime_activation: not_authorized
+  production_execution: not_authorized
+  domain_mutation: hold

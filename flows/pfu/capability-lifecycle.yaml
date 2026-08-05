@@ -1,0 +1,58 @@
+flow_id: PFU-CAPABILITY-LIFECYCLE-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+initial_state: IDEA
+terminal_state: THE_THESIS
+states:
+  IDEA:
+    description: Identity-level proposal.
+    required_evidence: [problem_statement, intended_users, domain_binding, authority_owner]
+    next: DESIGN
+  DESIGN:
+    description: Canonical architecture and acceptance contract.
+    required_evidence: [approved_design, architecture_contract, dependencies, acceptance_criteria, risk_classification]
+    required_roles: [Architect, CABMM]
+    next: BUILD
+  BUILD:
+    description: Versioned working implementation or governed artifact.
+    required_evidence: [source_or_artifact, build_record, known_limitations, test_plan]
+    required_roles: [Implementor]
+    next: TEST
+  TEST:
+    description: Functional, failure-path, security, boundary, and compatibility validation.
+    required_evidence: [functional_results, failure_path_results, boundary_results, evidence_analyst_verdict]
+    required_roles: [Evidence Analyst, LoR]
+    next: RFTO_LAUNCH
+  RFTO_LAUNCH:
+    description: Final readiness and total verification before controlled proving.
+    required_evidence: [release_candidate, rollback_path, monitoring_plan, authorized_environment, provisional_verdict]
+    next: THE_JUNGLE
+  THE_JUNGLE:
+    description: Real-world proving ground.
+    required_evidence: [runtime_results, failures, user_or_operator_feedback, performance_measurements, improvement_record]
+    next: THE_MOUNTAIN
+  THE_MOUNTAIN:
+    description: Canonical review and admission readiness.
+    required_evidence: [complete_evidence_packet, mutation_history, anti_drift_review, unresolved_critical_violations_zero]
+    next: THE_THESIS
+  THE_THESIS:
+    description: Permanent canonical admission.
+    required_evidence: [final_admission_decision, founder_authority, registry_update, release_record]
+transition_guards:
+  registration_required: true
+  authority_required: true
+  evidence_required: true
+  boundary_pass_required: true
+  anti_drift_pass_required: true
+  mutation_history_required: true
+  release_gate_required: true
+skip_policy:
+  allowed: false
+  emergency_acceleration:
+    temporary: true
+    omitted_evidence_must_be_reconciled: true
+    permanent_admission_blocked_until_reconciled: true
+failure_outcomes:
+  missing_prerequisite: HOLD
+  failed_control: CORRECTION_REQUIRED
+  critical_boundary_or_authority_failure: RED
