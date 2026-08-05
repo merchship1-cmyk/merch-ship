@@ -1,16 +1,33 @@
 domain_id: PFU-DOMAIN-MERCH-SHIP
-version: "1.0.0"
 canonical_name: MERCH SHIP
-owner: Ryan Richard Levack-Carr
+version: "1.0.0"
+owner:
+  actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+  actor_type: HUMAN
+  display_name: Ryan Richard Levack-Carr
+  role: constitutional_and_release_authority
 purpose: Operate the MERCH SHIP commerce and creator-technology domain under PFU governance and BMOS constitutional controls.
 parent_system: PFU-FULLSTACK-AGENTIC-STACK
 constitutional_system: BMOS-CONSTITUTIONAL-OS
-status: REGISTERED_BLUE
-kernel_admission_outcome: PROVISIONAL
-release_state: BLUE
+constitution:
+  constitution_id: PFU-CONSTITUTION
+  version: "1.0.0"
+  state: RATIFIED
+  ratification_event_id: PFU-CONST-RAT-2026-08-05-001
+  enforcement_scope: GOVERNANCE_ONLY
+status: VALIDATED_GREEN
 runtime_boundary:
-  environments: [repository_structural]
-  execution_authority: explicit_founder_authorization
+  environments:
+    - repository_structural
+  execution_authority:
+    authority_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+    authority_type: FOUNDER
+    scope:
+      - authorize_runtime_activation
+      - authorize_domain_execution
+    approval_reference: Explicit Founder authorization is required; runtime activation is not granted by this profile.
+    delegation_record: null
+    expires_at: null
   activation_state: STRUCTURAL_ONLY
 data_boundary:
   owned_data:
@@ -22,16 +39,43 @@ data_boundary:
     - credentials_or_secrets_in_repository
   cross_domain_contract_required: true
 authorized_actors:
-  - actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
-    role: constitutional_and_release_authority
-    permissions: [approve_structure, authorize_merge, authorize_runtime_activation, authorize_release]
-  - actor_id: PFU-AUTHORIZED-IMPLEMENTOR
-    role: bounded_implementation
-    permissions: [create_branch_changes, test, prepare_evidence]
-  - actor_id: PFU-AUTHORIZED-EVIDENCE-ANALYST
-    role: independent_verification
-    permissions: [inspect, validate, issue_hold, issue_correction_required]
-bmos_services: [CABMM, LUGH, OORCK, LoR, ROCK, ATLAS, HI]
+  - actor:
+      actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+      actor_type: HUMAN
+      display_name: Ryan Richard Levack-Carr
+      role: constitutional_and_release_authority
+    permissions:
+      - approve_structure
+      - authorize_merge
+      - authorize_runtime_activation
+      - authorize_release
+  - actor:
+      actor_id: PFU-AUTHORIZED-IMPLEMENTOR
+      actor_type: AGENT
+      display_name: PFU Authorized Implementor
+      role: bounded_implementation
+    permissions:
+      - create_branch_changes
+      - test
+      - prepare_evidence
+  - actor:
+      actor_id: PFU-AUTHORIZED-EVIDENCE-ANALYST
+      actor_type: AGENT
+      display_name: PFU Authorized Evidence Analyst
+      role: independent_verification
+    permissions:
+      - inspect
+      - validate
+      - issue_hold
+      - issue_correction_required
+bmos_services:
+  - CABMM
+  - LUGH
+  - OORCK
+  - LoR
+  - ROCK
+  - ATLAS
+  - HI
 field_operations:
   - Architect
   - Experience Studio
@@ -40,9 +84,11 @@ field_operations:
   - Evidence Analyst
   - Librarian
   - Brock HQ
-lifecycle_mapping:
-  workflow: flows/pfu/capability-lifecycle.yaml
+lifecycle:
+  contract: contracts/pfu/machine/lifecycle-state.schema.json
+  current_state: TEST
   transition_evidence_required: true
+  state_skipping_allowed: false
 evidence_destination:
   notion: PFU Systems Registry and BMOS installation pages
   github: evidence/pfu and pull-request history
@@ -55,6 +101,16 @@ failure_policy:
 release_authority:
   founder_required: true
   policy: policies/pfu/release-policy.yaml
+  current_authority:
+    authority_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+    authority_type: FOUNDER
+    scope:
+      - authorize_merge
+      - authorize_release
+      - authorize_runtime_activation
+    approval_reference: Explicit Founder authorization is required for merge, release, or runtime activation.
+    delegation_record: null
+    expires_at: null
 protected_paths:
   - todo-app/
 implementation_scope:
@@ -78,3 +134,5 @@ claim_boundaries:
   runtime_active: false
   production_ready: false
   deployed: false
+kernel_admission_outcome: PROVISIONAL
+release_state: BLUE
