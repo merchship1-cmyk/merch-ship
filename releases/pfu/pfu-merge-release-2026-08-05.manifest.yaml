@@ -22,7 +22,7 @@ evidence_bundle:
 - evidence/pfu/pfu-merge-verdict-2026-08-05.verdict.json
 - evals/pfu/acceptance-checklist.md
 - evals/pfu/kernel-compliance-checklist.md
-- GitHub Actions run 31038939073
+- GitHub Actions run 31030468345
 validation:
   repository_reconciliation: PASS
   commits_behind_main: 0
