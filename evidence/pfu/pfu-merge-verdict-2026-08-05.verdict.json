@@ -1,0 +1,105 @@
+{
+  "authority": {
+    "approval_reference": "Founder command issued 2026-08-05. This command authorizes readiness evaluation and evidence generation, not merge execution.",
+    "authority_id": "FOUNDER-RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "CREATE_CURRENT_HEAD_FINAL_CONFORMANCE_RECORD",
+      "BIND_SCHEMA_VALIDATION_TO_COMMIT_SHA",
+      "COMPLETE_ACCEPTANCE_CHECKLIST",
+      "GENERATE_RELEASE_MANIFEST",
+      "RERUN_MERGE_VERDICT",
+      "REQUEST_EXPLICIT_FOUNDER_MERGE_AUTHORIZATION"
+    ]
+  },
+  "blockers": [],
+  "decision": "GREEN_READY",
+  "deployment_authorization": "NOT_GRANTED",
+  "domain_mutation_authorization": "HOLD",
+  "evaluated_at": "2026-08-05T19:09:00Z",
+  "evaluator": {
+    "actor_id": "PFU-AUTHORIZED-EVIDENCE-ANALYST",
+    "actor_type": "AGENT",
+    "display_name": "PFU Evidence Layer",
+    "role": "Evidence Analyst"
+  },
+  "evidence_event_ids": [
+    "PFU-CONST-RAT-2026-08-05-001",
+    "PFU-MACHINE-LAYER-VALIDATION-2026-08-05-001",
+    "PFU-MACHINE-LAYER-COMMIT-BOUND-VALIDATION-2026-08-05-001",
+    "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001",
+    "GH-ACTIONS-RUN-31030468345"
+  ],
+  "expires_at": null,
+  "gates": {
+    "authority": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "boundary": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "doctrine": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "founder_release": {
+      "evidence_event_ids": [],
+      "notes": "Separate explicit Founder merge authorization required.",
+      "status": "PENDING"
+    },
+    "identity": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "integrity": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "mutation": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "permission": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    },
+    "verification": {
+      "evidence_event_ids": [
+        "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001"
+      ],
+      "status": "PASS"
+    }
+  },
+  "kernel_admission_outcome": "PROVISIONAL",
+  "merge_authorization": "NOT_GRANTED",
+  "merge_readiness": "READY_FOR_FOUNDER_DECISION",
+  "notes": "GREEN_READY is readiness for an explicit Founder merge decision. It is not merge, deployment, runtime, public-release, or domain-mutation authorization.",
+  "release_state": "BLUE",
+  "runtime_activation_authorization": "NOT_GRANTED",
+  "target": {
+    "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+    "pull_request": 17,
+    "target_id": "PFU-FULLSTACK-AGENTIC-STACK",
+    "target_type": "SYSTEM",
+    "version": "1.1.0"
+  },
+  "verdict_id": "PFU-MERGE-VERDICT-2026-08-05-001"
+}

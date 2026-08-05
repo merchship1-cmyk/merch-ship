@@ -1,93 +1,56 @@
 # PFU BMOS Kernel Compliance Checklist
 
-**Evaluation ID:** PFU-KERNEL-EVAL-001  
-**Version:** 1.1  
-**Evaluated head:** `9c742304e798c8c32b7df8ab4ce4fe7fbb531cf1`  
-**Evidence record:** `evidence/pfu/pfu-conformance-revalidation-2026-08-05.record.yaml`  
-**Release state:** BLUE
+**Evaluation:** `PFU-KERNEL-EVAL-002`  
+**Version:** `1.2`  
+**Subject commit:** `3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7`  
+**Evaluated at:** `2026-08-05T19:09:00Z`  
+**Release state:** `BLUE`  
+**Merge verdict:** `GREEN_READY`
 
 ## Repository integrity
-
-- [x] Changes are limited to governed PFU paths relative to `main`.
+- [x] Branch is `0` commits behind `main`.
+- [x] Changes are limited to governed PFU paths.
 - [x] `todo-app/` has zero diff.
-- [x] No runtime, infrastructure, secret, or deployment mutation is included.
-- [ ] Every required machine-layer path exists on the evaluated commit. **BLOCKED: six final JSON schemas are absent.**
-- [x] Existing YAML and JSON Schema documents parse; the ratification event revalidates against `evidence/pfu/evidence-record.schema.yaml`.
+- [x] Z-001 Heritage Integrity run `31030468345` passed.
+- [x] No deployment, runtime, infrastructure, secret, webhook, worker, or Supabase mutation exists.
 
-## Identity and registration
+## Constitutional and domain binding
+- [x] PFU Constitution is ratified.
+- [x] Kernel authorization is `ACTIVE_GOVERNANCE_ONLY`.
+- [x] Kernel admission remains `PROVISIONAL`.
+- [x] MERCH SHIP remains `STRUCTURAL_ONLY`.
+- [x] Founder authority remains required for merge and release.
 
-- [x] BMOS registration and manifests preserve the PFU system identity model.
-- [x] BMOS system ID and version are stable and unique in the evaluated package.
-- [x] MERCH SHIP domain profile has a stable ID, owner, purpose, and parent system.
-- [x] CORE SEVEN capability classes remain distinct from acting identities.
-- [x] Notion control-plane records match GitHub IDs, constitutional state, kernel mode, and BLUE release state.
+## Machine layer
+- [x] Six required Draft 2020-12 schemas are present.
+- [x] Six meta-schema checks passed.
+- [x] Six valid fixtures passed.
+- [x] Six missing-required-field rejection checks passed.
+- [x] Four conditional governance rejection checks passed.
+- [x] All six artifact hashes reconcile.
+- [x] Every schema is bound to `3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7`.
 
-## Authority
-
-- [x] Requester, executor, verifier, approver, and release authority requirements are defined.
-- [x] No agent, engine, domain, or capability receives universal mutation authority.
-- [x] Constitutional amendments and Thesis admission preserve Founder authority unless formal delegation exists.
-- [x] Domain authority does not override the PFU Constitution, PFU Kernel, or BMOS controls.
-
-## Lifecycle and evidence
-
-- [x] Lifecycle states and transition requirements are defined.
-- [x] Silent lifecycle bypass is prohibited.
-- [x] The evidence layer binds proof to system, domain/request where applicable, actor, version, and timestamp.
-- [x] Material contradictory evidence requires explicit resolution.
-- [x] Mutation history is append-only and predecessor states must remain traceable.
-
-## Release truth
-
-- [x] Kernel admission outcomes remain distinct from PFU RED/BLUE/GREEN release states.
-- [x] Structural installation is not described as runtime activation.
-- [x] Feature-branch installation is not described as merged installation.
-- [x] Merge, deployment, production execution, public release, and runtime activation remain separately gated.
-- [x] Final claims include commit SHA, PR state, Notion reconciliation, CI status, and validation evidence.
-
-## MERCH SHIP domain binding
-
-- [x] Runtime and data boundaries are declared.
-- [x] Protected heritage path is declared.
-- [x] BMOS services and Field Operations bindings are declared.
-- [x] Failure, escalation, rollback, evidence, and release policies are declared.
-- [x] Runtime activation remains `STRUCTURAL_ONLY` until separately validated and authorized.
-
-## Post-reconciliation evidence
+## Evidence and release
+- [x] Acceptance checklist is complete.
+- [x] Final conformance record is PASS.
+- [x] Release manifest is complete.
+- [x] GREEN_READY contains zero blockers.
+- [x] GREEN_READY means readiness for a Founder decision, not merge authorization.
 
 ```text
-SYNC_PR = MERGED_19_INTO_FEATURE_BRANCH
-RECONCILED_HEAD = 9c742304e798c8c32b7df8ab4ce4fe7fbb531cf1
-COMMITS_AHEAD_OF_MAIN = 31
-COMMITS_BEHIND_MAIN = 0
-REPOSITORY_DIVERGENCE = RESOLVED
-TODO_APP_DIFF = 0
-HERITAGE_INTEGRITY = PASS
+PFU_STATIC_CONFORMANCE = PASS
 EVIDENCE_SCHEMA_REVALIDATION = PASS
 KERNEL_CONSTITUTION_BINDING = VALID
-KERNEL_MODE = ACTIVE_GOVERNANCE_ONLY
-PFU_STATIC_CONFORMANCE = PASS
-MACHINE_LAYER_JSON_SCHEMAS = MISSING_6
-KERNEL_ADMISSION_OUTCOME = PROVISIONAL
-PFU_RELEASE_STATE = BLUE
-MERGE_VERDICT = HOLD
+MACHINE_LAYER_SCHEMA_VALIDATION = PASS
+ACCEPTANCE_CHECKLIST = PASS
+RELEASE_MANIFEST = COMPLETE
+MERGE_VERDICT = GREEN_READY
+MERGE_READINESS = READY_FOR_FOUNDER_DECISION
 MERGE_AUTHORIZATION = NOT_GRANTED
+PFU_RELEASE_STATE = BLUE
 DEPLOYMENT = NOT_AUTHORIZED
 RUNTIME_ACTIVATION = NOT_AUTHORIZED
 DOMAIN_MUTATION = HOLD
 ```
 
-## Blocking machine-layer artifacts
-
-- `capability.schema.json`
-- `domain-contract.schema.json`
-- `lifecycle-state.schema.json`
-- `evidence-event.schema.json`
-- `mutation-request.schema.json`
-- `release-verdict.schema.json`
-
-## Evaluation verdict
-
-**HOLD — STATIC GOVERNANCE CONFORMANCE PASSED; FINAL MACHINE LAYER IS INCOMPLETE.**
-
-Next authorized action: generate and validate the six PFU machine-layer JSON schemas, then rerun final repository conformance and merge-verdict evaluation. This checklist does not authorize merging PR #17, deployment, runtime activation, domain mutation, or Thesis admission.
+**GREEN_READY:** all pre-Founder merge-readiness controls pass for `3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7`. No merge, deployment, runtime activation, public release, domain mutation, or Thesis admission is authorized by this checklist.

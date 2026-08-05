@@ -1,0 +1,49 @@
+release_id: PFU-MERGE-CANDIDATE-2026-08-05-001
+system_id: PFU-FULLSTACK-AGENTIC-STACK
+system_version: 1.1.0
+release_type: GOVERNANCE_MERGE_CANDIDATE
+created_at: '2026-08-05T19:09:00Z'
+policy_version: 1.0.0
+workflow_version: 1.0.0
+prompt_version: 1.0.0
+agent_versions:
+- agent_id: PFU-AGT-EVAL-001
+  version: 1.0.0
+- agent_id: PFU-AUTHORIZED-EVIDENCE-ANALYST
+  version: 1.0.0
+commit_sha: 3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7
+pull_request: 17
+branch: agent/install-bmos-pfu-kernel-v1
+evidence_bundle:
+- evidence/pfu/pfu-constitution-ratification.event.yaml
+- evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json
+- evidence/pfu/machine-layer-schema-validation-2026-08-05.commit-bound.event.json
+- evidence/pfu/final-merch-ship-conformance-2026-08-05.event.json
+- evidence/pfu/pfu-merge-verdict-2026-08-05.verdict.json
+- evals/pfu/acceptance-checklist.md
+- evals/pfu/kernel-compliance-checklist.md
+- GitHub Actions run 31030468345
+validation:
+  repository_reconciliation: PASS
+  commits_behind_main: 0
+  heritage_integrity: PASS
+  pfu_static_conformance: PASS
+  evidence_schema_revalidation: PASS
+  kernel_constitution_binding: VALID
+  machine_layer_schema_count: 6
+  machine_layer_schema_validation: PASS
+  acceptance_checklist: PASS
+decision:
+  merge_verdict: GREEN_READY
+  merge_readiness: READY_FOR_FOUNDER_DECISION
+  release_state: BLUE
+  kernel_admission_outcome: PROVISIONAL
+  merge_authorization: NOT_GRANTED
+  deployment_authorization: NOT_GRANTED
+  runtime_activation_authorization: NOT_GRANTED
+  domain_mutation_authorization: HOLD
+approval:
+  status: PENDING_EXPLICIT_FOUNDER_MERGE_AUTHORIZATION
+  required_authority: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+  request: 'Explicitly authorize or reject merging PR #17 into main.'
+  scope: MERGE_PR_17_INTO_MAIN_ONLY

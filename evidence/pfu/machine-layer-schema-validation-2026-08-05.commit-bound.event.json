@@ -1,0 +1,191 @@
+{
+  "actor": {
+    "actor_id": "PFU-AUTHORIZED-EVIDENCE-ANALYST",
+    "actor_type": "AGENT",
+    "display_name": "PFU Evidence Layer",
+    "role": "Evidence Analyst"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "PFU-SCHEMA-CAPABILITY",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/capability.schema.json",
+      "sha256": "28d50f736c627d7cfef83d2892b2ba1d8c6799cff73d3e3dedf89d18a97ce8a2"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-DOMAIN-CONTRACT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/domain-contract.schema.json",
+      "sha256": "62513370791085fea65cd7c47ec9b168cb5ef8cb0c275a9ef919213c4f573c60"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-LIFECYCLE-STATE",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/lifecycle-state.schema.json",
+      "sha256": "acae07a1fdec50585ec935ab86b55b1642dec09430422716e041800c0374c3da"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-EVIDENCE-EVENT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/evidence-event.schema.json",
+      "sha256": "ebe73ddcf48c273c4ed8e5471cbc43ad2ff73afd18e32f5c429526ea306f50c9"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-MUTATION-REQUEST",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/mutation-request.schema.json",
+      "sha256": "e766b8c0bd864f230f5cabd9ecffbc3cde2e0f67c20b741b390c20f3dfebb4ab"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-RELEASE-VERDICT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/release-verdict.schema.json",
+      "sha256": "b7beb2b5ed0e259217ac635a1da3d8f2fda7d3b0df2e6570637379f3e8f53e16"
+    }
+  ],
+  "authority": {
+    "approval_reference": "Founder command issued 2026-08-05. This command authorizes readiness evaluation and evidence generation, not merge execution.",
+    "authority_id": "FOUNDER-RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "CREATE_CURRENT_HEAD_FINAL_CONFORMANCE_RECORD",
+      "BIND_SCHEMA_VALIDATION_TO_COMMIT_SHA",
+      "COMPLETE_ACCEPTANCE_CHECKLIST",
+      "GENERATE_RELEASE_MANIFEST",
+      "RERUN_MERGE_VERDICT",
+      "REQUEST_EXPLICIT_FOUNDER_MERGE_AUTHORIZATION"
+    ]
+  },
+  "controls": [
+    {
+      "control_id": "PFU-ML-COMMIT-BINDING-001",
+      "evidence": [
+        "Six schemas bound to 3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7."
+      ],
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-ML-HASH-RECONCILIATION-001",
+      "evidence": [
+        "Six schema hashes reconcile."
+      ],
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-ML-VALIDATION-001",
+      "evidence": [
+        "6 meta-schema, 6 positive fixture, 6 required-field rejection, and 4 conditional rejection checks passed."
+      ],
+      "status": "PASS"
+    }
+  ],
+  "defects": [],
+  "event_id": "PFU-MACHINE-LAYER-COMMIT-BOUND-VALIDATION-2026-08-05-001",
+  "event_type": "VALIDATION",
+  "immutable": true,
+  "inputs": [
+    {
+      "required_schema_count": 6
+    },
+    {
+      "subject_commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7"
+    }
+  ],
+  "kernel_admission_outcome": "PROVISIONAL",
+  "mutations": [
+    {
+      "mutation_type": "commit_bound_attestation",
+      "permitted": true,
+      "target": "evidence/pfu/"
+    },
+    {
+      "mutation_type": "merge",
+      "permitted": false,
+      "target": "main"
+    },
+    {
+      "mutation_type": "activation",
+      "permitted": false,
+      "target": "runtime_or_deployment"
+    }
+  ],
+  "next_authorized_action": "Run final conformance and request an explicit Founder merge decision.",
+  "occurred_at": "2026-08-05T19:09:00Z",
+  "outputs": [
+    {
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "schema_name": "capability.schema.json",
+      "timestamp": "2026-08-05T19:09:00Z",
+      "validated": true,
+      "validator": "PFU Evidence Layer"
+    },
+    {
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "schema_name": "domain-contract.schema.json",
+      "timestamp": "2026-08-05T19:09:00Z",
+      "validated": true,
+      "validator": "PFU Evidence Layer"
+    },
+    {
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "schema_name": "lifecycle-state.schema.json",
+      "timestamp": "2026-08-05T19:09:00Z",
+      "validated": true,
+      "validator": "PFU Evidence Layer"
+    },
+    {
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "schema_name": "evidence-event.schema.json",
+      "timestamp": "2026-08-05T19:09:00Z",
+      "validated": true,
+      "validator": "PFU Evidence Layer"
+    },
+    {
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "schema_name": "mutation-request.schema.json",
+      "timestamp": "2026-08-05T19:09:00Z",
+      "validated": true,
+      "validator": "PFU Evidence Layer"
+    },
+    {
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "schema_name": "release-verdict.schema.json",
+      "timestamp": "2026-08-05T19:09:00Z",
+      "validated": true,
+      "validator": "PFU Evidence Layer"
+    }
+  ],
+  "provenance": {
+    "branch": "agent/install-bmos-pfu-kernel-v1",
+    "repository": "merchship1-cmyk/merch-ship",
+    "source_refs": [
+      "contracts/pfu/machine/capability.schema.json",
+      "contracts/pfu/machine/domain-contract.schema.json",
+      "contracts/pfu/machine/lifecycle-state.schema.json",
+      "contracts/pfu/machine/evidence-event.schema.json",
+      "contracts/pfu/machine/mutation-request.schema.json",
+      "contracts/pfu/machine/release-verdict.schema.json",
+      "evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json"
+    ]
+  },
+  "recorded_at": "2026-08-05T19:09:00Z",
+  "release_state": "BLUE",
+  "residual_risks": [
+    "Explicit Founder merge authorization remains pending."
+  ],
+  "subject": {
+    "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+    "subject_id": "PFU-MACHINE-LAYER",
+    "subject_type": "SYSTEM",
+    "version": "1.0.0"
+  },
+  "verdict": "PASS"
+}

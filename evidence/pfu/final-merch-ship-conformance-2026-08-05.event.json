@@ -1,0 +1,225 @@
+{
+  "actor": {
+    "actor_id": "PFU-AUTHORIZED-EVIDENCE-ANALYST",
+    "actor_type": "AGENT",
+    "display_name": "PFU Evidence Layer",
+    "role": "Evidence Analyst"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "PFU-SCHEMA-CAPABILITY",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/capability.schema.json",
+      "sha256": "28d50f736c627d7cfef83d2892b2ba1d8c6799cff73d3e3dedf89d18a97ce8a2"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-DOMAIN-CONTRACT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/domain-contract.schema.json",
+      "sha256": "62513370791085fea65cd7c47ec9b168cb5ef8cb0c275a9ef919213c4f573c60"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-LIFECYCLE-STATE",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/lifecycle-state.schema.json",
+      "sha256": "acae07a1fdec50585ec935ab86b55b1642dec09430422716e041800c0374c3da"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-EVIDENCE-EVENT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/evidence-event.schema.json",
+      "sha256": "ebe73ddcf48c273c4ed8e5471cbc43ad2ff73afd18e32f5c429526ea306f50c9"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-MUTATION-REQUEST",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/mutation-request.schema.json",
+      "sha256": "e766b8c0bd864f230f5cabd9ecffbc3cde2e0f67c20b741b390c20f3dfebb4ab"
+    },
+    {
+      "artifact_id": "PFU-SCHEMA-RELEASE-VERDICT",
+      "artifact_type": "json_schema_draft_2020_12",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "contracts/pfu/machine/release-verdict.schema.json",
+      "sha256": "b7beb2b5ed0e259217ac635a1da3d8f2fda7d3b0df2e6570637379f3e8f53e16"
+    },
+    {
+      "artifact_id": "PFU-ACCEPTANCE-CHECKLIST-2026-08-05",
+      "artifact_type": "markdown_evaluation",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "evals/pfu/acceptance-checklist.md",
+      "sha256": "ddc1523c60b7a8bd7cb278b78bae0a25663f41363c2861479a92937944f480f8"
+    },
+    {
+      "artifact_id": "PFU-KERNEL-CHECKLIST-2026-08-05",
+      "artifact_type": "markdown_evaluation",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "evals/pfu/kernel-compliance-checklist.md",
+      "sha256": "88dd4405903d4a7617b98be8ff147614c2ce52147ea850d34662e94e460d8290"
+    },
+    {
+      "artifact_id": "PFU-COMMIT-BOUND-VALIDATION-2026-08-05",
+      "artifact_type": "json_evidence_event",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "evidence/pfu/machine-layer-schema-validation-2026-08-05.commit-bound.event.json",
+      "sha256": "1f544d610500adcd8c0ca92bb6bfe549398a4805668b8a29b3bf36c7c04adaca"
+    },
+    {
+      "artifact_id": "PFU-MERGE-RELEASE-MANIFEST-2026-08-05",
+      "artifact_type": "yaml_release_manifest",
+      "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+      "location": "releases/pfu/pfu-merge-release-2026-08-05.manifest.yaml",
+      "sha256": "12963a842f385d6808bf5d0beb70cb0717dc0ffb25cc61db21905afd57e2f9d9"
+    }
+  ],
+  "authority": {
+    "approval_reference": "Founder command issued 2026-08-05. This command authorizes readiness evaluation and evidence generation, not merge execution.",
+    "authority_id": "FOUNDER-RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "CREATE_CURRENT_HEAD_FINAL_CONFORMANCE_RECORD",
+      "BIND_SCHEMA_VALIDATION_TO_COMMIT_SHA",
+      "COMPLETE_ACCEPTANCE_CHECKLIST",
+      "GENERATE_RELEASE_MANIFEST",
+      "RERUN_MERGE_VERDICT",
+      "REQUEST_EXPLICIT_FOUNDER_MERGE_AUTHORIZATION"
+    ]
+  },
+  "controls": [
+    {
+      "control_id": "PFU-GATE-IDENTITY-001",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-DOCTRINE-001",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-AUTHORITY-001",
+      "notes": "Readiness-evaluation authority is present; merge authority is separately pending.",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-PERMISSION-001",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-BOUNDARY-001",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-INTEGRITY-001",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-MUTATION-001",
+      "status": "PASS"
+    },
+    {
+      "control_id": "PFU-GATE-VERIFICATION-001",
+      "status": "PASS"
+    }
+  ],
+  "defects": [],
+  "event_id": "PFU-FINAL-MERCH-SHIP-CONFORMANCE-2026-08-05-001",
+  "event_type": "CONFORMANCE",
+  "immutable": true,
+  "inputs": [
+    {
+      "pull_request": 17
+    },
+    {
+      "subject_commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7"
+    },
+    {
+      "commits_behind_main": 0
+    },
+    {
+      "heritage_integrity_workflow_run": 31030468345
+    }
+  ],
+  "kernel_admission_outcome": "PROVISIONAL",
+  "mutations": [
+    {
+      "mutation_type": "governance_evidence_commit",
+      "permitted": true,
+      "target": "agent/install-bmos-pfu-kernel-v1"
+    },
+    {
+      "mutation_type": "merge_pr_17",
+      "permitted": false,
+      "target": "main"
+    },
+    {
+      "mutation_type": "activate",
+      "permitted": false,
+      "target": "deployment_or_runtime"
+    }
+  ],
+  "next_authorized_action": "Founder must explicitly authorize or reject merging PR #17 into main.",
+  "occurred_at": "2026-08-05T19:09:00Z",
+  "outputs": [
+    {
+      "pfu_static_conformance": "PASS"
+    },
+    {
+      "evidence_schema_revalidation": "PASS"
+    },
+    {
+      "kernel_constitution_binding": "VALID"
+    },
+    {
+      "machine_layer_schema_validation": "PASS"
+    },
+    {
+      "acceptance_checklist": "PASS"
+    },
+    {
+      "release_manifest": "COMPLETE"
+    },
+    {
+      "merge_verdict": "GREEN_READY"
+    },
+    {
+      "merge_readiness": "READY_FOR_FOUNDER_DECISION"
+    },
+    {
+      "merge_authorization": "NOT_GRANTED"
+    }
+  ],
+  "provenance": {
+    "branch": "agent/install-bmos-pfu-kernel-v1",
+    "repository": "merchship1-cmyk/merch-ship",
+    "source_refs": [
+      "docs/pfu/constitution/pfu-constitution-v1.md",
+      "docs/pfu/kernel/pfu-os-kernel-spec-v1.md",
+      "pfu-system.manifest.yaml",
+      "manifests/pfu/domains/merch-ship-runtime-profile.yaml",
+      "policies/pfu/release-policy.yaml",
+      "evals/pfu/acceptance-checklist.md",
+      "evals/pfu/kernel-compliance-checklist.md",
+      "evidence/pfu/machine-layer-schema-validation-2026-08-05.commit-bound.event.json",
+      "releases/pfu/pfu-merge-release-2026-08-05.manifest.yaml"
+    ]
+  },
+  "recorded_at": "2026-08-05T19:09:00Z",
+  "release_state": "BLUE",
+  "residual_risks": [
+    "Explicit Founder merge authorization remains pending.",
+    "Deployment, runtime activation, public release, and domain mutation remain unauthorized."
+  ],
+  "subject": {
+    "commit_sha": "3d9eb6f9e3198bd7fa36c948b86be5c652fdcff7",
+    "subject_id": "PFU-FULLSTACK-AGENTIC-STACK",
+    "subject_type": "SYSTEM",
+    "version": "1.1.0"
+  },
+  "verdict": "PASS"
+}
