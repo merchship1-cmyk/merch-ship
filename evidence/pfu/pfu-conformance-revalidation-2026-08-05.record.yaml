@@ -1,0 +1,110 @@
+execution_id: PFU-CONFORMANCE-REVALIDATION-2026-08-05-001
+timestamp: "2026-08-05T17:15:45Z"
+system_id: PFU-FULLSTACK-AGENTIC-STACK
+system_version: "1.1.0"
+actor:
+  actor_id: CHATGPT-PFU-EVIDENCE-ANALYST
+  actor_type: authorized_software_agent
+  role: Evidence Analyst
+authority:
+  source: explicit_founder_command
+  requested_sequence:
+    - merge_main_into_feature_branch
+    - pfu_conformance_revalidation
+    - evidence_schema_revalidation
+    - kernel_constitution_binding_check
+    - merge_verdict_evaluation
+  merge_scope: main_into_feature_branch_only
+inputs:
+  - repository: merchship1-cmyk/merch-ship
+    pull_request: 17
+    base_branch: main
+    base_sha: 35a83254ee5e2bfbfb4a72b373b54b97135eae3c
+    feature_branch: agent/install-bmos-pfu-kernel-v1
+    reconciled_head_sha: 9c742304e798c8c32b7df8ab4ce4fe7fbb531cf1
+  - sync_pull_request: 19
+    sync_merge_sha: 9c742304e798c8c32b7df8ab4ce4fe7fbb531cf1
+  - constitution: docs/pfu/constitution/pfu-constitution-v1.md
+  - kernel: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
+  - system_manifest: pfu-system.manifest.yaml
+  - domain_profile: manifests/pfu/domains/merch-ship-runtime-profile.yaml
+  - evidence_schema: evidence/pfu/evidence-record.schema.yaml
+  - ratification_event: evidence/pfu/pfu-constitution-ratification.event.yaml
+tools_invoked:
+  - GitHub connector
+  - JSON Schema Draft 2020-12 validator
+outputs:
+  - repository_divergence: RESOLVED
+  - commits_ahead_of_main: 31
+  - commits_behind_main: 0
+  - protected_todo_app_diff: 0
+  - heritage_integrity_workflow: PASS
+  - pfu_static_conformance: PASS
+  - evidence_schema_revalidation: PASS
+  - kernel_constitution_binding: VALID
+  - kernel_mode: ACTIVE_GOVERNANCE_ONLY
+  - pfu_release_state: BLUE
+  - kernel_admission_outcome: PROVISIONAL
+  - merge_verdict: HOLD
+validation:
+  - control: repository_divergence
+    status: PASS
+    evidence: main is merge base; branch is 31 ahead and 0 behind
+  - control: protected_boundary
+    status: PASS
+    evidence: no changed files under todo-app/
+  - control: heritage_integrity
+    status: PASS
+    evidence: Z-001 Heritage Integrity run 31029199945 completed successfully
+  - control: evidence_schema
+    status: PASS
+    evidence: ratification event validates against evidence/pfu/evidence-record.schema.yaml
+  - control: constitution_binding
+    status: PASS
+    evidence: Constitution, kernel, system manifest, and domain profile share RATIFIED / ACTIVE_GOVERNANCE_ONLY / BLUE boundaries
+  - control: machine_layer_presence
+    status: FAIL
+    evidence: six final PFU machine-layer JSON schemas are absent from contracts/pfu/
+mutations:
+  - target: agent/install-bmos-pfu-kernel-v1
+    type: merge_main_into_feature_branch
+    permitted: true
+    pull_request: 19
+  - target: evidence/pfu/pfu-conformance-revalidation-2026-08-05.record.yaml
+    type: evidence_addition
+    permitted: true
+  - target: main
+    type: merge_pr_17
+    permitted: false
+  - target: runtime_or_deployment
+    type: activation
+    permitted: false
+artifacts:
+  - evidence/pfu/pfu-conformance-revalidation-2026-08-05.record.yaml
+  - evals/pfu/kernel-compliance-checklist.md
+  - https://github.com/merchship1-cmyk/merch-ship/pull/17
+  - https://github.com/merchship1-cmyk/merch-ship/pull/19
+defects:
+  - capability.schema.json is absent
+  - domain-contract.schema.json is absent
+  - lifecycle-state.schema.json is absent
+  - evidence-event.schema.json is absent
+  - mutation-request.schema.json is absent
+  - release-verdict.schema.json is absent
+residual_risks:
+  - PR 17 remains draft and unmerged
+  - repository conformance against the final machine layer cannot run until the six JSON schemas exist
+  - deployment, runtime activation, domain mutation, and Thesis admission remain unauthorized
+release_manifest:
+  pfu_conformance: PASS_STATIC
+  evidence_schema_revalidation: PASS
+  kernel_constitution_binding: VALID
+  kernel_admission_outcome: PROVISIONAL
+  pfu_release_state: BLUE
+  merge_verdict: HOLD
+  merge_authorization: NOT_GRANTED
+  deployment_authorization: NOT_GRANTED
+  runtime_activation: NOT_GRANTED
+  domain_mutation: HOLD
+verdict: BLUE
+next_authorized_action: Generate and validate the six PFU machine-layer JSON schemas, then rerun final repository conformance and merge verdict evaluation.
