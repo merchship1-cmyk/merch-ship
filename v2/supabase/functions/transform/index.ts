@@ -3,6 +3,7 @@ import {
   modelTransformationJsonSchema,
   type ModelTransformation,
 } from '../../../contracts/transformation-contract.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.111.0';
 
 type OpenAIResponse = {
   error?: { message?: string };
@@ -12,6 +13,10 @@ type OpenAIResponse = {
 };
 
 const apiKey = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServerKey =
+  Deno.env.get('SUPABASE_SECRET_KEY') ??
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const model = Deno.env.get('OPENAI_MODEL') ?? 'gpt-5.6-sol';
 const reasoningEffort =
   Deno.env.get('OPENAI_REASONING_EFFORT') ?? 'low';
@@ -37,6 +42,16 @@ const extractOutputText = (payload: OpenAIResponse) =>
     ?.flatMap((item) => item.content ?? [])
     .find((content) => content.type === 'output_text')?.text;
 
+const getBearerToken = (request: Request) => {
+  const authorization = request.headers.get('authorization');
+  if (!authorization) {
+    return null;
+  }
+
+  const [scheme, token, extra] = authorization.trim().split(/\s+/);
+  return scheme?.toLowerCase() === 'bearer' && token && !extra ? token : null;
+};
+
 const instructions = [
   'Role: Zenzy operational transformation engine.',
   'Goal: turn one messy or unfinished input into a clear first execution result.',
@@ -54,13 +69,48 @@ Deno.serve(async (request) => {
     return json({ error: 'Method not allowed.' }, 405);
   }
 
+  if (!supabaseUrl || !supabaseServerKey) {
+    return json({ error: 'Persistence service is not configured.' }, 503);
+  }
+
+  const token = getBearerToken(request);
+  if (!token) {
+    return json({ error: 'Unauthorized.' }, 401);
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServerKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const {
+    data: { user },
+    error: userError,
+  } = await supabaseAdmin.auth.getUser(token);
+
+  if (userError || !user) {
+    return json({ error: 'Unauthorized.' }, 401);
+  }
+
   if (!apiKey) {
     return json({ error: 'Transformation service is not configured.' }, 503);
   }
 
   let input = '';
   try {
-    const body = (await request.json()) as { input?: unknown };
+    const parsed: unknown = await request.json();
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      return json({ error: 'Request body must be a JSON object.' }, 400);
+    }
+    const body = parsed as Record<string, unknown>;
+    if (
+      Object.prototype.hasOwnProperty.call(body, 'user_id') ||
+      Object.prototype.hasOwnProperty.call(body, 'userId')
+    ) {
+      return json({ error: 'Ownership is derived from the access token.' }, 400);
+    }
     input = typeof body.input === 'string' ? body.input.trim() : '';
   } catch {
     return json({ error: 'Request body must be valid JSON.' }, 400);
@@ -115,10 +165,31 @@ Deno.serve(async (request) => {
     return json({ error: 'Transformation output failed validation.' }, 502);
   }
 
-  return json({
-    id: crypto.randomUUID(),
+  const runId = crypto.randomUUID();
+  const generatedAt = new Date().toISOString();
+  const result = {
+    id: runId,
     sourceInput: input,
     ...transformation,
-    generatedAt: new Date().toISOString(),
-  });
+    generatedAt,
+  };
+
+  const { error: persistenceError } = await supabaseAdmin
+    .from('zenzy_transformation_runs')
+    .insert({
+      id: runId,
+      user_id: user.id,
+      source_input: input,
+      result,
+      provider: 'openai',
+      model,
+      status: 'generated',
+    });
+
+  if (persistenceError) {
+    console.error('Transformation persistence failed:', persistenceError.code);
+    return json({ error: 'Transformation could not be stored.' }, 500);
+  }
+
+  return json(result);
 });

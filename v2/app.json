@@ -7,6 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "scheme": "zenzy",
+    "plugins": ["expo-secure-store"],
     "ios": {
       "supportsTablet": true
     },
