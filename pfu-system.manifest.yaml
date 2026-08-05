@@ -4,12 +4,21 @@ system_version: "1.1.0"
 status: CANON_CANDIDATE
 owner: Ryan Richard Levack-Carr
 purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
+constitution:
+  constitution_id: PFU-CONSTITUTION
+  version: "1.0.0"
+  state: RATIFIED
+  document: docs/pfu/constitution/pfu-constitution-v1.md
+  ratification_event: evidence/pfu/pfu-constitution-ratification.event.yaml
+  ratified_by: Ryan Richard Levack-Carr
+  ratified_at: "2026-08-05T16:20:00Z"
+  enforcement_scope: GOVERNANCE_ONLY
+  release_state: BLUE
 authority_chain:
   - FOUNDER
-  - ZENZY_PRIME_CORE
-  - ZENZY_ARCHON
-  - ZENZY_FUSION_ENGINE
-  - PFU_RUNTIME
+  - PFU_CONSTITUTION
+  - PFU_KERNEL
+  - BMOS_CONSTITUTIONAL_OS
   - AUTHORIZED_SUBSYSTEM
 registry:
   human_control_plane: Notion
@@ -47,12 +56,14 @@ registered_domains:
     status: STRUCTURAL_ONLY
 kernel:
   specification: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
+  constitutional_authorization: ACTIVE_GOVERNANCE_ONLY
   enforcement_policy: policies/pfu/kernel-enforcement-rules.yaml
   lifecycle: flows/pfu/capability-lifecycle.yaml
   capability_contract: contracts/pfu/capability-registration.schema.yaml
   domain_contract: contracts/pfu/domain-runtime.schema.yaml
   enforcement_evidence_contract: evidence/pfu/kernel-enforcement-record.schema.yaml
   installation_evidence: evidence/pfu/bmos-kernel-installation.record.yaml
+  ratification_evidence: evidence/pfu/pfu-constitution-ratification.event.yaml
   compliance_evaluation: evals/pfu/kernel-compliance-checklist.md
 protected_boundaries:
   - todo-app/
@@ -61,7 +72,9 @@ registration_contract: contracts/pfu/system-registration.schema.yaml
 evidence_contract: evidence/pfu/evidence-record.schema.yaml
 claim_boundaries:
   feature_branch_structure: allowed
+  constitutional_ratification: recorded_on_governed_branch_and_notion
   merge: explicit_founder_authority_required
   deployment: not_authorized
   runtime_activation: not_authorized
   production_execution: not_authorized
+  domain_mutation: hold
