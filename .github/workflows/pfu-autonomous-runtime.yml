@@ -1,0 +1,64 @@
+name: PFU Autonomous Runtime
+
+on:
+  pull_request:
+    paths:
+      - "v2/pfu-runtime/**"
+      - "v2/supabase/migrations/*pfu_autonomous_runtime_ledger.sql"
+      - ".github/workflows/pfu-autonomous-runtime.yml"
+  push:
+    branches:
+      - "agent/install-pfu-autonomous-runtime-v1"
+    paths:
+      - "v2/pfu-runtime/**"
+      - "v2/supabase/migrations/*pfu_autonomous_runtime_ledger.sql"
+      - ".github/workflows/pfu-autonomous-runtime.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  worker-contract:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2/pfu-runtime/worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify worker
+        run: npm run verify
+
+  ledger-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify immutable ledger contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("v2/supabase/migrations/20260804144700_pfu_autonomous_runtime_ledger.sql")
+          sql = path.read_text()
+          required = [
+              "create table if not exists public.pfu_events",
+              "unique (source_system, source_event_id)",
+              "unique (idempotency_key)",
+              "create table if not exists public.pfu_evidence",
+              "create trigger pfu_events_immutable",
+              "create trigger pfu_evidence_immutable",
+              "alter table public.pfu_events enable row level security",
+              "revoke all on public.pfu_events from anon, authenticated",
+              "grant select, insert on public.pfu_events to service_role",
+              "'PFU-AUTO-GITHUB-INGRESS-001'",
+              "false",
+          ]
+          missing = [fragment for fragment in required if fragment not in sql]
+          if missing:
+              raise SystemExit(f"Missing ledger controls: {missing}")
+          print("PFU ledger contract: PASS")
+          PY
