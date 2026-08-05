@@ -1,0 +1,103 @@
+{
+  "authority": {
+    "approval_reference": "Founder authorized profile migration and evaluation, while explicitly prohibiting merge and deployment.",
+    "authority_id": "RYAN-RICHARD-LEVACK-CARR",
+    "authority_type": "FOUNDER",
+    "delegation_record": null,
+    "expires_at": null,
+    "scope": [
+      "migrate_merch_ship_domain_profile",
+      "validate_domain_contract",
+      "rerun_final_conformance",
+      "rerun_merge_verdict"
+    ]
+  },
+  "blockers": [
+    "No GitHub Actions workflow run or status is attached to commit 750de6dfb1ce3906baa077ae15bcaf552956371a at evaluation time."
+  ],
+  "decision": "HOLD",
+  "deployment_authorization": "NOT_GRANTED",
+  "domain_mutation_authorization": "HOLD",
+  "evaluated_at": "2026-08-05T21:19:00Z",
+  "evaluator": {
+    "actor_id": "OPENAI-CHATGPT-GPT-5-6",
+    "actor_type": "AGENT",
+    "display_name": "ChatGPT",
+    "role": "PFU Authorized Implementor and Evidence Analyst"
+  },
+  "evidence_event_ids": [
+    "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+  ],
+  "expires_at": null,
+  "gates": {
+    "authority": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "notes": "Authority covers migration and evaluation only; merge and deployment are explicitly prohibited.",
+      "status": "PASS"
+    },
+    "boundary": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "status": "PASS"
+    },
+    "doctrine": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "status": "PASS"
+    },
+    "founder_release": {
+      "evidence_event_ids": [],
+      "notes": "The command explicitly prohibited merge and deployment.",
+      "status": "NOT_APPLICABLE"
+    },
+    "identity": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "status": "PASS"
+    },
+    "integrity": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "status": "PASS"
+    },
+    "mutation": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "status": "PASS"
+    },
+    "permission": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "status": "PASS"
+    },
+    "verification": {
+      "evidence_event_ids": [
+        "PFU-MERCH-SHIP-CONFORMANCE-2026-08-05-002"
+      ],
+      "notes": "Domain-contract validation passed, but no current CI/status run is attached to the migration commit.",
+      "status": "PENDING"
+    }
+  },
+  "kernel_admission_outcome": "PROVISIONAL",
+  "merge_authorization": "NOT_GRANTED",
+  "merge_readiness": "NOT_READY",
+  "notes": "The 12 domain-contract defects are resolved. Merge readiness remains on HOLD only until current-commit CI is observed and passes. No merge or deployment is authorized.",
+  "release_state": "BLUE",
+  "runtime_activation_authorization": "NOT_GRANTED",
+  "target": {
+    "commit_sha": "750de6dfb1ce3906baa077ae15bcaf552956371a",
+    "pull_request": 17,
+    "target_id": "PFU-DOMAIN-MERCH-SHIP",
+    "target_type": "DOMAIN",
+    "version": "1.0.0"
+  },
+  "verdict_id": "PFU-MERGE-VERDICT-PR17-2026-08-05-002"
+}
