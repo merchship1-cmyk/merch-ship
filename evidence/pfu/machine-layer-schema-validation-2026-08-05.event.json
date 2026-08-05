@@ -11,42 +11,42 @@
       "artifact_type": "json_schema_draft_2020_12",
       "commit_sha": null,
       "location": "contracts/pfu/machine/capability.schema.json",
-      "sha256": "0b8766b6e86e67acdee92a29b172edf01bb31ded6ce447459ba9703d46fcfae5"
+      "sha256": "28d50f736c627d7cfef83d2892b2ba1d8c6799cff73d3e3dedf89d18a97ce8a2"
     },
     {
       "artifact_id": "PFU-SCHEMA-DOMAIN_CONTRACT",
       "artifact_type": "json_schema_draft_2020_12",
       "commit_sha": null,
       "location": "contracts/pfu/machine/domain-contract.schema.json",
-      "sha256": "da3a41f02f685368a68d6b8b098642017e0d838088fa93535bcde100dd99ee69"
+      "sha256": "62513370791085fea65cd7c47ec9b168cb5ef8cb0c275a9ef919213c4f573c60"
     },
     {
       "artifact_id": "PFU-SCHEMA-LIFECYCLE_STATE",
       "artifact_type": "json_schema_draft_2020_12",
       "commit_sha": null,
       "location": "contracts/pfu/machine/lifecycle-state.schema.json",
-      "sha256": "a112a67321440b3f9071ea81f664996172b1a1226e5dd4f94b88b69f460d951d"
+      "sha256": "acae07a1fdec50585ec935ab86b55b1642dec09430422716e041800c0374c3da"
     },
     {
       "artifact_id": "PFU-SCHEMA-EVIDENCE_EVENT",
       "artifact_type": "json_schema_draft_2020_12",
       "commit_sha": null,
       "location": "contracts/pfu/machine/evidence-event.schema.json",
-      "sha256": "7c97546de5d45c1dce004db41aa7a15cb6f3e779adcbbd4dbc1f548d86f910ba"
+      "sha256": "ebe73ddcf48c273c4ed8e5471cbc43ad2ff73afd18e32f5c429526ea306f50c9"
     },
     {
       "artifact_id": "PFU-SCHEMA-MUTATION_REQUEST",
       "artifact_type": "json_schema_draft_2020_12",
       "commit_sha": null,
       "location": "contracts/pfu/machine/mutation-request.schema.json",
-      "sha256": "09b82034de86c8b91c1f16b11640c2af25f9612f47c582866039bcea20339ae2"
+      "sha256": "e766b8c0bd864f230f5cabd9ecffbc3cde2e0f67c20b741b390c20f3dfebb4ab"
     },
     {
       "artifact_id": "PFU-SCHEMA-RELEASE_VERDICT",
       "artifact_type": "json_schema_draft_2020_12",
       "commit_sha": null,
       "location": "contracts/pfu/machine/release-verdict.schema.json",
-      "sha256": "2ecedcc91c6ec3672a9a05bd1f2025c32d658d15b3f72759c1d6ca592db38f8e"
+      "sha256": "b7beb2b5ed0e259217ac635a1da3d8f2fda7d3b0df2e6570637379f3e8f53e16"
     }
   ],
   "authority": {
