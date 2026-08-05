@@ -15,10 +15,16 @@ import { colors, spacing } from '../theme';
 type Props = {
   loading: boolean;
   error: string | null;
+  remoteAuthenticated?: boolean;
   onStart: (input: string) => Promise<void>;
 };
 
-export function StartScreen({ loading, error, onStart }: Props) {
+export function StartScreen({
+  loading,
+  error,
+  remoteAuthenticated = false,
+  onStart,
+}: Props) {
   const [input, setInput] = useState('');
 
   return (
@@ -69,9 +75,13 @@ export function StartScreen({ loading, error, onStart }: Props) {
         />
 
         <View style={styles.promise}>
-          <Text style={styles.promiseTitle}>No account required</Text>
+          <Text style={styles.promiseTitle}>
+            {remoteAuthenticated ? 'Identity protected' : 'No account required'}
+          </Text>
           <Text style={styles.promiseText}>
-            Your first useful result comes before sign-up.
+            {remoteAuthenticated
+              ? 'Remote runs are stored under your verified account.'
+              : 'Your first useful result comes before sign-up.'}
           </Text>
         </View>
       </ScrollView>
