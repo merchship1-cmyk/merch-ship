@@ -59,7 +59,9 @@ Each capability record contains:
 - kernel admission outcome
 - PFU release state
 
-The normative schema is `contracts/pfu/capability-registration.schema.yaml`.
+The legacy YAML registration contract is `contracts/pfu/capability-registration.schema.yaml`.
+
+The final machine-layer contract is `contracts/pfu/machine/capability.schema.json`.
 
 ## 4. Domain runtime contract
 
@@ -67,13 +69,17 @@ Every domain must declare purpose, runtime boundary, data boundary, authorized a
 
 Domains may govern internal implementation but may not redefine BMOS, bypass the lifecycle, mutate another domain, or self-admit into the Thesis.
 
-The normative schema is `contracts/pfu/domain-runtime.schema.yaml`.
+The legacy YAML domain contract is `contracts/pfu/domain-runtime.schema.yaml`.
+
+The final machine-layer contract is `contracts/pfu/machine/domain-contract.schema.json`.
 
 ## 5. Lifecycle state machine
 
 `IDEA → DESIGN → BUILD → TEST → RFTO_LAUNCH → THE_JUNGLE → THE_MOUNTAIN → THE_THESIS`
 
 Every transition requires the evidence, authority, boundary, and integrity controls defined in `flows/pfu/capability-lifecycle.yaml`.
+
+The machine transition record is `contracts/pfu/machine/lifecycle-state.schema.json`.
 
 ## 6. Evidence kernel
 
@@ -83,11 +89,15 @@ The authoritative enforcement record follows `evidence/pfu/kernel-enforcement-re
 
 Constitutional ratification evidence follows `evidence/pfu/evidence-record.schema.yaml` and is recorded at `evidence/pfu/pfu-constitution-ratification.event.yaml`.
 
+The final immutable evidence-event contract is `contracts/pfu/machine/evidence-event.schema.json`.
+
 ## 7. Mutation kernel
 
 Allowed governed mutations include version upgrades, capability extensions, domain bindings, and evidence additions.
 
 Protected constitutional changes require explicit review. Silent identity changes, authority reassignment, lifecycle bypass, evidence deletion, and domain override of BMOS are forbidden.
+
+Every machine-governed mutation must validate against `contracts/pfu/machine/mutation-request.schema.json`.
 
 ## 8. Verdict kernel
 
@@ -108,7 +118,31 @@ The kernel uses two non-conflicting verdict dimensions:
 
 A capability can be `PROVISIONAL` and `BLUE`; the dimensions must not be collapsed.
 
-## 9. Anti-drift kernel
+Every machine-readable release decision must validate against `contracts/pfu/machine/release-verdict.schema.json`.
+
+## 9. Machine layer
+
+The PFU Machine Layer consists of six Draft 2020-12 JSON Schema contracts:
+
+1. `contracts/pfu/machine/capability.schema.json`
+2. `contracts/pfu/machine/domain-contract.schema.json`
+3. `contracts/pfu/machine/lifecycle-state.schema.json`
+4. `contracts/pfu/machine/evidence-event.schema.json`
+5. `contracts/pfu/machine/mutation-request.schema.json`
+6. `contracts/pfu/machine/release-verdict.schema.json`
+
+The schemas were validated through:
+
+- Draft 2020-12 meta-schema checks
+- one valid fixture per schema
+- one missing-required-field rejection test per schema
+- conditional rejection tests for failed lifecycle guards, contradictory PASS evidence, material mutation without rollback, and GREEN-ready verdicts with blockers
+
+Validation evidence is recorded at `evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json`.
+
+Machine-layer generation does not authorize merge, deployment, runtime activation, domain mutation, or Thesis admission.
+
+## 10. Anti-drift kernel
 
 The kernel preserves:
 
@@ -137,8 +171,10 @@ PFU_CONSTITUTION = RATIFIED
 PFU_KERNEL_CONSTITUTIONAL_AUTHORIZATION = ACTIVE_GOVERNANCE_ONLY
 KERNEL_ADMISSION_OUTCOME = PROVISIONAL
 PFU_RELEASE_STATE = BLUE
-MACHINE_LAYER_JSON_SCHEMAS = NOT_GENERATED
-MERCH_SHIP_CONFORMANCE = NOT_EXECUTED
+MACHINE_LAYER_JSON_SCHEMAS = GENERATED_VALIDATED
+MACHINE_LAYER_SCHEMA_COUNT = 6
+MERCH_SHIP_FINAL_CONFORMANCE = PENDING
+MERGE_VERDICT = HOLD_PENDING_FINAL_CONFORMANCE
 MERGED_TO_MAIN = NO
 RUNTIME_ACTIVATION = NOT_AUTHORIZED
 DEPLOYMENT = NOT_AUTHORIZED

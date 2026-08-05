@@ -65,6 +65,18 @@ kernel:
   installation_evidence: evidence/pfu/bmos-kernel-installation.record.yaml
   ratification_evidence: evidence/pfu/pfu-constitution-ratification.event.yaml
   compliance_evaluation: evals/pfu/kernel-compliance-checklist.md
+machine_layer:
+  version: "1.0.0"
+  status: GENERATED_VALIDATED
+  validation_standard: JSON_SCHEMA_DRAFT_2020_12
+  validation_evidence: evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json
+  schemas:
+    capability: contracts/pfu/machine/capability.schema.json
+    domain_contract: contracts/pfu/machine/domain-contract.schema.json
+    lifecycle_state: contracts/pfu/machine/lifecycle-state.schema.json
+    evidence_event: contracts/pfu/machine/evidence-event.schema.json
+    mutation_request: contracts/pfu/machine/mutation-request.schema.json
+    release_verdict: contracts/pfu/machine/release-verdict.schema.json
 protected_boundaries:
   - todo-app/
 release_policy: policies/pfu/release-policy.yaml
@@ -73,6 +85,7 @@ evidence_contract: evidence/pfu/evidence-record.schema.yaml
 claim_boundaries:
   feature_branch_structure: allowed
   constitutional_ratification: recorded_on_governed_branch_and_notion
+  machine_layer: generated_and_validated_on_governed_feature_branch
   merge: explicit_founder_authority_required
   deployment: not_authorized
   runtime_activation: not_authorized
