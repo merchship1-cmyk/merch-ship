@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pfu.local/contracts/founder-communication-tier.schema.json",
+  "title": "PFU Founder-Grade Communication Tier",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["module_id", "version", "class", "tier", "owner", "release_state", "runtime_state", "communication_truth_rules", "activation_boundary", "evidence"],
+  "properties": {
+    "module_id": {"const": "PFU-FGCT-001"},
+    "version": {"const": "1.0.0"},
+    "class": {"const": "PFU/Human-OS/Identity-Root/Sovereign-Communication-Layer"},
+    "tier": {"const": 7},
+    "owner": {"type": "string", "minLength": 1},
+    "release_state": {"const": "BLUE"},
+    "runtime_state": {"const": "DORMANT"},
+    "communication_truth_rules": {"type": "array", "minItems": 7, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "activation_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity_activation", "governance_specification_activation", "runtime_activation", "external_message_dispatch", "repository_mutation", "deployment", "public_release"],
+      "properties": {
+        "identity_activation": {"const": true},
+        "governance_specification_activation": {"const": true},
+        "runtime_activation": {"const": false},
+        "external_message_dispatch": {"const": false},
+        "repository_mutation": {"const": "SEPARATE_AUTHORITY_REQUIRED"},
+        "deployment": {"const": "SEPARATE_AUTHORITY_REQUIRED"},
+        "public_release": {"const": "SEPARATE_AUTHORITY_REQUIRED"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system_of_record", "notion_page_id", "installation_state", "runtime_evidence_required_for_physical_claims"],
+      "properties": {
+        "system_of_record": {"const": "NOTION"},
+        "notion_page_id": {"const": "3b513e5c-bb9f-8191-89f6-ef890a48ba53"},
+        "installation_state": {"const": "SSOT_INSTALLED_BLUE"},
+        "runtime_evidence_required_for_physical_claims": {"const": true}
+      }
+    }
+  }
+}
