@@ -4,7 +4,7 @@
   "title": "PFU Founder-Grade Communication Tier",
   "type": "object",
   "additionalProperties": false,
-  "required": ["module_id", "version", "class", "tier", "owner", "release_state", "runtime_state", "communication_truth_rules", "activation_boundary", "evidence"],
+  "required": ["module_id", "version", "class", "tier", "owner", "release_state", "runtime_state", "communication_truth_rules", "activation_boundary", "evidence", "canonical_contracts"],
   "properties": {
     "module_id": {"const": "PFU-FGCT-001"},
     "version": {"const": "1.0.0"},
@@ -37,6 +37,20 @@
         "notion_page_id": {"const": "3b513e5c-bb9f-8191-89f6-ef890a48ba53"},
         "installation_state": {"const": "SSOT_INSTALLED_BLUE"},
         "runtime_evidence_required_for_physical_claims": {"const": true}
+      }
+    },
+    "canonical_contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "domain_contract", "lifecycle_state", "evidence_event", "mutation_request", "release_verdict", "module_contract"],
+      "properties": {
+        "capability": {"const": "contracts/pfu/machine/capability.schema.json"},
+        "domain_contract": {"const": "contracts/pfu/machine/domain-contract.schema.json"},
+        "lifecycle_state": {"const": "contracts/pfu/machine/lifecycle-state.schema.json"},
+        "evidence_event": {"const": "contracts/pfu/machine/evidence-event.schema.json"},
+        "mutation_request": {"const": "contracts/pfu/machine/mutation-request.schema.json"},
+        "release_verdict": {"const": "contracts/pfu/machine/release-verdict.schema.json"},
+        "module_contract": {"const": "contracts/pfu/founder-communication-tier.schema.json"}
       }
     }
   }
