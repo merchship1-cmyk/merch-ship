@@ -1,7 +1,7 @@
 schema_version: "1.0"
 system_id: PFU-FULLSTACK-AGENTIC-STACK
-system_version: "1.1.0"
-status: CANON_CANDIDATE
+system_version: "1.2.0"
+status: SCOPED_PRODUCTION_GREEN
 owner: Ryan Richard Levack-Carr
 purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
 constitution:
@@ -45,6 +45,34 @@ runtime_loop:
   - validate_output
   - record_evidence
   - apply_release_gate
+operational_state:
+  global_stack_state: GOVERNED_BLUE
+  scoped_production_state: GREEN
+  active_production_lane_count: 1
+  full_stack_deployment: NOT_AUTHORIZED
+production_lanes:
+  - lane_id: PFU-PROD-LANE-001
+    canonical_name: PFU Enterprise Agent Runtime — Internal Registry Read
+    module_code: pfu_enterprise_agent_architecture
+    module_version: "1.1.0"
+    architecture_state: production_green
+    runtime_state: production_active
+    release_state: GREEN
+    production_scope: internal_read_only_registry
+    controller: zenzy_private.run_pfu_agent_task
+    capability: pfu.registry.read
+    capability_access: read_only
+    external_mcp_server_connected: false
+    external_model_connected: false
+    network_access: false
+    credentials_installed: false
+    writes_allowed: false
+    cost_ceiling: 0
+    external_calls_observed: 0
+    harness_result: 8_of_8_passed
+    evidence_record: evidence/pfu/pfu-enterprise-agent-production-green-2026-08-06.event.yaml
+    acceptance_checklist: evals/pfu/enterprise-agent-production-green-checklist.md
+    expansion_gate: registry_result_materialization_pending
 constitutional_subsystems:
   - system_id: BMOS-CONSTITUTIONAL-OS
     registration: registrations/pfu/bmos.system.yaml
@@ -87,7 +115,13 @@ claim_boundaries:
   constitutional_ratification: recorded_on_governed_branch_and_notion
   machine_layer: generated_and_validated_on_governed_feature_branch
   merge: explicit_founder_authority_required
-  deployment: not_authorized
-  runtime_activation: not_authorized
-  production_execution: not_authorized
+  deployment: restricted_runtime_database_lane_only
+  runtime_activation: pfu_enterprise_agent_architecture_internal_registry_read_only
+  production_execution: authorized_for_internal_read_only_registry_lane_only
+  external_mcp_server: not_authorized
+  external_model_inference: not_authorized
+  network_tool_access: not_authorized
+  credentialed_operations: not_authorized
+  browser_automation: not_authorized
+  public_release: not_authorized
   domain_mutation: hold

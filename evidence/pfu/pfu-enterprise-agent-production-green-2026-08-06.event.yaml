@@ -1,0 +1,103 @@
+schema_version: "1.0"
+event_id: PFU-EVT-AGENT-PROD-GREEN-2026-08-06-001
+event_type: PRODUCTION_RELEASE_EVIDENCE
+recorded_at: "2026-08-07T02:17:04Z"
+recorded_by: Ryan Richard Levack-Carr
+system_id: PFU-FULLSTACK-AGENTIC-STACK
+lane_id: PFU-PROD-LANE-001
+module:
+  code: pfu_enterprise_agent_architecture
+  version: "1.1.0"
+  architecture_state: production_green
+  runtime_state: production_active
+  release_state: GREEN
+scope:
+  production_scope: internal_read_only_registry
+  external_mcp_server_connected: false
+  external_model_connected: false
+  network_access: false
+  credentials_installed: false
+  writes_allowed: false
+runtime_objects:
+  tables:
+    - pfu_agent_modules
+    - pfu_agent_models
+    - pfu_agent_capabilities
+    - pfu_agent_tasks
+    - pfu_agent_executions
+    - pfu_agent_gate_results
+    - pfu_agent_evidence_events
+    - pfu_agent_harness_runs
+  controller: zenzy_private.run_pfu_agent_task
+  capability: pfu.registry.read
+  capability_status: restricted_active
+  capability_access_mode: read_only
+registered_model_roles:
+  - pfu_reasoning_sim_v1
+  - pfu_confidence_eval_v1
+  - pfu_router_v1
+harness:
+  harness_id: pfu_agent_harness_v1
+  total_tests: 8
+  passed_tests: 8
+  failed_tests: 0
+  assertions:
+    owner_isolation: passed
+    runaway_loop_protection: passed
+    append_only_evidence: passed
+    capability_restriction: passed
+    confidence_routing: passed
+    cost_ceiling: passed
+    iteration_ceiling: passed
+    timeout_ceiling: passed
+production_task:
+  task_id: be98cb90-9d47-49f9-9e9d-76528584f2b7
+  execution_id: f0b6bdae-727c-498d-8093-9490b6dc5c6a
+  operation: list_modules
+  simulated_confidence: 0.65
+  confidence_threshold: 0.80
+  controller_decision: use_authorized_tool
+  capability_used: pfu.registry.read
+  requested_iterations: 2
+  iteration_ceiling: 3
+  timeout_ceiling_ms: 5000
+  elapsed_ms: 25
+  accumulated_cost: 0
+  external_calls: 0
+  writes: 0
+  final_verdict: tool_used
+  gate_results:
+    iteration_ceiling: passed
+    cost_ceiling: passed
+    timeout_ceiling: passed
+    capability_authorization: passed
+    confidence_evidence: passed
+  evidence_events:
+    - sequence_no: 1
+      event_type: task_received
+      evidence_hash: f5671b44c7d85a2b0bc9c591c9754867
+    - sequence_no: 2
+      event_type: gate_evaluated
+      evidence_hash: ac68c2cd84125f83d4f6272d19f71715
+    - sequence_no: 3
+      event_type: execution_completed
+      evidence_hash: 5ce2723379a0fe5262a323f3804ff100
+isolation_proof:
+  leaked_tasks: 0
+  leaked_executions: 0
+  leaked_gate_results: 0
+  leaked_evidence_events: 0
+integrity_proof:
+  append_only_mutation_attempt: rejected
+  evidence_chain_complete: true
+boundaries:
+  global_pfu_stack_state: GOVERNED_BLUE
+  scoped_lane_state: PRODUCTION_GREEN
+  full_stack_deployment: NOT_AUTHORIZED
+  public_release: NOT_AUTHORIZED
+  external_provider_access: NOT_AUTHORIZED
+  registry_result_materialization: PENDING
+sources:
+  notion_canonical_page: https://app.notion.com/p/3b213e5cbb9f81c1b6a2da08cf274bc0
+  runtime_database: Supabase project dlliijieyppljpxbweib
+verdict: PRODUCTION_GREEN_RESTRICTED_SCOPE
