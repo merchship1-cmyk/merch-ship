@@ -1,6 +1,6 @@
 schema_version: "1.0"
 system_id: PFU-FULLSTACK-AGENTIC-STACK
-system_version: "1.1.0"
+system_version: "1.1.1"
 status: CANON_CANDIDATE
 owner: Ryan Richard Levack-Carr
 purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
@@ -54,6 +54,18 @@ registered_domains:
   - domain_id: PFU-DOMAIN-MERCH-SHIP
     profile: manifests/pfu/domains/merch-ship-runtime-profile.yaml
     status: STRUCTURAL_ONLY
+registered_modules:
+  - module_id: PFU-FGCT-001
+    name: Founder-Grade Communication Tier Module
+    version: "1.0.0"
+    class: PFU/Human-OS/Identity-Root/Sovereign-Communication-Layer
+    tier: 7
+    manifest: manifests/pfu/founder-communication-tier.manifest.json
+    contract: contracts/pfu/founder-communication-tier.schema.json
+    validator: scripts/pfu/validate_founder_communication_tier.py
+    evidence: evidence/pfu/founder-communication-tier-repository-installation-2026-08-07.event.json
+    status: REPOSITORY_CONFORMANCE_READY_BLUE
+    runtime: DORMANT
 kernel:
   specification: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
   constitutional_authorization: ACTIVE_GOVERNANCE_ONLY
