@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merchship.local/contracts/pfu/federated-evidence-envelope.schema.json",
+  "title": "PFU Federated Evidence Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "execution_id",
+    "source_domain",
+    "destination_domain",
+    "evidence_type",
+    "observed_at",
+    "provenance",
+    "payload",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "evidence_id": { "type": "string", "minLength": 1 },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "source_domain": {
+      "type": "string",
+      "enum": ["BMAZING", "PFU_MERCHSHIP"]
+    },
+    "destination_domain": {
+      "type": "string",
+      "enum": ["BMAZING", "PFU_MERCHSHIP", "EVIDENCE_COMPARISON"]
+    },
+    "evidence_type": {
+      "type": "string",
+      "enum": [
+        "truth_state_signal",
+        "market_state_signal",
+        "execution_result",
+        "observation",
+        "learning",
+        "correction"
+      ]
+    },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "source_reference"],
+      "properties": {
+        "producer": { "type": "string", "minLength": 1 },
+        "source_reference": { "type": "string", "minLength": 1 },
+        "content_hash": { "type": "string" }
+      }
+    },
+    "payload": { "type": "object" },
+    "comparison_classification": {
+      "type": "string",
+      "enum": [
+        "alignment",
+        "contradiction",
+        "uncertainty",
+        "change",
+        "insufficient_evidence"
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["may_mutate_source", "may_mutate_destination", "may_grant_release"],
+      "properties": {
+        "may_mutate_source": { "const": false },
+        "may_mutate_destination": { "const": false },
+        "may_grant_release": { "const": false }
+      }
+    }
+  }
+}
