@@ -8,6 +8,8 @@ export default tseslint.config(
       'node_modules/**',
       'supabase/functions/**',
       'assets/**',
+      'app.config.cjs',
+      'phase1a/mobile-sim/**',
     ],
   },
   js.configs.recommended,

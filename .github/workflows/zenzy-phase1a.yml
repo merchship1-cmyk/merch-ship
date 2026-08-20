@@ -1,0 +1,161 @@
+name: ZENZY Phase 1A Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "v2/**"
+      - ".github/workflows/zenzy-phase1a.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zenzy-phase1a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-gate:
+    name: Phase 1A / Static Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+      - name: Run existing verification suite
+        working-directory: v2
+        run: npm run verify
+      - name: Verify Phase-1A spine
+        working-directory: v2
+        run: npm run phase1a:static
+
+  runtime-gate:
+    name: Phase 1A / Authenticated Runtime
+    needs: static-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - name: Require staging inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_URL:-}"
+          test -n "${SUPABASE_PUBLISHABLE_KEY:-}"
+          test -n "${TEST_USER_A_EMAIL:-}"
+          test -n "${TEST_USER_A_PASSWORD:-}"
+          test -n "${TEST_USER_B_EMAIL:-}"
+          test -n "${TEST_USER_B_PASSWORD:-}"
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+      - name: Run authenticated two-user Phase-1A proof
+        working-directory: v2
+        run: npm run phase1a:e2e
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-phase1a-runtime
+          path: v2/phase1a/artifacts/phase1a-report.json
+          if-no-files-found: warn
+
+  mobile-gate:
+    name: Phase 1A / Android Detox
+    needs: static-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "1"
+      ZENZY_DETOX: "1"
+      ZENZY_ANDROID_PACKAGE: ${{ vars.ZENZY_ANDROID_PACKAGE }}
+      DETOX_AVD_NAME: zenzy_api_34
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      EXPO_PUBLIC_ZENZY_AI_MODE: remote
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Require mobile inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ZENZY_ANDROID_PACKAGE:-}"
+          test -n "${SUPABASE_URL:-}"
+          test -n "${EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}"
+          test -n "${TEST_USER_A_EMAIL:-}"
+          test -n "${TEST_USER_A_PASSWORD:-}"
+          echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
+      - name: Install app and Detox dependencies
+        working-directory: v2
+        run: |
+          npm ci
+          npm install --no-save detox@20.51.4 "jest@^29"
+      - name: Generate temporary Android project
+        working-directory: v2
+        run: npx expo prebuild --platform android --clean --non-interactive
+      - name: Install Detox native instrumentation
+        working-directory: v2
+        run: node phase1a/mobile-sim/prepare-native.mjs
+      - name: Build Android release and test APKs
+        working-directory: v2
+        run: npx detox build --config phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release
+      - name: Run Detox on API 34 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_5
+          avd-name: zenzy_api_34
+          script: cd v2 && npx detox test --config phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
+      - name: Upload mobile evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-phase1a-detox
+          path: v2/phase1a/artifacts/detox
+          if-no-files-found: warn
+
+  required-gate:
+    name: Phase 1A / Required Gate
+    if: always()
+    needs: [static-gate, runtime-gate, mobile-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every Phase-1A lane
+        shell: bash
+        run: |
+          test "${{ needs.static-gate.result }}" = "success"
+          test "${{ needs.runtime-gate.result }}" = "success"
+          test "${{ needs.mobile-gate.result }}" = "success"
