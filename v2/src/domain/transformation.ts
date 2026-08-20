@@ -34,6 +34,12 @@ export const transformationResultSchema = z.object({
   generatedAt: z.string().datetime(),
 });
 
+export const transformationAcceptanceSchema = z.object({
+  runId: z.string().min(1),
+  accepted: z.literal(true),
+  acceptedAt: z.string().datetime(),
+});
+
 export const transformationEvidenceSchema = z.object({
   runId: z.string().min(1),
   timeSavedMinutes: z.number().int().nonnegative().max(10080),
@@ -47,6 +53,9 @@ export const transformationEvidenceSchema = z.object({
 
 export type TransformationResult = z.infer<
   typeof transformationResultSchema
+>;
+export type TransformationAcceptance = z.infer<
+  typeof transformationAcceptanceSchema
 >;
 export type TransformationEvidence = z.infer<
   typeof transformationEvidenceSchema
