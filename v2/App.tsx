@@ -11,10 +11,12 @@ import {
 
 import { AuthProvider, useAuth } from './src/auth/AuthProvider';
 import type {
+  TransformationAcceptance,
   TransformationEvidence,
   TransformationResult,
 } from './src/domain/transformation';
 import { AuthScreen } from './src/screens/AuthScreen';
+import { ClarityAcceptanceScreen } from './src/screens/ClarityAcceptanceScreen';
 import { OutcomeScreen } from './src/screens/OutcomeScreen';
 import { StartScreen } from './src/screens/StartScreen';
 import { TransformationScreen } from './src/screens/TransformationScreen';
@@ -27,12 +29,15 @@ import { colors, spacing } from './src/theme';
 function ZenzyApp() {
   const auth = useAuth();
   const [result, setResult] = useState<TransformationResult | null>(null);
+  const [acceptance, setAcceptance] =
+    useState<TransformationAcceptance | null>(null);
   const [evidence, setEvidence] = useState<TransformationEvidence | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setResult(null);
+    setAcceptance(null);
     setEvidence(null);
     setError(null);
   }, [auth.session?.user.id]);
@@ -40,6 +45,8 @@ function ZenzyApp() {
   const handleStart = async (input: string) => {
     setLoading(true);
     setError(null);
+    setAcceptance(null);
+    setEvidence(null);
 
     try {
       setResult(await runTransformation(input));
@@ -54,8 +61,16 @@ function ZenzyApp() {
     }
   };
 
+  const handleRejectDirection = () => {
+    setResult(null);
+    setAcceptance(null);
+    setEvidence(null);
+    setError(null);
+  };
+
   const handleReset = () => {
     setResult(null);
+    setAcceptance(null);
     setEvidence(null);
     setError(null);
   };
@@ -105,6 +120,12 @@ function ZenzyApp() {
             error={error}
             remoteAuthenticated={isRemoteMode}
             onStart={handleStart}
+          />
+        ) : !acceptance ? (
+          <ClarityAcceptanceScreen
+            result={result}
+            onAccept={setAcceptance}
+            onReject={handleRejectDirection}
           />
         ) : evidence ? (
           <OutcomeScreen
