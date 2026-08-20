@@ -73,6 +73,7 @@ export function AuthScreen() {
 
         <View style={styles.form}>
           <TextInput
+            testID="login-email"
             autoCapitalize="none"
             autoComplete="email"
             keyboardType="email-address"
@@ -83,6 +84,7 @@ export function AuthScreen() {
             value={email}
           />
           <TextInput
+            testID="login-password"
             autoCapitalize="none"
             autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'}
             onChangeText={setPassword}
@@ -104,6 +106,7 @@ export function AuthScreen() {
         {message ? <Text style={styles.message}>{message}</Text> : null}
 
         <PrimaryButton
+          testID="login-submit"
           label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
           loading={loading}
           disabled={!formValid}

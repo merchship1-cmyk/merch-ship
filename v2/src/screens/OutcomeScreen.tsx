@@ -26,7 +26,7 @@ export function OutcomeScreen({ result, evidence, onReset }: Props) {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView testID="outcome-screen" contentContainerStyle={styles.container}>
       <View style={styles.mark}>
         <Text style={styles.markText}>✓</Text>
       </View>
@@ -44,11 +44,10 @@ export function OutcomeScreen({ result, evidence, onReset }: Props) {
       </View>
 
       <View style={styles.notice}>
-        <Text style={styles.noticeTitle}>Phase 0 evidence captured</Text>
+        <Text style={styles.noticeTitle}>Transformation evidence captured</Text>
         <Text style={styles.noticeBody}>
-          This local beta record proves the loop completed. Server persistence
-          remains disabled until the approved Supabase environment is
-          configured.
+          In remote mode this evidence is stored under the same authenticated
+          owner as the run. Mock mode keeps the proof local for development.
         </Text>
       </View>
 

@@ -1,35 +1,28 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '../components/PrimaryButton';
-import type {
-  TransformationAcceptance,
-  TransformationResult,
-} from '../domain/transformation';
+import type { TransformationResult } from '../domain/transformation';
 import { colors, spacing } from '../theme';
 
 type Props = {
   result: TransformationResult;
-  onAccept: (acceptance: TransformationAcceptance) => void;
+  loading: boolean;
+  error: string | null;
+  onAccept: () => Promise<void>;
   onReject: () => void;
 };
 
 export function ClarityAcceptanceScreen({
   result,
+  loading,
+  error,
   onAccept,
   onReject,
 }: Props) {
   const nextMove = result.plan[0];
 
-  const accept = () => {
-    onAccept({
-      runId: result.id,
-      accepted: true,
-      acceptedAt: new Date().toISOString(),
-    });
-  };
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView testID="clarity-screen" contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.kicker}>PHASE 1A · CLARITY CHECK</Text>
         <Text style={styles.heading}>Confirm the direction before execution.</Text>
@@ -76,16 +69,25 @@ export function ClarityAcceptanceScreen({
           <Text style={styles.label}>RESULT PREVIEW</Text>
           <Text style={styles.preview}>{result.createdOutput.title}</Text>
           <Text style={styles.body}>
-            Accepting this direction opens the execution path and the usable
-            output Zenzy generated for this run.
+            Accepting this direction records your approval, opens the execution
+            path, and preserves the gate under your authenticated identity.
           </Text>
         </View>
       </View>
 
-      <PrimaryButton label="Accept next move" onPress={accept} />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <PrimaryButton
+        testID="accept-next-move"
+        label="Accept next move"
+        loading={loading}
+        onPress={() => void onAccept()}
+      />
 
       <Pressable
+        testID="change-input"
         accessibilityRole="button"
+        disabled={loading}
         onPress={onReject}
         style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
       >
@@ -195,6 +197,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 26,
     fontWeight: '800',
+  },
+  error: {
+    color: colors.red,
+    fontSize: 14,
+    fontWeight: '700',
   },
   secondary: {
     minHeight: 50,

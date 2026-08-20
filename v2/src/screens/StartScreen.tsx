@@ -52,6 +52,7 @@ export function StartScreen({
 
         <View style={styles.inputCard}>
           <TextInput
+            testID="input-textarea"
             accessibilityLabel="What are you trying to get done?"
             multiline
             maxLength={4000}
@@ -68,6 +69,7 @@ export function StartScreen({
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <PrimaryButton
+          testID="input-submit"
           label="Build my next move"
           loading={loading}
           disabled={input.trim().length < 3}

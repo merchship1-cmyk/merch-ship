@@ -21,6 +21,10 @@ import { OutcomeScreen } from './src/screens/OutcomeScreen';
 import { StartScreen } from './src/screens/StartScreen';
 import { TransformationScreen } from './src/screens/TransformationScreen';
 import {
+  acceptTransformation,
+  recordTransformationEvidence,
+} from './src/services/phase1aClient';
+import {
   isRemoteMode,
   runTransformation,
 } from './src/services/transformationClient';
@@ -55,6 +59,40 @@ function ZenzyApp() {
         requestError instanceof Error
           ? requestError.message
           : 'Zenzy could not build this transformation yet.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAccept = async () => {
+    if (!result) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      setAcceptance(await acceptTransformation(result.id));
+    } catch (acceptanceError) {
+      setError(
+        acceptanceError instanceof Error
+          ? acceptanceError.message
+          : 'Zenzy could not store this acceptance.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteEvidence = async (candidate: TransformationEvidence) => {
+    setLoading(true);
+    setError(null);
+    try {
+      setEvidence(await recordTransformationEvidence(candidate));
+    } catch (evidenceError) {
+      setError(
+        evidenceError instanceof Error
+          ? evidenceError.message
+          : 'Zenzy could not store this evidence.',
       );
     } finally {
       setLoading(false);
@@ -124,7 +162,9 @@ function ZenzyApp() {
         ) : !acceptance ? (
           <ClarityAcceptanceScreen
             result={result}
-            onAccept={setAcceptance}
+            loading={loading}
+            error={error}
+            onAccept={handleAccept}
             onReject={handleRejectDirection}
           />
         ) : evidence ? (
@@ -134,7 +174,12 @@ function ZenzyApp() {
             onReset={handleReset}
           />
         ) : (
-          <TransformationScreen result={result} onComplete={setEvidence} />
+          <TransformationScreen
+            result={result}
+            submitting={loading}
+            submitError={error}
+            onComplete={handleCompleteEvidence}
+          />
         )}
       </View>
     </SafeAreaView>
