@@ -17,9 +17,9 @@ for (const [path, text] of [
   ['src/screens/TransformationScreen.tsx', 'testID="review-outcome"'],
   ['src/screens/OutcomeScreen.tsx', 'testID="outcome-screen"'],
   ['supabase/functions/accept/index.ts', "auth.getUser(token)"],
-  ['supabase/functions/record-evidence/index.ts', "zenzy_transformation_acceptance"],
+  ['supabase/functions/record-evidence/index.ts', 'zenzy_transformation_acceptance'],
   ['supabase/functions/zenzy-evidence-hook/index.ts', 'otherUserAccessToken'],
-  ['phase1a/mobile-sim/e2e/phase1a.e2e.test.js', 'accept-next-move'],
+  ['phase1a/mobile-sim/e2e/phase1a.detox.js', 'accept-next-move'],
   ['../.github/workflows/zenzy-phase1a.yml', 'Phase 1A / Required Gate'],
 ] as const) {
   requireText(path, text);

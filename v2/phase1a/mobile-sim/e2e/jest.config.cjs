@@ -1,7 +1,7 @@
 /** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
   rootDir: '../../..',
-  testMatch: ['<rootDir>/phase1a/mobile-sim/e2e/**/*.test.js'],
+  testMatch: ['<rootDir>/phase1a/mobile-sim/e2e/**/*.detox.js'],
   testTimeout: 180000,
   maxWorkers: 1,
   globalSetup: 'detox/runners/jest/globalSetup',
