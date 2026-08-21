@@ -41,6 +41,10 @@ jobs:
           if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
             relevant=true
           else
+            changed_files="$(gh api --paginate \
+              "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+              --jq '.[].filename')"
+
             while IFS= read -r path; do
               case "$path" in
                 v2/*|.github/workflows/zenzy-phase1a.yml|.github/workflows/zenzy-phase1a-auto-retry.yml)
@@ -48,11 +52,7 @@ jobs:
                   break
                   ;;
               esac
-            done < <(
-              gh api --paginate --slurp \
-                "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
-                --jq 'add | .[].filename'
-            )
+            done <<< "$changed_files"
           fi
 
           echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
