@@ -57,10 +57,13 @@ jobs:
           echo "## Bounded retry scan" >> "$summary"
           echo >> "$summary"
 
-          while IFS= read -r pull; do
-            number="$(jq -r '.number' <<< "$pull")"
-            head_ref="$(jq -r '.head.ref' <<< "$pull")"
-            head_sha="$(jq -r '.head.sha' <<< "$pull")"
+          open_pulls="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/pulls?state=open&base=main&per_page=100" \
+            --jq '.[] | [.number, .head.ref, .head.sha, .head.repo.full_name] | @tsv')"
+
+          while IFS=$'\t' read -r number head_ref head_sha head_repo; do
+            [[ -n "${number:-}" ]] || continue
+            [[ "$head_repo" == "$GITHUB_REPOSITORY" ]] || continue
 
             latest="$(gh api \
               "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow_file}/runs?head_sha=${head_sha}&per_page=1" \
@@ -100,11 +103,7 @@ jobs:
 
             printf -- '- Dispatched one retry for PR #%s at `%s`.\n' "$number" "$head_sha" >> "$summary"
             dispatched=$((dispatched + 1))
-          done < <(
-            gh api --paginate --slurp \
-              "repos/${GITHUB_REPOSITORY}/pulls?state=open&base=main&per_page=100" \
-              | jq -c 'add[] | select(.head.repo.full_name == env.GITHUB_REPOSITORY)'
-          )
+          done <<< "$open_pulls"
 
           if (( dispatched == 0 )); then
             echo "- No eligible secrets-blocked PR heads required a retry." >> "$summary"
