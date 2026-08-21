@@ -3,14 +3,11 @@ name: ZENZY Phase 1A Gate
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "v2/**"
-      - ".github/workflows/zenzy-phase1a.yml"
-      - ".github/workflows/zenzy-phase1a-auto-retry.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: zenzy-phase1a-${{ github.workflow }}-${{ github.ref }}
@@ -24,8 +21,51 @@ env:
   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
 
 jobs:
+  scope:
+    name: Phase 1A / Scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      relevant: ${{ steps.detect.outputs.relevant }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - name: Detect Phase-1A changes
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          relevant=false
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            relevant=true
+          else
+            while IFS= read -r path; do
+              case "$path" in
+                v2/*|.github/workflows/zenzy-phase1a.yml|.github/workflows/zenzy-phase1a-auto-retry.yml)
+                  relevant=true
+                  break
+                  ;;
+              esac
+            done < <(
+              gh api --paginate --slurp \
+                "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+                --jq 'add | .[].filename'
+            )
+          fi
+
+          echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+          if [[ "$relevant" == "true" ]]; then
+            echo "Phase 1A scope: relevant — protected lanes will run." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Phase 1A scope: not applicable — protected lanes will remain skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   secrets-gate:
     name: Phase 1A / Secrets Check
+    needs: scope
+    if: needs.scope.outputs.relevant == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
@@ -69,6 +109,8 @@ jobs:
 
   static-gate:
     name: Phase 1A / Static Contract
+    needs: scope
+    if: needs.scope.outputs.relevant == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -178,20 +220,34 @@ jobs:
   required-gate:
     name: Phase 1A / Required Gate
     if: always()
-    needs: [secrets-gate, static-gate, runtime-gate, mobile-gate]
+    needs: [scope, secrets-gate, static-gate, runtime-gate, mobile-gate]
     runs-on: ubuntu-latest
     steps:
       - name: Require every Phase-1A lane
         shell: bash
         run: |
           set -euo pipefail
-          test "${{ needs.secrets-gate.result }}" = "success"
-          test "${{ needs.static-gate.result }}" = "success"
-          test "${{ needs.runtime-gate.result }}" = "success"
-          test "${{ needs.mobile-gate.result }}" = "success"
 
-          {
-            echo "## ZENZY Phase 1A required gate"
-            echo
-            echo "All credential, static, authenticated-runtime, mobile, and evidence-upload lanes passed."
-          } >> "$GITHUB_STEP_SUMMARY"
+          test "${{ needs.scope.result }}" = "success"
+
+          if [[ "${{ needs.scope.outputs.relevant }}" == "true" ]]; then
+            test "${{ needs.secrets-gate.result }}" = "success"
+            test "${{ needs.static-gate.result }}" = "success"
+            test "${{ needs.runtime-gate.result }}" = "success"
+            test "${{ needs.mobile-gate.result }}" = "success"
+
+            {
+              echo "## ZENZY Phase 1A required gate"
+              echo
+              echo "All credential, static, authenticated-runtime, mobile, and evidence-upload lanes passed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ needs.scope.outputs.relevant }}" == "false" ]]; then
+            {
+              echo "## ZENZY Phase 1A required gate"
+              echo
+              echo "Not applicable — this pull request does not change ZENZY Phase-1A surfaces."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Phase 1A scope could not be determined."
+            exit 1
+          fi
