@@ -152,6 +152,7 @@ Deno.serve(async (request) => {
     .from('zenzy_transformation_evidence')
     .insert({
       run_id: runId,
+      user_id: user.id,
       time_saved_minutes: timeSavedMinutes,
       steps_removed: stepsRemoved,
       clarity_gain: clarityGain,
