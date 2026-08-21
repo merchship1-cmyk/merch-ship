@@ -88,7 +88,6 @@ jobs:
     env:
       CI: "1"
       ZENZY_DETOX: "1"
-      ZENZY_ANDROID_PACKAGE: ${{ vars.ZENZY_ANDROID_PACKAGE }}
       DETOX_AVD_NAME: zenzy_api_34
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -111,7 +110,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${ZENZY_ANDROID_PACKAGE:-}"
           test -n "${SUPABASE_URL:-}"
           test -n "${EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}"
           test -n "${TEST_USER_A_EMAIL:-}"
