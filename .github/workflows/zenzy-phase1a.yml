@@ -16,8 +16,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ZENZY_STAGING_SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
-  ZENZY_STAGING_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+  EXPO_PUBLIC_SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
 
 jobs:
   static-gate:
@@ -47,8 +49,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      SUPABASE_URL: ${{ env.ZENZY_STAGING_SUPABASE_URL }}
-      SUPABASE_PUBLISHABLE_KEY: ${{ env.ZENZY_STAGING_PUBLISHABLE_KEY }}
       TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
       TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
       TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
@@ -91,9 +91,6 @@ jobs:
       CI: "1"
       ZENZY_DETOX: "1"
       DETOX_AVD_NAME: zenzy_api_34
-      SUPABASE_URL: ${{ env.ZENZY_STAGING_SUPABASE_URL }}
-      EXPO_PUBLIC_SUPABASE_URL: ${{ env.ZENZY_STAGING_SUPABASE_URL }}
-      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ env.ZENZY_STAGING_PUBLISHABLE_KEY }}
       EXPO_PUBLIC_ZENZY_AI_MODE: remote
       TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
       TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
