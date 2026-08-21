@@ -6,6 +6,7 @@ on:
     paths:
       - "v2/**"
       - ".github/workflows/zenzy-phase1a.yml"
+      - ".github/workflows/zenzy-phase1a-auto-retry.yml"
   workflow_dispatch:
 
 permissions:
@@ -15,6 +16,7 @@ concurrency:
   group: zenzy-phase1a-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# These are public client configuration values, not privileged Supabase secrets.
 env:
   SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
   SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
@@ -22,6 +24,49 @@ env:
   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
 
 jobs:
+  secrets-gate:
+    name: Phase 1A / Secrets Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Verify required credential secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          missing=()
+          [[ -n "${TEST_USER_A_EMAIL:-}" ]] || missing+=("ZENZY_TEST_USER_A_EMAIL")
+          [[ -n "${TEST_USER_A_PASSWORD:-}" ]] || missing+=("ZENZY_TEST_USER_A_PASSWORD")
+          [[ -n "${TEST_USER_B_EMAIL:-}" ]] || missing+=("ZENZY_TEST_USER_B_EMAIL")
+          [[ -n "${TEST_USER_B_PASSWORD:-}" ]] || missing+=("ZENZY_TEST_USER_B_PASSWORD")
+
+          {
+            echo "## ZENZY Phase 1A credential gate"
+            echo
+            if (( ${#missing[@]} == 0 )); then
+              echo "Status: GREEN — all four credential secrets are configured."
+            else
+              echo "Status: BLUE — configuration is incomplete."
+              echo
+              echo "Missing repository secret names:"
+              for name in "${missing[@]}"; do
+                printf -- '- `%s`\n' "$name"
+              done
+              echo
+              echo "Add the missing values in repository Settings → Secrets and variables → Actions, then re-run failed jobs."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if (( ${#missing[@]} != 0 )); then
+            echo "Phase 1A is blocked because required credential secrets are missing."
+            exit 1
+          fi
+
   static-gate:
     name: Phase 1A / Static Contract
     runs-on: ubuntu-latest
@@ -45,7 +90,7 @@ jobs:
 
   runtime-gate:
     name: Phase 1A / Authenticated Runtime
-    needs: static-gate
+    needs: [secrets-gate, static-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -60,14 +105,6 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: v2/package-lock.json
-      - name: Require test-user credentials
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "${TEST_USER_A_EMAIL:-}"
-          test -n "${TEST_USER_A_PASSWORD:-}"
-          test -n "${TEST_USER_B_EMAIL:-}"
-          test -n "${TEST_USER_B_PASSWORD:-}"
       - name: Install locked dependencies
         working-directory: v2
         run: npm ci
@@ -80,11 +117,11 @@ jobs:
         with:
           name: zenzy-phase1a-runtime
           path: v2/phase1a/artifacts/phase1a-report.json
-          if-no-files-found: warn
+          if-no-files-found: error
 
   mobile-gate:
     name: Phase 1A / Android Detox
-    needs: static-gate
+    needs: [secrets-gate, static-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
@@ -105,13 +142,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - name: Require mobile test-user credentials
+      - name: Prepare mobile runtime endpoint
         shell: bash
-        run: |
-          set -euo pipefail
-          test -n "${TEST_USER_A_EMAIL:-}"
-          test -n "${TEST_USER_A_PASSWORD:-}"
-          echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
+        run: echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
       - name: Install app and Detox dependencies
         working-directory: v2
         run: |
@@ -140,17 +173,25 @@ jobs:
         with:
           name: zenzy-phase1a-detox
           path: v2/phase1a/artifacts/detox
-          if-no-files-found: warn
+          if-no-files-found: error
 
   required-gate:
     name: Phase 1A / Required Gate
     if: always()
-    needs: [static-gate, runtime-gate, mobile-gate]
+    needs: [secrets-gate, static-gate, runtime-gate, mobile-gate]
     runs-on: ubuntu-latest
     steps:
       - name: Require every Phase-1A lane
         shell: bash
         run: |
+          set -euo pipefail
+          test "${{ needs.secrets-gate.result }}" = "success"
           test "${{ needs.static-gate.result }}" = "success"
           test "${{ needs.runtime-gate.result }}" = "success"
           test "${{ needs.mobile-gate.result }}" = "success"
+
+          {
+            echo "## ZENZY Phase 1A required gate"
+            echo
+            echo "All credential, static, authenticated-runtime, mobile, and evidence-upload lanes passed."
+          } >> "$GITHUB_STEP_SUMMARY"
