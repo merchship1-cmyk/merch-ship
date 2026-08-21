@@ -1,7 +1,18 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.111.0';
 
+const firstNamedKey = (value: string | undefined) => {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>;
+    return typeof parsed.default === 'string' ? parsed.default : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServerKey =
+  firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS')) ??
   Deno.env.get('SUPABASE_SECRET_KEY') ??
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const allowedOrigin = Deno.env.get('ALLOWED_ORIGIN') ?? '*';
