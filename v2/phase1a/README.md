@@ -29,17 +29,15 @@ A rollback-only database smoke test verifies:
 
 ## Remaining CI configuration
 
-The workflow intentionally fails closed until these GitHub Actions secrets are configured:
+The staging Supabase URL and publishable key are public client configuration and are wired directly into the Phase-1A workflow. The Detox Android application id is deterministic and CI-only (`com.merchship.zenzy.phase1a.test`).
 
-- `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY`
+The workflow now fails closed only until these four GitHub Actions secrets are configured:
+
 - `ZENZY_TEST_USER_A_EMAIL`
 - `ZENZY_TEST_USER_A_PASSWORD`
 - `ZENZY_TEST_USER_B_EMAIL`
 - `ZENZY_TEST_USER_B_PASSWORD`
 
-The Android application id is deterministic and CI-only (`com.merchship.zenzy.phase1a.test`), so no Android package repository variable is required.
-
 No service-role key is exposed to the orchestrator or mobile job. Repository branch protection must separately require `Phase 1A / Required Gate` before this PR can be treated as merge-gated.
 
-**State: BLUE — code and staging runtime installed; authenticated two-user and Android Detox evidence still pending GitHub Actions credentials.**
+**State: BLUE — code and staging runtime installed; authenticated two-user and Android Detox evidence still pending the four test-user credential secrets.**
