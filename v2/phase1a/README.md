@@ -9,9 +9,27 @@ This folder is the single verification subsystem for the authenticated Phase-1A 
 3. **Evidence hook** — `supabase/functions/zenzy-evidence-hook` performs owner and cross-user reads with user access tokens plus the publishable key. It never receives a service-role key.
 4. **CI gate** — `.github/workflows/zenzy-phase1a.yml` fuses static, runtime, and mobile checks into `Phase 1A / Required Gate`.
 
-## Required staging configuration
+## Staging runtime installed
 
-The workflow intentionally fails closed until these are configured:
+The connected Supabase staging project now has:
+
+- `transform` — active, JWT verified
+- `accept` — active, JWT verified
+- `record-evidence` — active, JWT verified
+- `zenzy-evidence-hook` — active, JWT verified
+- `zenzy_transformation_acceptance` — RLS enabled, owner-scoped SELECT only
+- evidence owner hardening — `(run_id, user_id)` must match the canonical run owner
+
+A rollback-only database smoke test verifies:
+
+1. evidence is rejected before acceptance;
+2. acceptance moves `generated -> reviewed`;
+3. evidence moves `reviewed -> verified`;
+4. the smoke transaction leaves no test rows behind.
+
+## Remaining CI configuration
+
+The workflow intentionally fails closed until these GitHub Actions secrets are configured:
 
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
@@ -19,9 +37,9 @@ The workflow intentionally fails closed until these are configured:
 - `ZENZY_TEST_USER_A_PASSWORD`
 - `ZENZY_TEST_USER_B_EMAIL`
 - `ZENZY_TEST_USER_B_PASSWORD`
-- repository variable `ZENZY_ANDROID_PACKAGE` for the temporary CI Android application id
-- the migration and `transform`, `accept`, `record-evidence`, and `zenzy-evidence-hook` functions deployed to the authorized staging Supabase project
 
-No service-role key is exposed to the orchestrator or mobile job. Live deployment and production release remain separate governed actions.
+The Android application id is deterministic and CI-only (`com.merchship.zenzy.phase1a.test`), so no Android package repository variable is required.
 
-**State: BLUE — implementation installed in code; runtime proof pending staging deployment and CI evidence.**
+No service-role key is exposed to the orchestrator or mobile job. Repository branch protection must separately require `Phase 1A / Required Gate` before this PR can be treated as merge-gated.
+
+**State: BLUE — code and staging runtime installed; authenticated two-user and Android Detox evidence still pending GitHub Actions credentials.**
