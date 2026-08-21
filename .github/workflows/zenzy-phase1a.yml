@@ -15,6 +15,10 @@ concurrency:
   group: zenzy-phase1a-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  ZENZY_STAGING_SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  ZENZY_STAGING_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
 jobs:
   static-gate:
     name: Phase 1A / Static Contract
@@ -43,8 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_URL: ${{ env.ZENZY_STAGING_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ env.ZENZY_STAGING_PUBLISHABLE_KEY }}
       TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
       TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
       TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
@@ -56,12 +60,10 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: v2/package-lock.json
-      - name: Require staging inputs
+      - name: Require test-user credentials
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${SUPABASE_URL:-}"
-          test -n "${SUPABASE_PUBLISHABLE_KEY:-}"
           test -n "${TEST_USER_A_EMAIL:-}"
           test -n "${TEST_USER_A_PASSWORD:-}"
           test -n "${TEST_USER_B_EMAIL:-}"
@@ -89,9 +91,9 @@ jobs:
       CI: "1"
       ZENZY_DETOX: "1"
       DETOX_AVD_NAME: zenzy_api_34
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_URL: ${{ env.ZENZY_STAGING_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_URL: ${{ env.ZENZY_STAGING_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ env.ZENZY_STAGING_PUBLISHABLE_KEY }}
       EXPO_PUBLIC_ZENZY_AI_MODE: remote
       TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
       TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
@@ -106,12 +108,10 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - name: Require mobile inputs
+      - name: Require mobile test-user credentials
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${SUPABASE_URL:-}"
-          test -n "${EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}"
           test -n "${TEST_USER_A_EMAIL:-}"
           test -n "${TEST_USER_A_PASSWORD:-}"
           echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
