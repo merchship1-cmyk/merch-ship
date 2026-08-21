@@ -1,5 +1,18 @@
+const firstNamedKey = (value: string | undefined) => {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>;
+    return typeof parsed.default === 'string' ? parsed.default : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
-const publishableKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+const publishableKey =
+  firstNamedKey(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')) ??
+  Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ??
+  Deno.env.get('SUPABASE_ANON_KEY');
 const allowedOrigin = Deno.env.get('ALLOWED_ORIGIN') ?? '*';
 
 const corsHeaders = {
