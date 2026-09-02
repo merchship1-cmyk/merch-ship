@@ -122,7 +122,10 @@ function ZenzyApp() {
     );
   }
 
-  if (isRemoteMode && (!auth.configured || !auth.session)) {
+  if (
+    isRemoteMode &&
+    (!auth.configured || !auth.session || auth.recoveringPassword)
+  ) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" />

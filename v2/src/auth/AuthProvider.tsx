@@ -6,15 +6,23 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Linking } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
 
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import {
+  parsePasswordRecoveryUrl,
+  passwordRecoveryRedirectUrl,
+} from './passwordRecovery';
 
 type AuthContextValue = {
   configured: boolean;
+  passwordRecoveryError: string | null;
   ready: boolean;
+  recoveringPassword: boolean;
   session: Session | null;
+  requestPasswordReset: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
@@ -33,6 +41,10 @@ const requireClient = () => {
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const [recoveringPassword, setRecoveringPassword] = useState(false);
+  const [passwordRecoveryError, setPasswordRecoveryError] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const client = supabase;
@@ -42,16 +54,63 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
 
     let active = true;
-    void client.auth.getSession().then(({ data, error }) => {
+    const handleRecoveryUrl = async (url: string | null) => {
+      const recoverySession = parsePasswordRecoveryUrl(url);
+      if (!recoverySession) {
+        return false;
+      }
+
+      const { data, error } = await client.auth.setSession({
+        access_token: recoverySession.accessToken,
+        refresh_token: recoverySession.refreshToken,
+      });
+
       if (!active) {
-        return;
+        return true;
       }
 
       if (error) {
-        console.warn('Unable to restore the Supabase session.');
+        setPasswordRecoveryError(
+          'This recovery link is invalid or expired. Request a new email.',
+        );
+        setRecoveringPassword(false);
+        setReady(true);
+        return true;
       }
-      setSession(data.session ?? null);
+
+      setPasswordRecoveryError(null);
+      setSession(data.session);
+      setRecoveringPassword(true);
       setReady(true);
+      return true;
+    };
+
+    void Linking.getInitialURL()
+      .then(async (url) => {
+        if (await handleRecoveryUrl(url)) {
+          return;
+        }
+
+        const { data, error } = await client.auth.getSession();
+        if (!active) {
+          return;
+        }
+
+        if (error) {
+          console.warn('Unable to restore the Supabase session.');
+        }
+        setSession(data.session ?? null);
+        setReady(true);
+      })
+      .catch(() => {
+        if (active) {
+          setPasswordRecoveryError('Zenzy could not open the recovery link.');
+          setReady(true);
+        }
+      });
+
+    const linkingListener = Linking.addEventListener('url', ({ url }) => {
+      void handleRecoveryUrl(url);
     });
 
     const { data: authListener } = client.auth.onAuthStateChange(
@@ -76,6 +135,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => {
       active = false;
       authListener.subscription.unsubscribe();
+      linkingListener.remove();
       appStateListener.remove();
       client.auth.stopAutoRefresh();
     };
@@ -84,8 +144,27 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(
     () => ({
       configured: isSupabaseConfigured,
+      passwordRecoveryError,
       ready,
+      recoveringPassword,
       session,
+      async requestPasswordReset(email) {
+        const { error } = await requireClient().auth.resetPasswordForEmail(
+          email.trim(),
+          { redirectTo: passwordRecoveryRedirectUrl },
+        );
+        if (error) {
+          throw new Error(error.message);
+        }
+      },
+      async updatePassword(password) {
+        const { error } = await requireClient().auth.updateUser({ password });
+        if (error) {
+          throw new Error(error.message);
+        }
+        setPasswordRecoveryError(null);
+        setRecoveringPassword(false);
+      },
       async signIn(email, password) {
         const { error } = await requireClient().auth.signInWithPassword({
           email: email.trim(),
@@ -112,7 +191,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
       },
     }),
-    [ready, session],
+    [passwordRecoveryError, ready, recoveringPassword, session],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
