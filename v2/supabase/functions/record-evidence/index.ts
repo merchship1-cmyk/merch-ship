@@ -10,6 +10,8 @@ const firstNamedKey = (value: string | undefined) => {
   }
 };
 
+const toIsoUtc = (value: string) => new Date(value).toISOString();
+
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServerKey =
   firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS')) ??
@@ -47,7 +49,8 @@ const mapEvidence = (row: Record<string, unknown>) => ({
   outputProduced: row.output_produced,
   wouldUseAgain: row.would_use_again,
   ...(typeof row.notes === 'string' ? { notes: row.notes } : {}),
-  recordedAt: row.recorded_at,
+  recordedAt:
+    typeof row.recorded_at === 'string' ? toIsoUtc(row.recorded_at) : row.recorded_at,
 });
 
 Deno.serve(async (request) => {
