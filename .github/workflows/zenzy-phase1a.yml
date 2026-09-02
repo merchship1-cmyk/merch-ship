@@ -169,6 +169,7 @@ jobs:
     env:
       CI: "1"
       ZENZY_DETOX: "1"
+      ZENZY_ANDROID_PACKAGE: com.merchship.zenzy.phase1a.test
       DETOX_AVD_NAME: zenzy_api_34
       EXPO_PUBLIC_ZENZY_AI_MODE: remote
       TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
