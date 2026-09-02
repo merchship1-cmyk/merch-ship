@@ -201,7 +201,7 @@ jobs:
         run: node phase1a/mobile-sim/prepare-native.mjs
       - name: Build Android release and test APKs
         working-directory: v2
-        run: npx detox build --config phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release
+        run: npx detox build --config-path phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release
       - name: Run Detox on API 34 emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -209,7 +209,7 @@ jobs:
           arch: x86_64
           profile: pixel_5
           avd-name: zenzy_api_34
-          script: cd v2 && npx detox test --config phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
+          script: cd v2 && npx detox test --config-path phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
       - name: Upload mobile evidence
         if: always()
         uses: actions/upload-artifact@v4
