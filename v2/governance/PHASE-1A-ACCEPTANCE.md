@@ -4,7 +4,7 @@ Date: 2026-09-02
 
 Branch: `codex/zenzy-clarity-acceptance-gate`
 
-Evidence baseline: ZENZY Phase 1A Gate workflow run #27 on head `97e226aa70ace4ff10823baf03c1fa070934cc02`.
+Evidence baseline: ZENZY Phase 1A Gate workflow run `33679558841`, final attempt `3`, on proven head `30839087dd3a49bf2ce626bcc7b47e9075420c13`.
 
 ```text
 PHASE-1A CODE:             PASS — CI VERIFIED
