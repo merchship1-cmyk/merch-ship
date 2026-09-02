@@ -185,6 +185,10 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+      - name: Install Android emulator audio library
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpulse0
       - name: Prepare mobile runtime endpoint
         shell: bash
         run: echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
