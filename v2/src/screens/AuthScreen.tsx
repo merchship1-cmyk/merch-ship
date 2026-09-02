@@ -14,10 +14,20 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, spacing } from '../theme';
 
 export function AuthScreen() {
-  const { configured, signIn, signUp } = useAuth();
+  const {
+    configured,
+    passwordRecoveryError,
+    recoveringPassword,
+    requestPasswordReset,
+    signIn,
+    signUp,
+    updatePassword,
+  } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
+  const [mode, setMode] = useState<
+    'sign-in' | 'sign-up' | 'forgot-password'
+  >('sign-in');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -28,7 +38,14 @@ export function AuthScreen() {
     setMessage(null);
 
     try {
-      if (mode === 'sign-in') {
+      if (recoveringPassword) {
+        await updatePassword(password);
+      } else if (mode === 'forgot-password') {
+        await requestPasswordReset(email);
+        setMessage(
+          'Recovery email sent. Open the newest link on this device.',
+        );
+      } else if (mode === 'sign-in') {
         await signIn(email, password);
       } else {
         const confirmationRequired = await signUp(email, password);
@@ -48,8 +65,33 @@ export function AuthScreen() {
     }
   };
 
-  const formValid =
-    configured && email.trim().includes('@') && password.length >= 6;
+  const formValid = recoveringPassword
+    ? configured && password.length >= 6
+    : mode === 'forgot-password'
+      ? configured && email.trim().includes('@')
+      : configured && email.trim().includes('@') && password.length >= 6;
+
+  const title = recoveringPassword
+    ? 'Create a new password'
+    : mode === 'forgot-password'
+      ? 'Reset your password'
+      : mode === 'sign-in'
+        ? 'Sign in to continue'
+        : 'Create your account';
+
+  const subtitle = recoveringPassword
+    ? 'Enter a new password for this verified Supabase account.'
+    : mode === 'forgot-password'
+      ? 'Zenzy will email a secure link that returns to this app.'
+      : 'Remote transformations are stored under your verified Supabase identity. Mock mode remains available without an account.';
+
+  const submitLabel = recoveringPassword
+    ? 'Save new password'
+    : mode === 'forgot-password'
+      ? 'Send recovery email'
+      : mode === 'sign-in'
+        ? 'Sign in'
+        : 'Create account';
 
   return (
     <KeyboardAvoidingView
@@ -62,36 +104,41 @@ export function AuthScreen() {
       >
         <View style={styles.heading}>
           <Text style={styles.eyebrow}>ZENZY · PROTECTED RUNTIME</Text>
-          <Text style={styles.title}>
-            {mode === 'sign-in' ? 'Sign in to continue' : 'Create your account'}
-          </Text>
-          <Text style={styles.subtitle}>
-            Remote transformations are stored under your verified Supabase
-            identity. Mock mode remains available without an account.
-          </Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
         </View>
 
         <View style={styles.form}>
-          <TextInput
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
-            value={email}
-          />
-          <TextInput
-            autoCapitalize="none"
-            autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'}
-            onChangeText={setPassword}
-            placeholder="Password"
-            placeholderTextColor={colors.muted}
-            secureTextEntry
-            style={styles.input}
-            value={password}
-          />
+          {!recoveringPassword ? (
+            <TextInput
+              testID="login-email"
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              onChangeText={setEmail}
+              placeholder="Email"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              value={email}
+            />
+          ) : null}
+          {mode !== 'forgot-password' || recoveringPassword ? (
+            <TextInput
+              testID={recoveringPassword ? 'recovery-password' : 'login-password'}
+              autoCapitalize="none"
+              autoComplete={
+                mode === 'sign-in' && !recoveringPassword
+                  ? 'current-password'
+                  : 'new-password'
+              }
+              onChangeText={setPassword}
+              placeholder={recoveringPassword ? 'New password' : 'Password'}
+              placeholderTextColor={colors.muted}
+              secureTextEntry
+              style={styles.input}
+              value={password}
+            />
+          ) : null}
         </View>
 
         {!configured ? (
@@ -101,27 +148,48 @@ export function AuthScreen() {
           </Text>
         ) : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
+        {passwordRecoveryError ? (
+          <Text style={styles.error}>{passwordRecoveryError}</Text>
+        ) : null}
         {message ? <Text style={styles.message}>{message}</Text> : null}
 
         <PrimaryButton
-          label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
+          testID={recoveringPassword ? 'recovery-submit' : 'login-submit'}
+          label={submitLabel}
           loading={loading}
           disabled={!formValid}
           onPress={handleSubmit}
         />
-        <Text
-          accessibilityRole="button"
-          onPress={() => {
-            setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in');
-            setError(null);
-            setMessage(null);
-          }}
-          style={styles.switchMode}
-        >
-          {mode === 'sign-in'
-            ? 'Need an account? Create one'
-            : 'Already have an account? Sign in'}
-        </Text>
+        {!recoveringPassword ? (
+          <>
+            {mode === 'sign-in' ? (
+              <Text
+                accessibilityRole="button"
+                onPress={() => {
+                  setMode('forgot-password');
+                  setError(null);
+                  setMessage(null);
+                }}
+                style={styles.switchMode}
+              >
+                Forgot password?
+              </Text>
+            ) : null}
+            <Text
+              accessibilityRole="button"
+              onPress={() => {
+                setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in');
+                setError(null);
+                setMessage(null);
+              }}
+              style={styles.switchMode}
+            >
+              {mode === 'sign-in'
+                ? 'Need an account? Create one'
+                : 'Back to sign in'}
+            </Text>
+          </>
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );

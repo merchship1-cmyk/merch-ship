@@ -6,11 +6,13 @@ type Props = {
   label: string;
   selected: boolean;
   onPress: () => void;
+  testID?: string;
 };
 
-export function ChoiceChip({ label, selected, onPress }: Props) {
+export function ChoiceChip({ label, selected, onPress, testID }: Props) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}

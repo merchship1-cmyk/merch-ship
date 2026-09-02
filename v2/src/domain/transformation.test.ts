@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  transformationAcceptanceSchema,
   transformationEvidenceSchema,
   transformationResultSchema,
 } from './transformation';
@@ -14,6 +15,22 @@ describe('Phase 0 schemas', () => {
     );
 
     expect(transformationResultSchema.safeParse(result).success).toBe(true);
+  });
+
+  it('requires explicit affirmative clarity acceptance', () => {
+    const accepted = transformationAcceptanceSchema.safeParse({
+      runId: 'run-1',
+      accepted: true,
+      acceptedAt: '2026-07-22T12:15:00.000Z',
+    });
+    const rejected = transformationAcceptanceSchema.safeParse({
+      runId: 'run-1',
+      accepted: false,
+      acceptedAt: '2026-07-22T12:15:00.000Z',
+    });
+
+    expect(accepted.success).toBe(true);
+    expect(rejected.success).toBe(false);
   });
 
   it('requires all five evidence measures', () => {

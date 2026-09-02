@@ -1,0 +1,276 @@
+name: ZENZY Phase 1A Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: zenzy-phase1a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# These are public client configuration values, not privileged Supabase secrets.
+env:
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+  EXPO_PUBLIC_SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
+jobs:
+  scope:
+    name: Phase 1A / Scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      relevant: ${{ steps.detect.outputs.relevant }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - name: Detect Phase-1A changes
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          relevant=false
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            relevant=true
+          else
+            changed_files="$(gh api --paginate \
+              "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+              --jq '.[].filename')"
+
+            while IFS= read -r path; do
+              case "$path" in
+                v2/*|.github/workflows/zenzy-phase1a.yml|.github/workflows/zenzy-phase1a-auto-retry.yml)
+                  relevant=true
+                  break
+                  ;;
+              esac
+            done <<< "$changed_files"
+          fi
+
+          echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+          if [[ "$relevant" == "true" ]]; then
+            echo "Phase 1A scope: relevant — protected lanes will run." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Phase 1A scope: not applicable — protected lanes will remain skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  secrets-gate:
+    name: Phase 1A / Secrets Check
+    needs: scope
+    if: needs.scope.outputs.relevant == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Verify required credential secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          missing=()
+          [[ -n "${TEST_USER_A_EMAIL:-}" ]] || missing+=("ZENZY_TEST_USER_A_EMAIL")
+          [[ -n "${TEST_USER_A_PASSWORD:-}" ]] || missing+=("ZENZY_TEST_USER_A_PASSWORD")
+          [[ -n "${TEST_USER_B_EMAIL:-}" ]] || missing+=("ZENZY_TEST_USER_B_EMAIL")
+          [[ -n "${TEST_USER_B_PASSWORD:-}" ]] || missing+=("ZENZY_TEST_USER_B_PASSWORD")
+
+          {
+            echo "## ZENZY Phase 1A credential gate"
+            echo
+            if (( ${#missing[@]} == 0 )); then
+              echo "Status: GREEN — all four credential secrets are configured."
+            else
+              echo "Status: BLUE — configuration is incomplete."
+              echo
+              echo "Missing repository secret names:"
+              for name in "${missing[@]}"; do
+                printf -- '- `%s`\n' "$name"
+              done
+              echo
+              echo "Add the missing values in repository Settings → Secrets and variables → Actions, then re-run failed jobs."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if (( ${#missing[@]} != 0 )); then
+            echo "Phase 1A is blocked because required credential secrets are missing."
+            exit 1
+          fi
+
+  static-gate:
+    name: Phase 1A / Static Contract
+    needs: scope
+    if: needs.scope.outputs.relevant == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+      - name: Run existing verification suite
+        working-directory: v2
+        run: npm run verify
+      - name: Verify Phase-1A spine
+        working-directory: v2
+        run: npm run phase1a:static
+
+  runtime-gate:
+    name: Phase 1A / Authenticated Runtime
+    needs: [secrets-gate, static-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+      - name: Run authenticated two-user Phase-1A proof
+        working-directory: v2
+        run: npm run phase1a:e2e
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-phase1a-runtime
+          path: v2/phase1a/artifacts/phase1a-report.json
+          if-no-files-found: error
+
+  mobile-gate:
+    name: Phase 1A / Android Detox
+    needs: [secrets-gate, static-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "1"
+      ZENZY_DETOX: "1"
+      ZENZY_ANDROID_PACKAGE: com.merchship.zenzy.phase1a.test
+      DETOX_AVD_NAME: zenzy_api_34
+      EXPO_PUBLIC_ZENZY_AI_MODE: remote
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android emulator audio library
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpulse0
+      - name: Enable KVM acceleration for Android emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          test -e /dev/kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+          ls -l /dev/kvm
+      - name: Prepare mobile runtime endpoint
+        shell: bash
+        run: echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
+      - name: Install app and Detox dependencies
+        working-directory: v2
+        run: |
+          npm ci
+          npm install --no-save detox@20.51.4 "jest@^29"
+      - name: Generate temporary Android project
+        working-directory: v2
+        run: npx expo prebuild --platform android --clean --non-interactive
+      - name: Install Detox native instrumentation
+        working-directory: v2
+        run: node phase1a/mobile-sim/prepare-native.mjs
+      - name: Build Android release and test APKs
+        working-directory: v2
+        run: npx detox build --config-path ./phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release
+      - name: Run Detox on API 34 emulator
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_5
+          avd-name: zenzy_api_34
+          emulator-boot-timeout: 600
+          force-avd-creation: true
+          emulator-options: -no-window -gpu software -no-snapshot-load -no-snapshot-save -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
+          pre-emulator-launch-script: |
+            echo "KVM diagnostics before emulator launch:"
+            ls -l /dev/kvm
+          script: cd v2 && npx detox test --config-path ./phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
+      - name: Upload mobile evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-phase1a-detox
+          path: v2/phase1a/artifacts/detox
+          if-no-files-found: error
+
+  required-gate:
+    name: Phase 1A / Required Gate
+    if: always()
+    needs: [scope, secrets-gate, static-gate, runtime-gate, mobile-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every Phase-1A lane
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test "${{ needs.scope.result }}" = "success"
+
+          if [[ "${{ needs.scope.outputs.relevant }}" == "true" ]]; then
+            test "${{ needs.secrets-gate.result }}" = "success"
+            test "${{ needs.static-gate.result }}" = "success"
+            test "${{ needs.runtime-gate.result }}" = "success"
+            test "${{ needs.mobile-gate.result }}" = "success"
+
+            {
+              echo "## ZENZY Phase 1A required gate"
+              echo
+              echo "All credential, static, authenticated-runtime, mobile, and evidence-upload lanes passed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ needs.scope.outputs.relevant }}" == "false" ]]; then
+            {
+              echo "## ZENZY Phase 1A required gate"
+              echo
+              echo "Not applicable — this pull request does not change ZENZY Phase-1A surfaces."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Phase 1A scope could not be determined."
+            exit 1
+          fi

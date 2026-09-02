@@ -47,11 +47,38 @@ for (const clause of requiredPhaseOneClauses) {
   }
 }
 
-if (
-  !acceptance.includes('PHASE-1A ACCEPTANCE:       PENDING') ||
-  !acceptance.includes('LIVE SUPABASE MUTATION:    NOT_RUN — FORBIDDEN')
-) {
-  throw new Error('Phase-1A acceptance must remain pending before runtime proof.');
+const requiredAcceptanceClauses = [
+  'AUTHENTICATED RUNTIME:     PASS — TWO-USER PROOF',
+  'CROSS-USER ISOLATION:      PASS — DENIAL + READ ISOLATION',
+  'ACCEPTANCE/EVIDENCE FLOW:  PASS — GENERATED → REVIEWED → VERIFIED',
+  'EDGE HTTP AUTH:            PASS — VERIFIED BEARER/JWT RUNTIME',
+  'ANDROID RELEASE + TEST APK: PASS',
+  'ANDROID DETOX:             PASS — API 34 EMULATOR',
+  'PHASE-1A REQUIRED GATE:    PASS',
+  'PRODUCTION RELEASE:        NOT_AUTHORIZED',
+  'MERGE AUTHORIZATION:       NOT_AUTHORIZED',
+  'PHASE-1A ACCEPTANCE:       PASS — BOUNDED GREEN',
+  'Phase 1A PASS is scoped only to the Phase 1A implementation and evidence gate represented by this pull request.',
+  'It does not authorize production release, production deployment, merge, tester acceptance, broader ZENZY authority, or globally enforced GOV-OS behavior.',
+];
+
+for (const clause of requiredAcceptanceClauses) {
+  if (!acceptance.includes(clause)) {
+    throw new Error('Phase-1A acceptance record is missing required evidence-consistent clause: ' + clause);
+  }
+}
+
+const obsoleteAcceptanceClauses = [
+  'PHASE-1A ACCEPTANCE:       PENDING',
+  'RLS ISOLATION:             NOT_RUN',
+  'EDGE HTTP AUTH:            NOT_RUN',
+  'ANDROID DETOX:             NOT_RUN',
+];
+
+for (const clause of obsoleteAcceptanceClauses) {
+  if (acceptance.includes(clause)) {
+    throw new Error('Phase-1A acceptance record still contains obsolete pre-runtime status: ' + clause);
+  }
 }
 
 if (

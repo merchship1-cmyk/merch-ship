@@ -27,6 +27,21 @@ and password, stores the session with Expo SecureStore, sends the access token
 to the Edge Function, and permits owner-scoped database reads only. All table
 writes remain server-authorized.
 
+## Password recovery
+
+Add the exact URL `zenzy://auth/reset-password` to **Authentication → URL
+Configuration → Redirect URLs** in the connected Supabase project. Password
+recovery emails must use that redirect instead of `http://localhost:3000`.
+
+The app accepts only recovery callbacks for that exact scheme and path. It
+establishes the short-lived recovery session from Supabase, then allows the
+authenticated user to replace their own password. Recovery tokens are never
+logged, stored in source, or handled by the transformation Edge Functions.
+
+This repository configuration does not change the hosted Supabase URL allow
+list by itself. That dashboard setting remains a separate authorized runtime
+configuration step.
+
 Phase-1A source code does not authorize a live migration or function deploy.
 See `governance/PHASE-1A-ACCEPTANCE.md` for the runtime gates.
 

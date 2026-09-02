@@ -1,0 +1,110 @@
+name: ZENZY Phase 1A Retry Watch
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: zenzy-phase1a-retry-watch
+  cancel-in-progress: false
+
+jobs:
+  retry-secrets-blocked-runs:
+    name: Retry newly configured Phase 1A gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Detect credential readiness
+        id: readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${TEST_USER_A_EMAIL:-}" \
+            && -n "${TEST_USER_A_PASSWORD:-}" \
+            && -n "${TEST_USER_B_EMAIL:-}" \
+            && -n "${TEST_USER_B_PASSWORD:-}" ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "All Phase 1A credential secrets are configured." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Phase 1A retry watch is waiting for all four credential secrets." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Dispatch one bounded retry per blocked PR head
+        if: steps.readiness.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          workflow_file="zenzy-phase1a.yml"
+          summary="$GITHUB_STEP_SUMMARY"
+          dispatched=0
+
+          echo >> "$summary"
+          echo "## Bounded retry scan" >> "$summary"
+          echo >> "$summary"
+
+          open_pulls="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/pulls?state=open&base=main&per_page=100" \
+            --jq '.[] | [.number, .head.ref, .head.sha, .head.repo.full_name] | @tsv')"
+
+          while IFS=$'\t' read -r number head_ref head_sha head_repo; do
+            [[ -n "${number:-}" ]] || continue
+            [[ "$head_repo" == "$GITHUB_REPOSITORY" ]] || continue
+
+            latest="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow_file}/runs?head_sha=${head_sha}&per_page=1" \
+              --jq '.workflow_runs[0] // empty')"
+
+            if [[ -z "$latest" ]]; then
+              continue
+            fi
+
+            latest_event="$(jq -r '.event' <<< "$latest")"
+            latest_status="$(jq -r '.status' <<< "$latest")"
+            latest_conclusion="$(jq -r '.conclusion // ""' <<< "$latest")"
+            latest_run_id="$(jq -r '.id' <<< "$latest")"
+
+            # A workflow-dispatch run is the single automatic retry marker.
+            # Never dispatch repeatedly for the same PR head, even if that retry fails.
+            if [[ "$latest_event" == "workflow_dispatch" || "$latest_status" != "completed" ]]; then
+              continue
+            fi
+
+            if [[ "$latest_event" != "pull_request" || "$latest_conclusion" != "failure" ]]; then
+              continue
+            fi
+
+            secret_gate_result="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/runs/${latest_run_id}/jobs?filter=latest&per_page=100" \
+              --jq '.jobs[] | select(.name == "Phase 1A / Secrets Check") | .conclusion' \
+              | head -n 1)"
+
+            if [[ "$secret_gate_result" != "failure" ]]; then
+              continue
+            fi
+
+            gh api --method POST \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow_file}/dispatches" \
+              -f ref="$head_ref"
+
+            printf -- '- Dispatched one retry for PR #%s at `%s`.\n' "$number" "$head_sha" >> "$summary"
+            dispatched=$((dispatched + 1))
+          done <<< "$open_pulls"
+
+          if (( dispatched == 0 )); then
+            echo "- No eligible secrets-blocked PR heads required a retry." >> "$summary"
+          fi

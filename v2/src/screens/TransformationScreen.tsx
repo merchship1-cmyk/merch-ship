@@ -20,10 +20,17 @@ import { colors, spacing } from '../theme';
 
 type Props = {
   result: TransformationResult;
-  onComplete: (evidence: TransformationEvidence) => void;
+  onComplete: (evidence: TransformationEvidence) => Promise<void>;
+  submitting?: boolean;
+  submitError?: string | null;
 };
 
-export function TransformationScreen({ result, onComplete }: Props) {
+export function TransformationScreen({
+  result,
+  onComplete,
+  submitting = false,
+  submitError = null,
+}: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [timeSaved, setTimeSaved] = useState('');
   const [stepsRemoved, setStepsRemoved] = useState('');
@@ -33,7 +40,7 @@ export function TransformationScreen({ result, onComplete }: Props) {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const complete = () => {
+  const complete = async () => {
     if (
       timeSaved.trim() === '' ||
       stepsRemoved.trim() === '' ||
@@ -60,11 +67,12 @@ export function TransformationScreen({ result, onComplete }: Props) {
       return;
     }
 
-    onComplete(parsed.data);
+    setError(null);
+    await onComplete(parsed.data);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView testID="execution-screen" contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.kicker}>YOUR TRANSFORMATION</Text>
         <Text style={styles.heading}>{result.objective}</Text>
@@ -132,7 +140,7 @@ export function TransformationScreen({ result, onComplete }: Props) {
         ) : null}
 
         {activeIndex === 4 ? (
-          <View style={styles.section}>
+          <View testID="review-outcome" style={styles.section}>
             <Text style={styles.sectionLabel}>REVIEW THE RESULT</Text>
             <Text style={styles.strongBody}>{result.review.prompt}</Text>
             {result.review.successCriteria.map((criterion) => (
@@ -144,6 +152,7 @@ export function TransformationScreen({ result, onComplete }: Props) {
             <View style={styles.divider} />
             <Text style={styles.fieldLabel}>Minutes saved</Text>
             <TextInput
+              testID="evidence-minutes"
               accessibilityLabel="Minutes saved"
               keyboardType="number-pad"
               onChangeText={setTimeSaved}
@@ -155,6 +164,7 @@ export function TransformationScreen({ result, onComplete }: Props) {
 
             <Text style={styles.fieldLabel}>Steps removed</Text>
             <TextInput
+              testID="evidence-steps"
               accessibilityLabel="Steps removed"
               keyboardType="number-pad"
               onChangeText={setStepsRemoved}
@@ -169,6 +179,7 @@ export function TransformationScreen({ result, onComplete }: Props) {
               {[1, 2, 3, 4, 5].map((score) => (
                 <ChoiceChip
                   key={score}
+                  testID={`clarity-${score}`}
                   label={String(score)}
                   selected={clarityGain === score}
                   onPress={() => setClarityGain(score)}
@@ -179,11 +190,13 @@ export function TransformationScreen({ result, onComplete }: Props) {
             <Text style={styles.fieldLabel}>Real output produced?</Text>
             <View style={styles.choiceRow}>
               <ChoiceChip
+                testID="output-yes"
                 label="Yes"
                 selected={outputProduced === true}
                 onPress={() => setOutputProduced(true)}
               />
               <ChoiceChip
+                testID="output-no"
                 label="No"
                 selected={outputProduced === false}
                 onPress={() => setOutputProduced(false)}
@@ -193,11 +206,13 @@ export function TransformationScreen({ result, onComplete }: Props) {
             <Text style={styles.fieldLabel}>Would you use Zenzy again?</Text>
             <View style={styles.choiceRow}>
               <ChoiceChip
+                testID="reuse-yes"
                 label="Yes"
                 selected={wouldUseAgain === true}
                 onPress={() => setWouldUseAgain(true)}
               />
               <ChoiceChip
+                testID="reuse-no"
                 label="No"
                 selected={wouldUseAgain === false}
                 onPress={() => setWouldUseAgain(false)}
@@ -206,6 +221,7 @@ export function TransformationScreen({ result, onComplete }: Props) {
 
             <Text style={styles.fieldLabel}>Notes (optional)</Text>
             <TextInput
+              testID="evidence-notes"
               accessibilityLabel="Review notes"
               multiline
               maxLength={1000}
@@ -216,7 +232,9 @@ export function TransformationScreen({ result, onComplete }: Props) {
               value={notes}
             />
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error || submitError ? (
+              <Text style={styles.error}>{error ?? submitError}</Text>
+            ) : null}
           </View>
         ) : null}
       </View>
@@ -236,12 +254,18 @@ export function TransformationScreen({ result, onComplete }: Props) {
         ) : null}
         <View style={styles.primaryAction}>
           <PrimaryButton
+            testID={
+              activeIndex === 4
+                ? 'transformation-complete'
+                : 'transformation-continue'
+            }
             label={
               activeIndex === 4 ? 'Complete transformation' : 'Continue'
             }
+            loading={activeIndex === 4 && submitting}
             onPress={
               activeIndex === 4
-                ? complete
+                ? () => void complete()
                 : () => setActiveIndex((current) => current + 1)
             }
           />
