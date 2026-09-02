@@ -189,6 +189,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libpulse0
+      - name: Enable KVM acceleration for Android emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          test -e /dev/kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+          ls -l /dev/kvm
       - name: Prepare mobile runtime endpoint
         shell: bash
         run: echo "EXPO_PUBLIC_ZENZY_API_URL=${SUPABASE_URL%/}/functions/v1/transform" >> "$GITHUB_ENV"
@@ -205,15 +216,22 @@ jobs:
         run: node phase1a/mobile-sim/prepare-native.mjs
       - name: Build Android release and test APKs
         working-directory: v2
-        run: npx detox build --config-path phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release
+        run: npx detox build --config-path ./phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release
       - name: Run Detox on API 34 emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 34
           arch: x86_64
           profile: pixel_5
           avd-name: zenzy_api_34
-          script: cd v2 && npx detox test --config-path phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
+          emulator-boot-timeout: 600
+          force-avd-creation: true
+          emulator-options: -no-window -gpu software -no-snapshot-load -no-snapshot-save -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
+          pre-emulator-launch-script: |
+            echo "KVM diagnostics before emulator launch:"
+            ls -l /dev/kvm
+          script: cd v2 && npx detox test --config-path ./phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
       - name: Upload mobile evidence
         if: always()
         uses: actions/upload-artifact@v4
