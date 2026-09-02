@@ -29,6 +29,7 @@ describe('ZENZY Phase 1A gate', () => {
     await waitFor(element(by.id('clarity-screen')))
       .toBeVisible()
       .withTimeout(60000);
+    await element(by.id('clarity-screen')).scrollTo('bottom');
     await expect(element(by.id('accept-next-move'))).toBeVisible();
     await expect(element(by.id('execution-screen'))).not.toBeVisible();
 
