@@ -10,6 +10,8 @@ const firstNamedKey = (value: string | undefined) => {
   }
 };
 
+const toIsoUtc = (value: string) => new Date(value).toISOString();
+
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServerKey =
   firstNamedKey(Deno.env.get('SUPABASE_SECRET_KEYS')) ??
@@ -101,7 +103,7 @@ Deno.serve(async (request) => {
     return json({
       runId: existing.run_id,
       accepted: existing.accepted,
-      acceptedAt: existing.accepted_at,
+      acceptedAt: toIsoUtc(existing.accepted_at),
     });
   }
 
@@ -119,6 +121,6 @@ Deno.serve(async (request) => {
   return json({
     runId: acceptance.run_id,
     accepted: acceptance.accepted,
-    acceptedAt: acceptance.accepted_at,
+    acceptedAt: toIsoUtc(acceptance.accepted_at),
   });
 });
