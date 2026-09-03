@@ -68,6 +68,11 @@ jobs:
           grep -q 'Node.js 22 is required' phase1b/founder-smoke.ps1
           grep -q '8bcd9c9e1d0ce3cfaecfffc779ec5ace95ee1a6c' phase1b/founder-smoke.ps1
 
+          test -f phase1b/FOUNDER_SMOKE_TEST.md
+          test -f phase1b/INSTALLATION_TEST.md
+          test -f phase1b/DEV_LANE.md
+          test -f phase1b/EVIDENCE_PACKET.md
+
           {
             echo "## ZENZY Phase 1B contract"
             echo
@@ -81,6 +86,7 @@ jobs:
             echo "- no submit profile"
             echo "- no EAS Update channel"
             echo "- Founder pack targets exact Phase 1A merged baseline"
+            echo "- FST / installation / DEV / EVP evidence records present"
             echo
             echo "This check does not make Phase 1B GREEN."
           } >> "$GITHUB_STEP_SUMMARY"
@@ -97,6 +103,7 @@ jobs:
           cp v2/phase1b/RUN_FOUNDER_SMOKE.cmd founder-test-pack/
           cp v2/phase1b/founder-smoke.ps1 founder-test-pack/
           cp v2/phase1b/FOUNDER_SMOKE_TEST.md founder-test-pack/
+          cp v2/phase1b/INSTALLATION_TEST.md founder-test-pack/
           cp v2/phase1b/EVIDENCE_PACKET.md founder-test-pack/
           cp v2/phase1b/DEV_LANE.md founder-test-pack/
           cat > founder-test-pack/BOUNDARY.txt <<'EOF'
@@ -106,8 +113,9 @@ jobs:
           Target baseline: 8bcd9c9e1d0ce3cfaecfffc779ec5ace95ee1a6c
 
           This pack does not authorize production deployment, production release,
-          RFTO certification, PRIME inheritance, BMOS attachment, broader ZENZY
-          admission, commercial operation, or authority transfer.
+          app-store submission, EAS Update publication, RFTO certification,
+          PRIME inheritance, BMOS attachment, broader ZENZY admission,
+          commercial operation, or authority transfer.
           EOF
 
       - name: Upload Founder Test Pack
