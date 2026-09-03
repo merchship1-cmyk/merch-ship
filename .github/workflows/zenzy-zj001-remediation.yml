@@ -1,0 +1,46 @@
+name: ZENZY ZJ-001 Remediation
+
+on:
+  push:
+    branches:
+      - zenzy/zj001-remediation-v1
+  pull_request:
+    paths:
+      - 'v2/supabase/functions/**'
+      - 'v2/supabase/migrations/**'
+      - '.github/workflows/zenzy-zj001-remediation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  remediation-contract:
+    name: ZJ-001 / Remediation Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+      - name: Install dependencies
+        working-directory: v2
+        run: npm ci
+      - name: Run deterministic remediation tests
+        working-directory: v2
+        run: npx vitest run supabase/functions/_shared/zenzy-governance.test.ts supabase/functions/_shared/identifiers.test.ts
+      - name: Run Phase 1A static contract
+        working-directory: v2
+        run: npm run phase1a:static
+      - name: Run client secret boundary scan
+        working-directory: v2
+        run: npm run security:scan
+      - name: Confirm remediation remains non-production
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -R --line-number -E 'supabase db push|supabase functions deploy|eas submit|eas build --profile production' .github/workflows/zenzy-zj001-remediation.yml
+          echo 'ZJ-001 remediation gate is code/test only; no deployment action is present.'
