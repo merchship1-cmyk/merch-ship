@@ -1,0 +1,62 @@
+vault_id: MERCH-SHIP-ASSET-VAULT-Q4
+version: "1.0.0"
+parent_system: MERCH-SHIP-OS
+status: STRUCTURAL_ONLY
+root_folder: MERCH SHIP VAULT Q4
+folders:
+  - path: 01_DESIGNS/ENGINE_1_SHIP
+    purpose: Source design assets for Ship While You Create.
+  - path: 01_DESIGNS/ENGINE_2_FACTORY
+    purpose: Source design assets for Product Factory Universe.
+  - path: 01_DESIGNS/ENGINE_3_FULFILL
+    purpose: Source design assets for Fulfillment That Does Not Break.
+  - path: 02_MOCKUPS/FRONT
+    purpose: Front product mockups.
+  - path: 02_MOCKUPS/BACK
+    purpose: Back product mockups.
+  - path: 02_MOCKUPS/LIFESTYLE
+    purpose: Lifestyle product mockups.
+  - path: 03_LISTINGS
+    purpose: Final commerce-ready listing images and approved listing assets.
+  - path: 04_ARCHIVE
+    purpose: Superseded or retired governed assets.
+naming:
+  design_asset_pattern: ENGINE-PRODUCT-DESIGN-VERSION
+  commercial_sku_pattern: ENGINE-PRODUCT-DESIGN-VERSION-Q4
+  q4_rule: Q4 appears at commercial SKU/product-object level and is not required on reusable design-source files.
+  alias_policy: No silent renaming. Any platform-constrained alias must be explicitly mapped to the canonical SKU.
+operational_registry_fields:
+  - Engine
+  - Product Type
+  - Winner Category
+  - Design Name
+  - SKU Name
+  - Print Provider
+  - Cost
+  - Retail
+  - Mockup Link
+  - Status
+status_lifecycle:
+  - CANDIDATE
+  - PACKAGE_READY
+  - OFFER_DEFINED
+  - ACTIVE
+  - HOLD
+  - RETIRED
+ssot_chain:
+  identity: PFU product object registry
+  operations: MERCH SHIP operational registry projection
+  commerce: Shopify implementation
+  assets: governed Drive vault projection
+governance:
+  default: DENY
+  public_asset_publish: false
+  destructive_delete: false
+  external_workspace_write_requires_authorization: true
+  secrets_allowed: false
+claim_boundaries:
+  vault_contract_installed: true
+  google_drive_folders_created: false
+  airtable_base_created: false
+  notion_registry_created: false
+  product_assets_rendered: false
