@@ -1,0 +1,46 @@
+version: "1.0"
+mode: ZENZY_SYNC_MACHINE_COMPLIANCE
+status: BLUE_BUILD_AND_VALIDATE
+framework_states:
+  ISO27001:
+    state: SCOPED
+    claim_boundary: "Not certified"
+  SOC2:
+    state: NOT_ASSESSED
+    claim_boundary: "No CPA examination or attestation"
+  HIPAA:
+    state: UNDETERMINED
+    claim_boundary: "Applicability not established"
+lifecycle:
+  - SCOPED
+  - DESIGNED
+  - IMPLEMENTED
+  - EVIDENCED
+  - TESTED
+  - EFFECTIVE
+  - MONITORING
+rules:
+  no_skipping: true
+  effectiveness_requires:
+    - control_claim
+    - implementation_record
+    - operating_evidence
+    - completed_test
+    - reviewer_approval
+stages:
+  intake:
+    checks: [classification, jurisdiction, asset, data_category]
+  pre_execution:
+    checks: [identity, authority, least_privilege, exception_status]
+  execution:
+    actions: [apply_control, redact_when_required, create_evidence]
+  post_execution:
+    actions: [hash_evidence_sha256, update_risk, update_control_state]
+  release_gate:
+    block_on:
+      - critical_risk_open
+      - missing_required_evidence
+      - failed_required_test
+      - expired_exception
+      - unauthorized_claim
+release_decisions: [RED, BLUE, GREEN]
