@@ -1,0 +1,150 @@
+name: ZENZY PR 34 Collision-Free Android Diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'v2/**'
+      - '.github/workflows/zenzy-pr34-collision-free-android.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zenzy-pr34-collision-free-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  diagnostic-apk:
+    if: github.event.pull_request.number == 34 && github.event.pull_request.head.ref == 'zenzy/resume-active-run-v1'
+    name: PR 34 / Collision-Free Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: "1"
+      EXPO_PUBLIC_ZENZY_AI_MODE: mock
+      ZENZY_DETOX: "1"
+      ZENZY_ANDROID_PACKAGE: com.merchship.zenzy.phase1b.pr34resume
+
+    steps:
+      - name: Governance boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.event.pull_request.number }}" = "34"
+          test "${{ github.event.pull_request.base.ref }}" = "main"
+          test "${{ github.event.pull_request.head.ref }}" = "zenzy/resume-active-run-v1"
+          {
+            echo "## ZENZY PR 34 collision-free diagnostic boundary"
+            echo
+            echo "- Internal Founder diagnostic APK only"
+            echo "- Package: \`com.merchship.zenzy.phase1b.pr34resume\`"
+            echo "- MOCK AI mode enforced"
+            echo "- Local Android debug signing only"
+            echo "- No EAS credential mutation"
+            echo "- No merge"
+            echo "- No production profile"
+            echo "- No submit/release action"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout PR merge candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record candidate provenance
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          merge_sha="$(git rev-parse HEAD)"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          echo "merge_sha=$merge_sha" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Verify collision-free configuration
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          config="$RUNNER_TEMP/pr34-collision-free-config.json"
+          npx expo config --type public --json > "$config"
+          jq -e '.android.package == "com.merchship.zenzy.phase1b.pr34resume"' "$config" >/dev/null
+          test "$EXPO_PUBLIC_ZENZY_AI_MODE" = "mock"
+
+      - name: Run repository verification
+        working-directory: v2
+        run: npm run verify
+
+      - name: Generate Android project
+        working-directory: v2
+        shell: bash
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build collision-free debug APK
+        working-directory: v2/android
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Retain APK and provenance
+        working-directory: v2
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ steps.source.outputs.head_sha }}
+          BASE_SHA: ${{ steps.source.outputs.base_sha }}
+          MERGE_SHA: ${{ steps.source.outputs.merge_sha }}
+        run: |
+          set -euo pipefail
+          src="android/app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$src"
+          mkdir -p phase1b/artifacts/pr34-collision-free
+          dst="phase1b/artifacts/pr34-collision-free/ZENZY-PR34-Collision-Free-Diagnostic.apk"
+          cp "$src" "$dst"
+          unzip -tq "$dst" >/dev/null
+          sha256sum "$dst" | tee "$dst.sha256"
+          digest="$(cut -d' ' -f1 "$dst.sha256")"
+          jq -n \
+            --arg lifecycle "ZENZY_PR34_COLLISION_FREE_DIAGNOSTIC" \
+            --arg prHeadSha "$PR_HEAD_SHA" \
+            --arg baseSha "$BASE_SHA" \
+            --arg mergeSha "$MERGE_SHA" \
+            --arg package "com.merchship.zenzy.phase1b.pr34resume" \
+            --arg sha256 "$digest" \
+            --arg boundary "INTERNAL_FOUNDER_DIAGNOSTIC_ONLY_MOCK_NO_MERGE_NO_PRODUCTION" \
+            '{lifecycle:$lifecycle,pr_head_sha:$prHeadSha,base_sha:$baseSha,tested_merge_sha:$mergeSha,package:$package,signing:"android-debug",ai_mode:"mock",artifact:"ZENZY-PR34-Collision-Free-Diagnostic.apk",sha256:$sha256,boundary:$boundary}' \
+            > phase1b/artifacts/pr34-collision-free/provenance.json
+          {
+            echo
+            echo "## Collision-free diagnostic APK"
+            echo
+            echo "- Artifact: \`ZENZY-PR34-Collision-Free-Diagnostic.apk\`"
+            echo "- Package: \`com.merchship.zenzy.phase1b.pr34resume\`"
+            echo "- SHA-256: \`$digest\`"
+            echo "- Boundary: internal Founder diagnostic only; MOCK; no merge or release"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload collision-free diagnostic APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-pr34-collision-free-${{ steps.source.outputs.head_sha }}
+          path: |
+            v2/phase1b/artifacts/pr34-collision-free/ZENZY-PR34-Collision-Free-Diagnostic.apk
+            v2/phase1b/artifacts/pr34-collision-free/ZENZY-PR34-Collision-Free-Diagnostic.apk.sha256
+            v2/phase1b/artifacts/pr34-collision-free/provenance.json
+          if-no-files-found: error
+          retention-days: 14
