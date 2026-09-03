@@ -58,9 +58,31 @@ Bounded outcomes:
 
 The original JUNGLE failure evidence remains retained and is not superseded or relabeled.
 
+## Subsequent Phase 1A CI resilience evidence
+
+After the Founder decision was recorded, PR #45 repaired the Android CI lane so GitHub-hosted runners without usable `/dev/kvm` can fall back to software emulation without weakening the mandatory Detox gate.
+
+PR #45 was validated at exact head `4f74eaa367d159d9e3396fc7e67f8bb7a62b508e` and merged as `f05f8c2dc5ce209aa8d85ea8ebc9ed02e5ed20f7`.
+
+Retained validation:
+
+- workflow run ID: `33795392009`
+- Phase 1A / Scope: PASS
+- Phase 1A / Secrets Check: PASS
+- Phase 1A / Static Contract: PASS
+- Phase 1A / Authenticated Runtime: PASS
+- Phase 1A / Android Detox: PASS
+- Phase 1A / Required Gate: PASS
+- authenticated-runtime artifact ID: `9908999892`
+- authenticated-runtime digest: `sha256:87c65273774c08cf7f679f67e03257294fad497e332fe9f7fa3808ee9592ea6d`
+- Android Detox artifact ID: `9909459822`
+- Android Detox digest: `sha256:fd944e121b4abebfc13eb549dfafb412d6fba49dd86ea95b4eb5edf692e78d71`
+
+This integration changes CI resilience only. It does not alter ZENZY application behavior, test assertions, production authority, or the original bounded Founder decision.
+
 ## Separate open CI configuration issue
 
-The `V2 Component Pipeline` push run `33781171477` on the same merge SHA is not being reclassified as GREEN by this decision. Its Lane B runtime job reached the API-connectivity gate with the repository tests and Expo bundle passing, then failed because `OPENAI_API_KEY` was unavailable to that main-push job.
+The `V2 Component Pipeline` push run `33781171477` on the earlier merge SHA is not being reclassified as GREEN by this decision. Its Lane B runtime job reached the API-connectivity gate with the repository tests and Expo bundle passing, then failed because `OPENAI_API_KEY` was unavailable to that main-push job.
 
 That credential/scope configuration issue remains an independent gate for subsequent V2 main-runtime / broader engineering-assurance advancement. It does not expand this Phase 1B decision and must not be hidden, bypassed, or treated as a production credential authorization.
 
