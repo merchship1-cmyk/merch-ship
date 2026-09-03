@@ -1,0 +1,197 @@
+name: ZENZY Phase 1B Preview Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      authorization:
+        description: Type PHASE1B_PREVIEW_ONLY to acknowledge the non-production boundary
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  EXPO_PUBLIC_ZENZY_AI_MODE: mock
+  ZENZY_PHASE1B_PREVIEW: "1"
+
+concurrency:
+  group: zenzy-phase1b-preview-main
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    name: Phase 1B / Android Preview APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PHASE1B_AUTHORIZATION: ${{ inputs.authorization }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      ZENZY_EAS_PROJECT_ID: ${{ secrets.ZENZY_EAS_PROJECT_ID }}
+    steps:
+      - name: Governance guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${PHASE1B_AUTHORIZATION:-}" != "PHASE1B_PREVIEW_ONLY" ]]; then
+            echo "Blocked: Phase 1B preview acknowledgement was not supplied."
+            exit 1
+          fi
+          if [[ -z "${EXPO_TOKEN:-}" ]]; then
+            echo "Blocked: EXPO_TOKEN is not configured."
+            exit 1
+          fi
+          if [[ -z "${ZENZY_EAS_PROJECT_ID:-}" ]]; then
+            echo "Blocked: ZENZY_EAS_PROJECT_ID is not configured."
+            exit 1
+          fi
+          {
+            echo "## ZENZY Phase 1B governance guard"
+            echo
+            echo "- Internal preview only"
+            echo "- Source lane locked to merged main"
+            echo "- MOCK AI mode enforced"
+            echo "- No production build profile"
+            echo "- No submit/release action"
+            echo "- No EAS Update channel provisioned"
+            echo "- No RFTO / PRIME / BMOS authority"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout merged main candidate
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Record candidate source
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+          main_sha="$(git rev-parse origin/main)"
+          if [[ "$sha" != "$main_sha" ]]; then
+            echo "Blocked: checked-out candidate does not match origin/main."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Candidate merged-main source: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Verify preview configuration is fail-closed
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f eas.json
+          jq -e '.build.preview.distribution == "internal"' eas.json >/dev/null
+          jq -e '.build.preview.environment == "preview"' eas.json >/dev/null
+          jq -e '.build.preview.android.buildType == "apk"' eas.json >/dev/null
+          jq -e '.build.preview.env.EXPO_PUBLIC_ZENZY_AI_MODE == "mock"' eas.json >/dev/null
+          jq -e '.build.preview.node == "22.23.2"' eas.json >/dev/null
+          jq -e '.build.preview.channel == null' eas.json >/dev/null
+          jq -e '.build.production == null' eas.json >/dev/null
+          jq -e '.submit == null' eas.json >/dev/null
+
+          npx expo config --type public --json > phase1b-expo-config.json
+          jq -e '.name == "Zenzy Preview"' phase1b-expo-config.json >/dev/null
+          jq -e '.android.package == "com.merchship.zenzy.phase1b.preview"' phase1b-expo-config.json >/dev/null
+          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' phase1b-expo-config.json >/dev/null
+
+      - name: Run repository verification before packaging
+        working-directory: v2
+        run: npm run verify
+
+      - name: Build internal Android preview on EAS
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          eas build \
+            --platform android \
+            --profile preview \
+            --non-interactive \
+            --wait \
+            --json > phase1b-build.json
+
+      - name: Retain preview APK and provenance
+        working-directory: v2
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p phase1b/artifacts
+
+          build_id="$(jq -r 'if type == "array" then .[0].id else .id end' phase1b-build.json)"
+          build_url="$(jq -r 'if type == "array" then (.[0].artifacts.buildUrl // .[0].artifacts.applicationArchiveUrl // empty) else (.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty) end' phase1b-build.json)"
+
+          if [[ -z "$build_id" || "$build_id" == "null" ]]; then
+            echo "Blocked: EAS build ID was not returned."
+            exit 1
+          fi
+          if [[ -z "$build_url" ]]; then
+            echo "Blocked: EAS preview artifact URL was not returned."
+            exit 1
+          fi
+
+          cp phase1b-build.json phase1b/artifacts/eas-build-metadata.json
+          curl --fail --location --retry 3 "$build_url" \
+            --output phase1b/artifacts/zenzy-phase1b-preview.apk
+          unzip -tq phase1b/artifacts/zenzy-phase1b-preview.apk >/dev/null
+
+          sha256sum phase1b/artifacts/zenzy-phase1b-preview.apk \
+            | tee phase1b/artifacts/zenzy-phase1b-preview.apk.sha256
+
+          digest="$(cut -d' ' -f1 phase1b/artifacts/zenzy-phase1b-preview.apk.sha256)"
+          jq -n \
+            --arg lifecycle "ZENZY_PHASE_1B_PREVIEW" \
+            --arg sourceSha "$SOURCE_SHA" \
+            --arg buildId "$build_id" \
+            --arg profile "preview" \
+            --arg environment "preview" \
+            --arg aiMode "mock" \
+            --arg updateChannel "NONE_NOT_PROVISIONED" \
+            --arg artifact "zenzy-phase1b-preview.apk" \
+            --arg sha256 "$digest" \
+            --arg boundary "INTERNAL_FOUNDER_TESTER_ONLY_NO_PRODUCTION_NO_RFTO_NO_PRIME_NO_BMOS" \
+            '{lifecycle:$lifecycle,source_sha:$sourceSha,eas_build_id:$buildId,profile:$profile,environment:$environment,ai_mode:$aiMode,eas_update_channel:$updateChannel,artifact:$artifact,sha256:$sha256,boundary:$boundary}' \
+            > phase1b/artifacts/provenance.json
+
+          {
+            echo
+            echo "## Phase 1B preview artifact"
+            echo
+            echo "- EAS build: \`$build_id\`"
+            echo "- Source: \`$SOURCE_SHA\`"
+            echo "- Artifact: \`zenzy-phase1b-preview.apk\`"
+            echo "- SHA-256: \`$digest\`"
+            echo "- EAS Update channel: not provisioned"
+            echo "- Boundary: internal preview only; no release authority"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Phase 1B retained evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-phase1b-android-preview-${{ steps.source.outputs.sha }}
+          path: |
+            v2/phase1b/artifacts/zenzy-phase1b-preview.apk
+            v2/phase1b/artifacts/zenzy-phase1b-preview.apk.sha256
+            v2/phase1b/artifacts/eas-build-metadata.json
+            v2/phase1b/artifacts/provenance.json
+          if-no-files-found: error
+          retention-days: 90

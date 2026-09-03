@@ -1,0 +1,127 @@
+name: ZENZY Phase 1B Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "v2/**"
+      - ".github/workflows/zenzy-phase1b-contract.yml"
+      - ".github/workflows/zenzy-phase1b-preview.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zenzy-phase1b-contract-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Phase 1B / Non-Production Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ZENZY_PHASE1B_PREVIEW: "1"
+      EXPO_PUBLIC_ZENZY_AI_MODE: mock
+      ZENZY_EAS_PROJECT_ID: 00000000-0000-0000-0000-000000000000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Verify Phase 1B configuration boundary
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          jq -e '.build | keys == ["preview"]' eas.json >/dev/null
+          jq -e '.build.preview.node == "22.23.2"' eas.json >/dev/null
+          jq -e '.build.preview.environment == "preview"' eas.json >/dev/null
+          jq -e '.build.preview.distribution == "internal"' eas.json >/dev/null
+          jq -e '.build.preview.android.buildType == "apk"' eas.json >/dev/null
+          jq -e '.build.preview.env.ZENZY_PHASE1B_PREVIEW == "1"' eas.json >/dev/null
+          jq -e '.build.preview.env.EXPO_PUBLIC_ZENZY_AI_MODE == "mock"' eas.json >/dev/null
+          jq -e '.build.preview.channel == null' eas.json >/dev/null
+          jq -e '.build.production == null' eas.json >/dev/null
+          jq -e '.submit == null' eas.json >/dev/null
+
+          # No EAS Update runtime has been admitted into this preview lane.
+          jq -e '.dependencies["expo-updates"] == null' package.json >/dev/null
+
+          npx expo config --type public --json > phase1b-contract-config.json
+          jq -e '.name == "Zenzy Preview"' phase1b-contract-config.json >/dev/null
+          jq -e '.scheme == "zenzy-preview"' phase1b-contract-config.json >/dev/null
+          jq -e '.android.package == "com.merchship.zenzy.phase1b.preview"' phase1b-contract-config.json >/dev/null
+          jq -e '.ios.bundleIdentifier == "com.merchship.zenzy.phase1b.preview"' phase1b-contract-config.json >/dev/null
+          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' phase1b-contract-config.json >/dev/null
+
+          grep -q 'EXPO_PUBLIC_ZENZY_AI_MODE = "mock"' phase1b/founder-smoke.ps1
+          grep -q 'Node.js 22 is required' phase1b/founder-smoke.ps1
+          grep -q '8bcd9c9e1d0ce3cfaecfffc779ec5ace95ee1a6c' phase1b/founder-smoke.ps1
+
+          test -f phase1b/FOUNDER_SMOKE_TEST.md
+          test -f phase1b/INSTALLATION_TEST.md
+          test -f phase1b/DEV_LANE.md
+          test -f phase1b/EVIDENCE_PACKET.md
+
+          {
+            echo "## ZENZY Phase 1B contract"
+            echo
+            echo "Status: configuration boundary validated."
+            echo
+            echo "- preview profile only"
+            echo "- internal Android APK"
+            echo "- MOCK AI mode"
+            echo "- Node 22 pinned"
+            echo "- no production build profile"
+            echo "- no submit profile"
+            echo "- no EAS Update channel"
+            echo "- Founder pack targets exact Phase 1A merged baseline"
+            echo "- FST / installation / DEV / EVP evidence records present"
+            echo
+            echo "This check does not make Phase 1B GREEN."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run repository verification
+        working-directory: v2
+        run: npm run verify
+
+      - name: Package Founder Test Pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p founder-test-pack
+          cp v2/phase1b/RUN_FOUNDER_SMOKE.cmd founder-test-pack/
+          cp v2/phase1b/founder-smoke.ps1 founder-test-pack/
+          cp v2/phase1b/FOUNDER_SMOKE_TEST.md founder-test-pack/
+          cp v2/phase1b/INSTALLATION_TEST.md founder-test-pack/
+          cp v2/phase1b/EVIDENCE_PACKET.md founder-test-pack/
+          cp v2/phase1b/DEV_LANE.md founder-test-pack/
+          cat > founder-test-pack/BOUNDARY.txt <<'EOF'
+          ZENZY PHASE 1B FOUNDER TEST PACK
+          INTERNAL / MOCK / NON-PRODUCTION
+
+          Target baseline: 8bcd9c9e1d0ce3cfaecfffc779ec5ace95ee1a6c
+
+          This pack does not authorize production deployment, production release,
+          app-store submission, EAS Update publication, RFTO certification,
+          PRIME inheritance, BMOS attachment, broader ZENZY admission,
+          commercial operation, or authority transfer.
+          EOF
+
+      - name: Upload Founder Test Pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-phase1b-founder-test-pack-${{ github.event.pull_request.head.sha }}
+          path: founder-test-pack
+          if-no-files-found: error
+          retention-days: 30
