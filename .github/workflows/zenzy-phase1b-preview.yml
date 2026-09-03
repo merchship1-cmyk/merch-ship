@@ -52,6 +52,7 @@ jobs:
             echo "- MOCK AI mode enforced"
             echo "- No production build profile"
             echo "- No submit/release action"
+            echo "- No EAS Update channel provisioned"
             echo "- No RFTO / PRIME / BMOS authority"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -101,7 +102,10 @@ jobs:
           jq -e '.build.preview.environment == "preview"' eas.json >/dev/null
           jq -e '.build.preview.android.buildType == "apk"' eas.json >/dev/null
           jq -e '.build.preview.env.EXPO_PUBLIC_ZENZY_AI_MODE == "mock"' eas.json >/dev/null
+          jq -e '.build.preview.node == "22.23.2"' eas.json >/dev/null
+          jq -e '.build.preview.channel == null' eas.json >/dev/null
           jq -e '.build.production == null' eas.json >/dev/null
+          jq -e '.submit == null' eas.json >/dev/null
 
           npx expo config --type public --json > phase1b-expo-config.json
           jq -e '.name == "Zenzy Preview"' phase1b-expo-config.json >/dev/null
@@ -159,13 +163,13 @@ jobs:
             --arg sourceSha "$SOURCE_SHA" \
             --arg buildId "$build_id" \
             --arg profile "preview" \
-            --arg channel "phase-1b-preview" \
             --arg environment "preview" \
             --arg aiMode "mock" \
+            --arg updateChannel "NONE_NOT_PROVISIONED" \
             --arg artifact "zenzy-phase1b-preview.apk" \
             --arg sha256 "$digest" \
             --arg boundary "INTERNAL_FOUNDER_TESTER_ONLY_NO_PRODUCTION_NO_RFTO_NO_PRIME_NO_BMOS" \
-            '{lifecycle:$lifecycle,source_sha:$sourceSha,eas_build_id:$buildId,profile:$profile,channel:$channel,environment:$environment,ai_mode:$aiMode,artifact:$artifact,sha256:$sha256,boundary:$boundary}' \
+            '{lifecycle:$lifecycle,source_sha:$sourceSha,eas_build_id:$buildId,profile:$profile,environment:$environment,ai_mode:$aiMode,eas_update_channel:$updateChannel,artifact:$artifact,sha256:$sha256,boundary:$boundary}' \
             > phase1b/artifacts/provenance.json
 
           {
@@ -176,6 +180,7 @@ jobs:
             echo "- Source: \`$SOURCE_SHA\`"
             echo "- Artifact: \`zenzy-phase1b-preview.apk\`"
             echo "- SHA-256: \`$digest\`"
+            echo "- EAS Update channel: not provisioned"
             echo "- Boundary: internal preview only; no release authority"
           } >> "$GITHUB_STEP_SUMMARY"
 
