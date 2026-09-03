@@ -121,10 +121,11 @@ jobs:
           jq -e '.build.production == null' eas.json >/dev/null
           jq -e '.submit == null' eas.json >/dev/null
 
-          npx expo config --type public --json > phase1b-expo-config.json
-          jq -e '.name == "Zenzy Preview"' phase1b-expo-config.json >/dev/null
-          jq -e '.android.package == "com.merchship.zenzy.phase1b.preview"' phase1b-expo-config.json >/dev/null
-          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' phase1b-expo-config.json >/dev/null
+          expo_config="$RUNNER_TEMP/phase1b-expo-config.json"
+          npx expo config --type public --json > "$expo_config"
+          jq -e '.name == "Zenzy Preview"' "$expo_config" >/dev/null
+          jq -e '.android.package == "com.merchship.zenzy.phase1b.preview"' "$expo_config" >/dev/null
+          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' "$expo_config" >/dev/null
 
       - name: Run repository verification before packaging
         working-directory: v2
@@ -135,12 +136,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          build_json="$RUNNER_TEMP/phase1b-build.json"
           eas build \
             --platform android \
             --profile preview \
             --non-interactive \
             --wait \
-            --json > phase1b-build.json
+            --json > "$build_json"
 
       - name: Retain preview APK and provenance
         working-directory: v2
@@ -150,9 +152,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p phase1b/artifacts
+          build_json="$RUNNER_TEMP/phase1b-build.json"
+          test -f "$build_json"
 
-          build_id="$(jq -r 'if type == "array" then .[0].id else .id end' phase1b-build.json)"
-          build_url="$(jq -r 'if type == "array" then (.[0].artifacts.buildUrl // .[0].artifacts.applicationArchiveUrl // empty) else (.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty) end' phase1b-build.json)"
+          build_id="$(jq -r 'if type == "array" then .[0].id else .id end' "$build_json")"
+          build_url="$(jq -r 'if type == "array" then (.[0].artifacts.buildUrl // .[0].artifacts.applicationArchiveUrl // empty) else (.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty) end' "$build_json")"
 
           if [[ -z "$build_id" || "$build_id" == "null" ]]; then
             echo "Blocked: EAS build ID was not returned."
@@ -163,7 +167,7 @@ jobs:
             exit 1
           fi
 
-          cp phase1b-build.json phase1b/artifacts/eas-build-metadata.json
+          cp "$build_json" phase1b/artifacts/eas-build-metadata.json
           curl --fail --location --retry 3 "$build_url" \
             --output phase1b/artifacts/zenzy-phase1b-preview.apk
           unzip -tq phase1b/artifacts/zenzy-phase1b-preview.apk >/dev/null
