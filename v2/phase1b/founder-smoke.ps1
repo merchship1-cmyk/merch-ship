@@ -13,8 +13,14 @@ Write-Host "Target: $TargetRef"
 Write-Host "Workspace: $root"
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw "Git is required." }
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Node.js is required." }
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Node.js 22 is required." }
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { throw "npm is required." }
+
+$nodeVersion = (node --version).Trim()
+if ($nodeVersion -notmatch '^v22\.') {
+  throw "Node.js 22 is required for the Founder Test Pack. Found $nodeVersion."
+}
+Write-Host "Node runtime: $nodeVersion"
 
 if (-not (Test-Path $root)) {
   git clone --no-checkout $RepoUrl $root
@@ -40,6 +46,11 @@ $env:EXPO_PUBLIC_SUPABASE_URL = ""
 $env:EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY = ""
 $env:ZENZY_DETOX = ""
 $env:ZENZY_PHASE1B_PREVIEW = ""
+$env:ZENZY_EAS_PROJECT_ID = ""
+
+Write-Host "Source verified: $resolved"
+Write-Host "AI mode: MOCK"
+Write-Host "Production API/Supabase values: CLEARED"
 
 Write-Host "Installing locked dependencies..."
 npm ci
