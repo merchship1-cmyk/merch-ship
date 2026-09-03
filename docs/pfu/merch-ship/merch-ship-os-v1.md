@@ -2,7 +2,7 @@
 
 ## Status
 
-STRUCTURAL CANDIDATE — governed subsystem installed on a bounded feature branch. No merge, deployment, live Shopify mutation, fulfillment-provider mutation, customer messaging, or production activation is authorized by this installation.
+STRUCTURAL CANDIDATE WITH ACTIVE WORKSPACE PROJECTIONS — the governed subsystem is installed on a bounded feature branch; the Notion operational registry and Google Drive asset-vault structure are created and verified. No merge, live Shopify mutation, fulfillment-provider mutation, customer messaging, production deployment, or production activation is authorized by this installation.
 
 ## Position in the unified architecture
 
@@ -62,6 +62,8 @@ ENGINE-PRODUCT-DESIGN-VERSION
 
 No platform may silently rename a canonical SKU. A platform constraint must create an explicit alias mapping.
 
+The 12 governed objects are also projected into the Notion operational registry. Provider mapping, cost, retail, and mockup evidence remain intentionally unclaimed until verified.
+
 ## 2. Delivery Rail
 
 Contract: `flows/pfu/merch-ship/delivery-rail-v1.yaml`.
@@ -98,9 +100,13 @@ Provider preferences are structural policy only until verified mappings and live
 
 Every external mutation must be bounded and idempotent.
 
+Shopify, Printify, and Gelato adapters remain `NOT_ATTACHED`.
+
 ## 3. Asset Vault
 
 Contract: `manifests/pfu/merch-ship/asset-vault-v1.yaml`.
+
+The Google Drive vault has been created and its required folder structure verified. It remains private/not shared at installation time.
 
 Canonical root:
 
@@ -144,15 +150,17 @@ ACTIVE → RETIRED
 The subsystem uses a layered SSOT rather than pretending one platform owns everything:
 
 - PFU/GitHub: canonical identity, contracts, authority, schemas, lifecycle rules.
-- Notion: human control plane and operational registry projection.
-- Drive: governed design/mockup/listing asset projection.
-- Shopify: commercial event log after live runtime attachment.
-- Fulfillment provider: manufacturing/fulfillment execution after live runtime attachment.
+- Notion: active human-control-plane and operational-registry projection.
+- Drive: active governed folder projection for design/mockup/listing assets.
+- Shopify: commercial event log only after live runtime attachment.
+- Fulfillment provider: manufacturing/fulfillment execution only after live runtime attachment.
 - Evidence layer: immutable references to commercial and delivery outcomes.
+
+Airtable was not created because the Notion operational registry now fulfills the declared `Airtable_or_Notion` projection role.
 
 ## 5. Release and runtime gates
 
-Structural installation does not authorize commerce.
+Structural installation and workspace projection do not authorize commerce.
 
 Before any product reaches ACTIVE in a live store, require at minimum:
 
@@ -187,6 +195,8 @@ The following remain DENIED by default:
 
 `DELIVERY CONTRACT INSTALLED != AUTO-FULFILLMENT ACTIVE`
 
-`DRIVE VAULT CONTRACT != DRIVE VAULT CREATED`
+`DRIVE VAULT CREATED != PRODUCT ASSETS RENDERED OR PUBLIC`
+
+`NOTION REGISTRY CREATED != LIVE COMMERCE`
 
 `PFU IDENTITY != SHOPIFY IMPLEMENTATION`
