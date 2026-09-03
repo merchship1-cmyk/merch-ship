@@ -26,7 +26,6 @@ jobs:
     env:
       PHASE1B_AUTHORIZATION: ${{ inputs.authorization }}
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      ZENZY_EAS_PROJECT_ID: ${{ secrets.ZENZY_EAS_PROJECT_ID }}
     steps:
       - name: Governance guard
         shell: bash
@@ -40,16 +39,13 @@ jobs:
             echo "Blocked: EXPO_TOKEN is not configured."
             exit 1
           fi
-          if [[ -z "${ZENZY_EAS_PROJECT_ID:-}" ]]; then
-            echo "Blocked: ZENZY_EAS_PROJECT_ID is not configured."
-            exit 1
-          fi
           {
             echo "## ZENZY Phase 1B governance guard"
             echo
             echo "- Internal preview only"
             echo "- Source lane locked to merged main"
             echo "- MOCK AI mode enforced"
+            echo "- EAS project ID sourced from repository config"
             echo "- No production build profile"
             echo "- No submit/release action"
             echo "- No EAS Update channel provisioned"
@@ -75,6 +71,24 @@ jobs:
           fi
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           echo "Candidate merged-main source: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Load repository EAS project ID
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f eas-project.json
+          project_id="$(jq -r '.projectId // empty' eas-project.json)"
+          if [[ -z "$project_id" || "$project_id" == "00000000-0000-0000-0000-000000000000" ]]; then
+            echo "Blocked: repository EAS project ID is not linked yet."
+            exit 1
+          fi
+          if ! [[ "$project_id" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]]; then
+            echo "Blocked: repository EAS project ID is not a valid UUID."
+            exit 1
+          fi
+          echo "ZENZY_EAS_PROJECT_ID=$project_id" >> "$GITHUB_ENV"
+          echo "- EAS project ID: repository-configured" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/setup-node@v4
         with:
@@ -161,6 +175,7 @@ jobs:
           jq -n \
             --arg lifecycle "ZENZY_PHASE_1B_PREVIEW" \
             --arg sourceSha "$SOURCE_SHA" \
+            --arg easProjectId "$ZENZY_EAS_PROJECT_ID" \
             --arg buildId "$build_id" \
             --arg profile "preview" \
             --arg environment "preview" \
@@ -169,7 +184,7 @@ jobs:
             --arg artifact "zenzy-phase1b-preview.apk" \
             --arg sha256 "$digest" \
             --arg boundary "INTERNAL_FOUNDER_TESTER_ONLY_NO_PRODUCTION_NO_RFTO_NO_PRIME_NO_BMOS" \
-            '{lifecycle:$lifecycle,source_sha:$sourceSha,eas_build_id:$buildId,profile:$profile,environment:$environment,ai_mode:$aiMode,eas_update_channel:$updateChannel,artifact:$artifact,sha256:$sha256,boundary:$boundary}' \
+            '{lifecycle:$lifecycle,source_sha:$sourceSha,eas_project_id:$easProjectId,eas_build_id:$buildId,profile:$profile,environment:$environment,ai_mode:$aiMode,eas_update_channel:$updateChannel,artifact:$artifact,sha256:$sha256,boundary:$boundary}' \
             > phase1b/artifacts/provenance.json
 
           {
@@ -178,6 +193,7 @@ jobs:
             echo
             echo "- EAS build: \`$build_id\`"
             echo "- Source: \`$SOURCE_SHA\`"
+            echo "- EAS project ID source: repository config"
             echo "- Artifact: \`zenzy-phase1b-preview.apk\`"
             echo "- SHA-256: \`$digest\`"
             echo "- EAS Update channel: not provisioned"

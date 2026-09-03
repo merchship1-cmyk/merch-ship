@@ -1,3 +1,5 @@
+const { projectId: repositoryEasProjectId } = require('./eas-project.json');
+
 module.exports = ({ config }) => {
   const detoxMode = process.env.ZENZY_DETOX === '1';
   const phase1bPreview = process.env.ZENZY_PHASE1B_PREVIEW === '1';
@@ -8,7 +10,10 @@ module.exports = ({ config }) => {
     ? process.env.ZENZY_ANDROID_PACKAGE?.trim() ?? 'com.merchship.zenzy.phase1a.test'
     : 'com.merchship.zenzy.phase1b.preview';
 
-  const easProjectId = process.env.ZENZY_EAS_PROJECT_ID?.trim();
+  const easProjectId =
+    phase1bPreview && typeof repositoryEasProjectId === 'string'
+      ? repositoryEasProjectId.trim()
+      : undefined;
 
   return {
     ...config,
