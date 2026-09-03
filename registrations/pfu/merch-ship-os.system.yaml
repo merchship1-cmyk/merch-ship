@@ -18,6 +18,8 @@ tools:
     purpose: Human control plane for the MERCH SHIP operational registry.
     permissions: [read, governed_page_write, governed_registry_write]
     environments: [workspace]
+    runtime_state: STRUCTURAL_PROJECTION_ACTIVE
+    projection_reference: https://app.notion.com/p/3d013e5cbb9f81738bfdd1c0f110011a?pvs=204
     secret_boundary: Secrets forbidden in governance pages and registry records.
   - tool_id: Shopify
     purpose: Commercial event log and order source of truth when a live adapter is separately authorized.
@@ -38,12 +40,14 @@ tools:
     purpose: Governed design, mockup, listing, and archive asset vault.
     permissions: [declared_workspace_write]
     environments: [workspace]
-    runtime_state: NOT_ATTACHED
+    runtime_state: STRUCTURAL_ASSET_VAULT_ACTIVE
+    projection_reference: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
   - tool_id: Airtable_or_Notion
     purpose: Operational SKU registry projection beneath PFU product identity.
     permissions: [declared_workspace_write]
     environments: [workspace]
-    runtime_state: NOT_ATTACHED
+    runtime_state: NOTION_PROJECTION_ACTIVE_AIRTABLE_NOT_ATTACHED
+    projection_reference: https://app.notion.com/p/7eeaf72d5f5e45518cb1da79bb6ae7c5
 agents:
   - agent_id: PFU-AUTHORIZED-IMPLEMENTOR
     role: bounded_implementation
@@ -77,10 +81,12 @@ memory:
     data_classification: commercial_governance
     retention: permanent_until_deprecated_by_authority
     access_policy: authorized_operators
+    projection_reference: https://app.notion.com/p/7eeaf72d5f5e45518cb1da79bb6ae7c5
   - store_id: MERCH-SHIP-ASSET-VAULT
     data_classification: commercial_assets
     retention: lifecycle_managed
     access_policy: authorized_operators
+    projection_reference: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
   - store_id: GitHub-History
     data_classification: versioned_governance_and_evidence
     retention: repository_history
@@ -116,8 +122,9 @@ outputs:
   - type: evidence_record
     required_fields: [evidence_id, event_type, source_reference, state]
 evidence_destination:
-  notion: MERCH SHIP OS registry and operating pages
+  notion: https://app.notion.com/p/3d013e5cbb9f81738bfdd1c0f110011a?pvs=204
   github: evidence/pfu/merch-ship and pull-request history
+  drive: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
   commerce: Shopify event references only after runtime authorization
 failure_policy:
   timeout: required_before_runtime_activation
