@@ -1,0 +1,109 @@
+name: ZENZY / JUNGLE Load-20 Idempotency Remediation Proof
+
+on:
+  push:
+    branches:
+      - zenzy/jungle-load20-ambiguous-commit-remediation-v1
+    paths:
+      - .github/workflows/zenzy-jungle-idempotency-remediation.yml
+      - v2/jungle/remediation/zj-load20-idempotency-proof.ts
+      - v2/supabase/functions/transform/index.ts
+      - v2/supabase/functions/_shared/zenzy-transform-request.ts
+      - v2/supabase/migrations/20260903143912_zenzy_transform_idempotency_v1.sql
+      - v2/supabase/migrations/20260903144033_zenzy_transform_idempotency_fk_fix_v1.sql
+      - v2/src/services/transformationTransport.ts
+      - v2/src/services/transformationTransport.test.ts
+      - v2/phase1a/orchestrator/api.ts
+      - v2/supabase/tests/zenzy_transform_idempotency.test.ts
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  REMEDIATION_BASE_SHA: eaa2d65550eed1f4f95b52c151c2c0610ce35241
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
+jobs:
+  bounded-fixed-id-proof:
+    name: JUNGLE / Fixed-ID Recovery + Single-Flight
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Confirm dedicated test credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TEST_USER_A_EMAIL:-}"
+          test -n "${TEST_USER_A_PASSWORD:-}"
+
+      - name: Checkout remediation branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce remediation lineage and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$REMEDIATION_BASE_SHA")" = "$REMEDIATION_BASE_SHA"
+          invalid=0
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            case "$path" in
+              .github/workflows/zenzy-jungle-idempotency-remediation.yml|\
+              v2/jungle/remediation/zj-load20-idempotency-proof.ts|\
+              v2/supabase/functions/transform/index.ts|\
+              v2/supabase/functions/_shared/zenzy-transform-request.ts|\
+              v2/supabase/migrations/20260903143912_zenzy_transform_idempotency_v1.sql|\
+              v2/supabase/migrations/20260903144033_zenzy_transform_idempotency_fk_fix_v1.sql|\
+              v2/src/services/transformationTransport.ts|\
+              v2/src/services/transformationTransport.test.ts|\
+              v2/phase1a/orchestrator/api.ts|\
+              v2/supabase/tests/zenzy_transform_idempotency.test.ts)
+                ;;
+              *)
+                echo "Blocked: unrelated path changed in remediation lane: $path"
+                invalid=1
+                ;;
+            esac
+          done < <(git diff --name-only "$REMEDIATION_BASE_SHA"...HEAD)
+          test "$invalid" = "0"
+          {
+            echo "## Bounded JUNGLE remediation proof"
+            echo
+            echo "- Original load failure is retained; full 1→2→5→10→20 is NOT rerun."
+            echo "- ZJ-T-005 through ZJ-T-008 are NOT rerun."
+            echo "- Maximum unique provider-generating identities: 2."
+            echo "- Target: dedicated non-production staging only."
+            echo "- No deployment, merge, or production action occurs in this workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Run fixed-id recovery proof
+        working-directory: v2
+        run: node --import tsx jungle/remediation/zj-load20-idempotency-proof.ts
+
+      - name: Upload retained remediation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-jungle-load20-idempotency-remediation-${{ github.sha }}
+          path: v2/jungle/artifacts/remediation/zj-load20-idempotency-proof.json
+          if-no-files-found: error
+          retention-days: 30
