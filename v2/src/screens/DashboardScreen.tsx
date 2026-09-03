@@ -19,6 +19,7 @@ type Props = {
   error: string | null;
   remoteAuthenticated?: boolean;
   canContinue: boolean;
+  currentWork: string | null;
   onStart: (input: string) => Promise<void>;
   onContinue: () => void;
 };
@@ -29,6 +30,7 @@ export function DashboardScreen({
   error,
   remoteAuthenticated = false,
   canContinue,
+  currentWork,
   onStart,
   onContinue,
 }: Props) {
@@ -63,6 +65,15 @@ export function DashboardScreen({
               <Text style={styles.title}>Continue where you left off.</Text>
               <Text style={styles.subtitle}>{snapshot.currentUnderstanding}</Text>
             </View>
+
+            {currentWork ? (
+              <View style={styles.resumeCard}>
+                <Text style={styles.resumeLabel}>ACTIVE WORK</Text>
+                <Text style={styles.resumeValue}>{currentWork}</Text>
+                <Text style={styles.resumeLabel}>NEXT</Text>
+                <Text style={styles.resumeNext}>{snapshot.next}</Text>
+              </View>
+            ) : null}
 
             <PrimaryButton
               testID="dashboard-continue"
@@ -204,6 +215,32 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 17,
     lineHeight: 25,
+  },
+  resumeCard: {
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.green,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    padding: spacing.md,
+  },
+  resumeLabel: {
+    color: colors.blue,
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  resumeValue: {
+    color: colors.text,
+    fontSize: 17,
+    lineHeight: 24,
+    fontWeight: '800',
+    marginBottom: spacing.sm,
+  },
+  resumeNext: {
+    color: colors.text,
+    fontSize: 14,
+    lineHeight: 20,
   },
   inputCard: {
     minHeight: 176,
