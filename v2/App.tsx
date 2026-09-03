@@ -13,6 +13,7 @@ import {
 import { AuthProvider, useAuth } from './src/auth/AuthProvider';
 import { createActiveRunSession } from './src/domain/activeRun';
 import {
+  attachMeshTraceToDashboard,
   createDashboardSnapshot,
   markDashboardBlocked,
   type DashboardSnapshot,
@@ -166,8 +167,13 @@ function ZenzyApp() {
 
     try {
       const nextResult = await runTransformation(input);
+      const nextDashboard = createDashboardSnapshot('clarity');
       setResult(nextResult);
-      setDashboard(createDashboardSnapshot('clarity'));
+      setDashboard(
+        nextResult.mesh
+          ? attachMeshTraceToDashboard(nextDashboard, nextResult.mesh)
+          : nextDashboard,
+      );
       setShowDashboard(false);
     } catch (requestError) {
       const message =
@@ -188,8 +194,13 @@ function ZenzyApp() {
     setError(null);
     try {
       const nextAcceptance = await acceptTransformation(result.id);
+      const nextDashboard = createDashboardSnapshot('execution');
       setAcceptance(nextAcceptance);
-      setDashboard(createDashboardSnapshot('execution'));
+      setDashboard(
+        result.mesh
+          ? attachMeshTraceToDashboard(nextDashboard, result.mesh)
+          : nextDashboard,
+      );
     } catch (acceptanceError) {
       const message =
         acceptanceError instanceof Error
@@ -207,8 +218,13 @@ function ZenzyApp() {
     setError(null);
     try {
       const nextEvidence = await recordTransformationEvidence(candidate);
+      const nextDashboard = createDashboardSnapshot('outcome');
       setEvidence(nextEvidence);
-      setDashboard(createDashboardSnapshot('outcome'));
+      setDashboard(
+        result?.mesh
+          ? attachMeshTraceToDashboard(nextDashboard, result.mesh)
+          : nextDashboard,
+      );
     } catch (evidenceError) {
       const message =
         evidenceError instanceof Error
