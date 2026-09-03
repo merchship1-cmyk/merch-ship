@@ -1,0 +1,95 @@
+name: ZJ-001 / ZJ-T-008 Final Frozen Resilience Batch
+
+on:
+  push:
+    branches:
+      - zj001/frozen-auth-block
+    paths:
+      - .github/workflows/zj001-zjt008.yml
+      - v2/zj001/zj-t-008.ts
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FROZEN_SHA: d6d7aa7f29bc3dc3a689bcd3712e1decd612ae3b
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
+jobs:
+  zj-t-008:
+    name: ZJ-T-008 / Resilience + Harness Controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Confirm dedicated test credentials are configured
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TEST_USER_A_EMAIL:-}"
+          test -n "${TEST_USER_A_PASSWORD:-}"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce frozen lineage and test-only scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          merge_base="$(git merge-base HEAD "$FROZEN_SHA")"
+          test "$merge_base" = "$FROZEN_SHA"
+
+          invalid=0
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            case "$path" in
+              .github/workflows/zj001-zjt*.yml|v2/zj001/*)
+                ;;
+              *)
+                echo "Blocked: non-test file changed from frozen SHA: $path"
+                invalid=1
+                ;;
+            esac
+          done < <(git diff --name-only "$FROZEN_SHA"...HEAD)
+          test "$invalid" = "0"
+
+          {
+            echo "## ZJ-001 final frozen batch"
+            echo
+            echo "- Frozen source: \`$FROZEN_SHA\`"
+            echo "- Cases: JZ-015, JZ-016, JZ-017, JZ-019, JZ-022, JZ-023"
+            echo "- Live target: dedicated Phase 1A staging only"
+            echo "- Fault cases without authorized injection surfaces remain BLOCKED, not fabricated PASS/FAIL"
+            echo "- No production/customer data"
+            echo "- No application/runtime code mutation"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install frozen dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Execute final frozen batch
+        working-directory: v2
+        run: node --import tsx zj001/zj-t-008.ts
+
+      - name: Upload retained evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zj-t-008-final-resilience-${{ github.sha }}
+          path: v2/zj001/artifacts/zj-t-008-report.json
+          if-no-files-found: error
+          retention-days: 30
