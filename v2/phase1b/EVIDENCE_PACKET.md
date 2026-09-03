@@ -30,7 +30,7 @@ The Phase 1A Android APK build was proven by CI but the binary was not retained.
 - [x] blocking defects resolved and retested — no blocking defect observed
 - [ ] FST GREEN recorded
 
-Current retained FST defect: `FST-04-001` — Android system Back exits from PLAN instead of stepping backward; reopening restores the same PLAN state. Classified `FAIL-NONBLOCKING`.
+Current retained FST defect: `FST-04-001` — Android system Back exits from PLAN instead of stepping backward; reopening restores the same PLAN state. Classified `FAIL-NONBLOCKING`; this does not by itself block FST GREEN under the defined no-blocking-defect rule.
 
 ### 1B-EAS — EAS Preview Build
 
