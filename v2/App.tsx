@@ -10,6 +10,11 @@ import {
 } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/auth/AuthProvider';
+import {
+  createDashboardSnapshot,
+  markDashboardBlocked,
+  type DashboardSnapshot,
+} from './src/domain/dashboard';
 import type {
   TransformationAcceptance,
   TransformationEvidence,
@@ -17,9 +22,14 @@ import type {
 } from './src/domain/transformation';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { ClarityAcceptanceScreen } from './src/screens/ClarityAcceptanceScreen';
+import { DashboardScreen } from './src/screens/DashboardScreen';
 import { OutcomeScreen } from './src/screens/OutcomeScreen';
 import { StartScreen } from './src/screens/StartScreen';
 import { TransformationScreen } from './src/screens/TransformationScreen';
+import {
+  loadDashboardSnapshot,
+  saveDashboardSnapshot,
+} from './src/services/dashboardStore';
 import {
   acceptTransformation,
   recordTransformationEvidence,
@@ -38,13 +48,59 @@ function ZenzyApp() {
   const [evidence, setEvidence] = useState<TransformationEvidence | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDashboard, setShowDashboard] = useState(true);
+  const [dashboardHydrated, setDashboardHydrated] = useState(false);
+  const [dashboard, setDashboard] = useState<DashboardSnapshot>(() =>
+    createDashboardSnapshot('start'),
+  );
+
+  const dashboardOwnerKey = isRemoteMode
+    ? (auth.session?.user.id ?? null)
+    : 'local-preview';
 
   useEffect(() => {
     setResult(null);
     setAcceptance(null);
     setEvidence(null);
     setError(null);
+    setShowDashboard(true);
   }, [auth.session?.user.id]);
+
+  useEffect(() => {
+    if (isRemoteMode && (!auth.ready || !auth.configured || !auth.session)) {
+      setDashboardHydrated(false);
+      return;
+    }
+
+    if (!dashboardOwnerKey) return;
+
+    let cancelled = false;
+    setDashboardHydrated(false);
+
+    void loadDashboardSnapshot(dashboardOwnerKey)
+      .then((saved) => {
+        if (cancelled) return;
+        setDashboard(saved ?? createDashboardSnapshot('start'));
+        setDashboardHydrated(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setDashboard(createDashboardSnapshot('start'));
+        setDashboardHydrated(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [auth.configured, auth.ready, auth.session?.user.id, dashboardOwnerKey]);
+
+  useEffect(() => {
+    if (!dashboardHydrated || !dashboardOwnerKey) return;
+
+    void saveDashboardSnapshot(dashboardOwnerKey, dashboard).catch(() => {
+      // Dashboard memory must never block the core transformation flow.
+    });
+  }, [dashboard, dashboardHydrated, dashboardOwnerKey]);
 
   const handleStart = async (input: string) => {
     setLoading(true);
@@ -53,13 +109,16 @@ function ZenzyApp() {
     setEvidence(null);
 
     try {
-      setResult(await runTransformation(input));
+      const nextResult = await runTransformation(input);
+      setResult(nextResult);
+      setDashboard(createDashboardSnapshot('clarity'));
     } catch (requestError) {
-      setError(
+      const message =
         requestError instanceof Error
           ? requestError.message
-          : 'Zenzy could not build this transformation yet.',
-      );
+          : 'Zenzy could not build this transformation yet.';
+      setError(message);
+      setDashboard((current) => markDashboardBlocked(current, message));
     } finally {
       setLoading(false);
     }
@@ -71,13 +130,16 @@ function ZenzyApp() {
     setLoading(true);
     setError(null);
     try {
-      setAcceptance(await acceptTransformation(result.id));
+      const nextAcceptance = await acceptTransformation(result.id);
+      setAcceptance(nextAcceptance);
+      setDashboard(createDashboardSnapshot('execution'));
     } catch (acceptanceError) {
-      setError(
+      const message =
         acceptanceError instanceof Error
           ? acceptanceError.message
-          : 'Zenzy could not store this acceptance.',
-      );
+          : 'Zenzy could not store this acceptance.';
+      setError(message);
+      setDashboard((current) => markDashboardBlocked(current, message));
     } finally {
       setLoading(false);
     }
@@ -87,30 +149,48 @@ function ZenzyApp() {
     setLoading(true);
     setError(null);
     try {
-      setEvidence(await recordTransformationEvidence(candidate));
+      const nextEvidence = await recordTransformationEvidence(candidate);
+      setEvidence(nextEvidence);
+      setDashboard(createDashboardSnapshot('outcome'));
     } catch (evidenceError) {
-      setError(
+      const message =
         evidenceError instanceof Error
           ? evidenceError.message
-          : 'Zenzy could not store this evidence.',
-      );
+          : 'Zenzy could not store this evidence.';
+      setError(message);
+      setDashboard((current) => markDashboardBlocked(current, message));
     } finally {
       setLoading(false);
     }
   };
 
   const handleRejectDirection = () => {
+    const nextDashboard = createDashboardSnapshot('start');
     setResult(null);
     setAcceptance(null);
     setEvidence(null);
     setError(null);
+    setDashboard({
+      ...nextDashboard,
+      currentUnderstanding:
+        'The previous direction did not fit, so it was rejected instead of being executed. Zenzy is ready for a clearer starting point.',
+      done: 'A direction was rejected before execution because it did not fit.',
+    });
   };
 
   const handleReset = () => {
+    const nextDashboard = createDashboardSnapshot('start');
     setResult(null);
     setAcceptance(null);
     setEvidence(null);
     setError(null);
+    setDashboard({
+      ...nextDashboard,
+      currentUnderstanding:
+        'Your previous transformation is complete. Zenzy is ready to carry that sense of progress into the next useful piece of work.',
+      done: 'The previous transformation completed with outcome evidence.',
+    });
+    setShowDashboard(true);
   };
 
   if (isRemoteMode && !auth.ready) {
@@ -134,28 +214,59 @@ function ZenzyApp() {
     );
   }
 
+  if (!dashboardHydrated) {
+    return (
+      <SafeAreaView style={[styles.container, styles.centered]}>
+        <StatusBar style="light" />
+        <ActivityIndicator color={colors.green} size="large" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      {isRemoteMode && auth.session ? (
-        <View style={styles.sessionBar}>
-          <Text numberOfLines={1} style={styles.sessionEmail}>
-            {auth.session.user.email ?? 'Authenticated user'}
-          </Text>
+      <View style={styles.controlBar}>
+        {!showDashboard ? (
           <Pressable
             accessibilityRole="button"
-            onPress={() => {
-              void auth.signOut().catch(() => {
-                setError('Sign out could not be completed.');
-              });
-            }}
+            testID="open-dashboard"
+            onPress={() => setShowDashboard(true)}
           >
-            <Text style={styles.signOut}>Sign out</Text>
+            <Text style={styles.homeLink}>Home</Text>
           </Pressable>
-        </View>
-      ) : null}
+        ) : (
+          <Text style={styles.homeLabel}>ZENZY</Text>
+        )}
+
+        {isRemoteMode && auth.session ? (
+          <>
+            <Text numberOfLines={1} style={styles.sessionEmail}>
+              {auth.session.user.email ?? 'Authenticated user'}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                void auth.signOut().catch(() => {
+                  setError('Sign out could not be completed.');
+                });
+              }}
+            >
+              <Text style={styles.signOut}>Sign out</Text>
+            </Pressable>
+          </>
+        ) : (
+          <View style={styles.barSpacer} />
+        )}
+      </View>
+
       <View style={styles.content}>
-        {!result ? (
+        {showDashboard ? (
+          <DashboardScreen
+            snapshot={dashboard}
+            onContinue={() => setShowDashboard(false)}
+          />
+        ) : !result ? (
           <StartScreen
             loading={loading}
             error={error}
@@ -207,17 +318,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: { flex: 1 },
-  sessionBar: {
+  controlBar: {
     minHeight: 42,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.surface,
   },
+  homeLink: { color: colors.blue, fontWeight: '900' },
+  homeLabel: { color: colors.text, fontSize: 12, fontWeight: '900' },
+  barSpacer: { flex: 1 },
   sessionEmail: { flex: 1, color: colors.muted, fontSize: 12 },
   signOut: { color: colors.blue, fontWeight: '800' },
 });
