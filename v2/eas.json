@@ -1,0 +1,19 @@
+{
+  "cli": {
+    "requireCommit": true
+  },
+  "build": {
+    "preview": {
+      "environment": "preview",
+      "distribution": "internal",
+      "channel": "phase-1b-preview",
+      "env": {
+        "ZENZY_PHASE1B_PREVIEW": "1",
+        "EXPO_PUBLIC_ZENZY_AI_MODE": "mock"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}
