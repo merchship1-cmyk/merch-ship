@@ -1,0 +1,187 @@
+name: ZENZY PR 34 Resume Preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'v2/**'
+      - '.github/workflows/zenzy-pr34-resume-preview.yml'
+
+permissions:
+  contents: read
+
+env:
+  EXPO_PUBLIC_ZENZY_AI_MODE: mock
+  ZENZY_PHASE1B_PREVIEW: "1"
+
+concurrency:
+  group: zenzy-pr34-resume-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    if: github.event.pull_request.number == 34 && github.event.pull_request.head.ref == 'zenzy/resume-active-run-v1'
+    name: PR 34 / Android Resume Preview APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Governance guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.event.pull_request.number }}" = "34"
+          test "${{ github.event.pull_request.base.ref }}" = "main"
+          test "${{ github.event.pull_request.head.ref }}" = "zenzy/resume-active-run-v1"
+          if [[ -z "${EXPO_TOKEN:-}" ]]; then
+            echo "Blocked: EXPO_TOKEN is not configured."
+            exit 1
+          fi
+          {
+            echo "## ZENZY PR 34 resume preview boundary"
+            echo
+            echo "- Draft PR candidate only"
+            echo "- Internal Android APK only"
+            echo "- MOCK AI mode enforced"
+            echo "- No merge"
+            echo "- No production profile"
+            echo "- No submit/release action"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout PR merge candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record candidate provenance
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          merge_sha="$(git rev-parse HEAD)"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          echo "merge_sha=$merge_sha" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+          {
+            echo "- PR head: \`$head_sha\`"
+            echo "- Base main: \`$base_sha\`"
+            echo "- Tested merge candidate: \`$merge_sha\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Load repository EAS project ID
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f eas-project.json
+          project_id="$(jq -r '.projectId // empty' eas-project.json)"
+          if [[ -z "$project_id" || "$project_id" == "00000000-0000-0000-0000-000000000000" ]]; then
+            echo "Blocked: repository EAS project ID is not linked."
+            exit 1
+          fi
+          echo "ZENZY_EAS_PROJECT_ID=$project_id" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Verify preview configuration
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f eas.json
+          jq -e '.build.preview.distribution == "internal"' eas.json >/dev/null
+          jq -e '.build.preview.android.buildType == "apk"' eas.json >/dev/null
+          jq -e '.build.preview.env.EXPO_PUBLIC_ZENZY_AI_MODE == "mock"' eas.json >/dev/null
+          jq -e '.build.production == null' eas.json >/dev/null
+          jq -e '.submit == null' eas.json >/dev/null
+          expo_config="$RUNNER_TEMP/pr34-expo-config.json"
+          npx expo config --type public --json > "$expo_config"
+          jq -e '.name == "Zenzy Preview"' "$expo_config" >/dev/null
+          jq -e '.android.package == "com.merchship.zenzy.phase1b.preview"' "$expo_config" >/dev/null
+          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' "$expo_config" >/dev/null
+
+      - name: Run repository verification before packaging
+        working-directory: v2
+        run: npm run verify
+
+      - name: Build internal Android resume preview on EAS
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_json="$RUNNER_TEMP/pr34-build.json"
+          eas build \
+            --platform android \
+            --profile preview \
+            --non-interactive \
+            --wait \
+            --json > "$build_json"
+
+      - name: Retain APK and provenance
+        working-directory: v2
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ steps.source.outputs.head_sha }}
+          BASE_SHA: ${{ steps.source.outputs.base_sha }}
+          MERGE_SHA: ${{ steps.source.outputs.merge_sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p phase1b/artifacts/pr34
+          build_json="$RUNNER_TEMP/pr34-build.json"
+          build_id="$(jq -r 'if type == "array" then .[0].id else .id end' "$build_json")"
+          build_url="$(jq -r 'if type == "array" then (.[0].artifacts.buildUrl // .[0].artifacts.applicationArchiveUrl // empty) else (.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty) end' "$build_json")"
+          test -n "$build_id"
+          test -n "$build_url"
+          cp "$build_json" phase1b/artifacts/pr34/eas-build-metadata.json
+          curl --fail --location --retry 3 "$build_url" --output phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk
+          unzip -tq phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk >/dev/null
+          sha256sum phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk | tee phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk.sha256
+          digest="$(cut -d' ' -f1 phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk.sha256)"
+          jq -n \
+            --arg lifecycle "ZENZY_PR34_RESUME_PREVIEW" \
+            --arg prHeadSha "$PR_HEAD_SHA" \
+            --arg baseSha "$BASE_SHA" \
+            --arg mergeSha "$MERGE_SHA" \
+            --arg buildId "$build_id" \
+            --arg sha256 "$digest" \
+            --arg boundary "INTERNAL_PR_CANDIDATE_ONLY_NO_MERGE_NO_PRODUCTION" \
+            '{lifecycle:$lifecycle,pr_head_sha:$prHeadSha,base_sha:$baseSha,tested_merge_sha:$mergeSha,eas_build_id:$buildId,profile:"preview",ai_mode:"mock",artifact:"ZENZY-PR34-Resume-Preview.apk",sha256:$sha256,boundary:$boundary}' \
+            > phase1b/artifacts/pr34/provenance.json
+          {
+            echo
+            echo "## PR 34 Android resume preview"
+            echo
+            echo "- EAS build: \`$build_id\`"
+            echo "- Artifact: \`ZENZY-PR34-Resume-Preview.apk\`"
+            echo "- SHA-256: \`$digest\`"
+            echo "- Boundary: internal PR candidate only; no merge or release"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload retained PR 34 preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-pr34-resume-preview-${{ steps.source.outputs.head_sha }}
+          path: |
+            v2/phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk
+            v2/phase1b/artifacts/pr34/ZENZY-PR34-Resume-Preview.apk.sha256
+            v2/phase1b/artifacts/pr34/eas-build-metadata.json
+            v2/phase1b/artifacts/pr34/provenance.json
+          if-no-files-found: error
+          retention-days: 30
