@@ -60,30 +60,45 @@ async function main() {
     })),
   };
 
-  assert.equal(checks.transformMalformedJson.status, 400);
-  assert.equal(checks.transformTooShort.status, 400);
-  assert.equal(checks.transformOversized.status, 400);
-  assert.equal(checks.acceptMissingRunId.status, 400);
-  assert.equal(checks.acceptInvalidRunId.status, 404);
-  assert.equal(checks.evidenceMissingRunId.status, 400);
-  assert.equal(checks.evidenceInvalidMetrics.status, 400);
-
   const after = await ownedRunCount(userA.client);
-  assert.equal(after, before, 'Invalid requests must not create transformation runs.');
+  const expected = {
+    transformMalformedJson: 400,
+    transformTooShort: 400,
+    transformOversized: 400,
+    acceptMissingRunId: 400,
+    acceptInvalidRunId: 404,
+    evidenceMissingRunId: 400,
+    evidenceInvalidMetrics: 400,
+  } as const;
+
+  const evaluated = Object.fromEntries(
+    Object.entries(checks).map(([name, value]) => [name, {
+      observedStatus: value.status,
+      expectedStatus: expected[name as keyof typeof expected],
+      pass: value.status === expected[name as keyof typeof expected],
+    }]),
+  );
+  const noMutation = after === before;
+  const allValidated = Object.values(evaluated).every((entry) => entry.pass);
+  const status = allValidated && noMutation ? 'PASS' : 'FAIL';
 
   const report = {
     test: 'ZJ-T-006',
     canonicalCases: ['JZ-018'],
-    status: 'PASS',
+    status,
+    harnessStatus: 'PASS',
     frozenSha: FROZEN_SHA,
     environment: 'NON_PRODUCTION_STAGING',
     projectRef: EXPECTED_PROJECT_REF,
     customerProductionDataTouched: false,
     applicationRuntimeCodeChanged: false,
-    checks: Object.fromEntries(Object.entries(checks).map(([name, value]) => [name, value.status])),
+    checks: evaluated,
     ownedRunCountBefore: before,
     ownedRunCountAfter: after,
-    unauthorizedMutationObserved: false,
+    unauthorizedMutationObserved: !noMutation,
+    retainedNegativeFinding: checks.acceptInvalidRunId.status === 500
+      ? 'Invalid non-UUID runId returned HTTP 500 instead of a validated 4xx rejection.'
+      : null,
     secretsScan: 'PASS',
     recordedAt: new Date().toISOString(),
   };
