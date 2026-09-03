@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/auth/AuthProvider';
+import { createActiveRunSession } from './src/domain/activeRun';
 import {
   createDashboardSnapshot,
   markDashboardBlocked,
@@ -27,6 +28,11 @@ import { DashboardScreen } from './src/screens/DashboardScreen';
 import { OutcomeScreen } from './src/screens/OutcomeScreen';
 import { StartScreen } from './src/screens/StartScreen';
 import { TransformationScreen } from './src/screens/TransformationScreen';
+import {
+  clearActiveRunSession,
+  loadActiveRunSession,
+  saveActiveRunSession,
+} from './src/services/activeRunStore';
 import {
   loadDashboardSnapshot,
   saveDashboardSnapshot,
@@ -51,6 +57,7 @@ function ZenzyApp() {
   const [error, setError] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(true);
   const [dashboardHydrated, setDashboardHydrated] = useState(false);
+  const [activeRunHydrated, setActiveRunHydrated] = useState(false);
   const [dashboard, setDashboard] = useState<DashboardSnapshot>(() =>
     createDashboardSnapshot('start'),
   );
@@ -96,12 +103,60 @@ function ZenzyApp() {
   }, [auth.configured, auth.ready, auth.session?.user.id, dashboardOwnerKey]);
 
   useEffect(() => {
+    if (isRemoteMode && (!auth.ready || !auth.configured || !auth.session)) {
+      setActiveRunHydrated(false);
+      return;
+    }
+
+    if (!dashboardOwnerKey) return;
+
+    let cancelled = false;
+    setActiveRunHydrated(false);
+
+    void loadActiveRunSession(dashboardOwnerKey)
+      .then((saved) => {
+        if (cancelled) return;
+        setResult(saved?.result ?? null);
+        setAcceptance(saved?.acceptance ?? null);
+        setEvidence(saved?.evidence ?? null);
+        setActiveRunHydrated(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setResult(null);
+        setAcceptance(null);
+        setEvidence(null);
+        setActiveRunHydrated(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [auth.configured, auth.ready, auth.session?.user.id, dashboardOwnerKey]);
+
+  useEffect(() => {
     if (!dashboardHydrated || !dashboardOwnerKey) return;
 
     void saveDashboardSnapshot(dashboardOwnerKey, dashboard).catch(() => {
       // Dashboard memory must never block the core transformation flow.
     });
   }, [dashboard, dashboardHydrated, dashboardOwnerKey]);
+
+  useEffect(() => {
+    if (!activeRunHydrated || !dashboardOwnerKey) return;
+
+    if (!result) {
+      void clearActiveRunSession(dashboardOwnerKey).catch(() => {
+        // Resume persistence must never block the core transformation flow.
+      });
+      return;
+    }
+
+    const activeRun = createActiveRunSession(result, acceptance, evidence);
+    void saveActiveRunSession(dashboardOwnerKey, activeRun).catch(() => {
+      // Resume persistence must never block the core transformation flow.
+    });
+  }, [acceptance, activeRunHydrated, dashboardOwnerKey, evidence, result]);
 
   const handleStart = async (input: string) => {
     setLoading(true);
@@ -216,7 +271,7 @@ function ZenzyApp() {
     );
   }
 
-  if (!dashboardHydrated) {
+  if (!dashboardHydrated || !activeRunHydrated) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
         <StatusBar style="light" />
@@ -270,6 +325,7 @@ function ZenzyApp() {
             error={error}
             remoteAuthenticated={isRemoteMode}
             canContinue={result !== null}
+            currentWork={result?.sourceInput ?? null}
             onStart={handleStart}
             onContinue={() => setShowDashboard(false)}
           />
