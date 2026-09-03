@@ -4,9 +4,9 @@
   },
   "build": {
     "preview": {
+      "node": "22.23.2",
       "environment": "preview",
       "distribution": "internal",
-      "channel": "phase-1b-preview",
       "env": {
         "ZENZY_PHASE1B_PREVIEW": "1",
         "EXPO_PUBLIC_ZENZY_AI_MODE": "mock"
