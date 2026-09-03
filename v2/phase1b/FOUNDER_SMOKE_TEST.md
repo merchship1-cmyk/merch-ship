@@ -78,6 +78,8 @@ Before FST GREEN can be recorded, explicitly complete FST-05 for:
 2. keyboard open/dismiss/submit interaction; and
 3. a materially long input (without needing to approach the full 4000-character ceiling if normal scrolling/editing behavior can be observed).
 
+A gate result of `FAIL-NONBLOCKING` does not by itself prevent FST GREEN when the observed behavior is documented, recovery is proven, and there is no unresolved blocking crash/runtime/UI defect. The non-blocking defect remains open for the controlled fix lane or a later governed UX increment.
+
 No blocking defect is presently known.
 
 ## FST GREEN rule
