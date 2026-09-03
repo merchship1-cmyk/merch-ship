@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - zj001/frozen-auth-block
+    paths:
+      - .github/workflows/zj001-zjt002.yml
+      - v2/zj001/zj-t-002.ts
   workflow_dispatch:
 
 permissions:
@@ -50,7 +53,7 @@ jobs:
           while IFS= read -r path; do
             [[ -z "$path" ]] && continue
             case "$path" in
-              .github/workflows/zj001-zjt002.yml|v2/zj001/*)
+              .github/workflows/zj001-zjt002.yml|.github/workflows/zj001-zjt003.yml|v2/zj001/*)
                 ;;
               *)
                 echo "Blocked: non-test file changed from frozen SHA: $path"
