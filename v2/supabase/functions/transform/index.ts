@@ -227,13 +227,21 @@ Deno.serve(async (request) => {
 
   if (requestId && inputHash) {
     try {
+      let ledger = await readRequestLedger();
+      if (ledger && ledger.input_hash !== inputHash) {
+        return json({
+          error: 'requestId is already bound to different input.',
+          code: 'IDEMPOTENCY_INPUT_MISMATCH',
+          requestId,
+        }, 409);
+      }
+
       const canonical = await readCanonicalByRequest();
       if (canonical) {
         await completeRequest(canonical.id);
         return json(canonical.result);
       }
 
-      let ledger = await readRequestLedger();
       if (!ledger) {
         const { error: claimError } = await supabaseAdmin
           .from('zenzy_transformation_requests')
