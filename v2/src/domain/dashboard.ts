@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { MeshExecutionTrace } from './mesh';
+
 export const dashboardStageSchema = z.enum([
   'start',
   'clarity',
@@ -80,6 +82,27 @@ export function createDashboardSnapshot(
     done: 'No completed work recorded in this dashboard yet.',
     updatedAt,
   };
+}
+
+export function attachMeshTraceToDashboard(
+  snapshot: DashboardSnapshot,
+  trace: MeshExecutionTrace,
+): DashboardSnapshot {
+  const routeSummary =
+    ` Governed MOCK mesh route ${trace.workflowId} was authorized as ` +
+    `${trace.governance.authority}; no live agent, tool, publish, payment, or destructive action ran.`;
+
+  return dashboardSnapshotSchema.parse({
+    ...snapshot,
+    currentUnderstanding: (snapshot.currentUnderstanding + routeSummary).slice(
+      0,
+      600,
+    ),
+    done: (
+      `Mesh evidence ${trace.evidence.evidenceId} retained. ` +
+      `GOV-OS preview decision: ${trace.governance.decision}.`
+    ).slice(0, 300),
+  });
 }
 
 export function markDashboardBlocked(
