@@ -34,7 +34,14 @@ async function main() {
     login(TEST_USER_A_EMAIL, TEST_USER_A_PASSWORD),
     login(TEST_USER_B_EMAIL, TEST_USER_B_PASSWORD),
   ]);
-  assert.notEqual(userA.userId, userB.userId);
+  const [identityA, identityB] = await Promise.all([
+    userA.client.auth.getUser(userA.accessToken),
+    userB.client.auth.getUser(userB.accessToken),
+  ]);
+  const userAId = identityA.data.user?.id;
+  const userBId = identityB.data.user?.id;
+  assert.ok(userAId && userBId, 'Dedicated test identities must resolve from their access tokens.');
+  assert.notEqual(userAId, userBId, 'Dedicated test identities must be distinct.');
 
   const claimRuns = await Promise.all(
     Array.from({ length: 3 }, () => createTransformation(
@@ -89,6 +96,7 @@ async function main() {
     projectRef: EXPECTED_PROJECT_REF,
     customerProductionDataTouched: false,
     applicationRuntimeCodeChanged: false,
+    dedicatedTestIdentitiesDistinct: true,
     results: {
       JZ020: {
         requiredRuns: 3,
