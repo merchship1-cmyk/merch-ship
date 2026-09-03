@@ -1,0 +1,81 @@
+name: ZJ-001 / ZJ-T-005 Frozen Authority Pressure
+
+on:
+  push:
+    branches:
+      - zj001/frozen-auth-block
+    paths:
+      - .github/workflows/zj001-zjt005.yml
+      - v2/zj001/zj-t-005.ts
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FROZEN_SHA: d6d7aa7f29bc3dc3a689bcd3712e1decd612ae3b
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
+jobs:
+  zj-t-005:
+    name: ZJ-T-005 / Authority + Security Pressure
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Confirm dedicated test credentials are configured
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TEST_USER_A_EMAIL:-}"
+          test -n "${TEST_USER_A_PASSWORD:-}"
+          test -n "${TEST_USER_B_EMAIL:-}"
+          test -n "${TEST_USER_B_PASSWORD:-}"
+
+      - name: Checkout frozen test branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce frozen lineage and test-only scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$FROZEN_SHA")" = "$FROZEN_SHA"
+          invalid=0
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            case "$path" in
+              .github/workflows/zj001-zjt*.yml|v2/zj001/*) ;;
+              *) echo "Blocked: non-test file changed from frozen SHA: $path"; invalid=1 ;;
+            esac
+          done < <(git diff --name-only "$FROZEN_SHA"...HEAD)
+          test "$invalid" = "0"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install frozen dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Execute frozen authority/security batch
+        working-directory: v2
+        run: node --import tsx zj001/zj-t-005.ts
+
+      - name: Upload retained evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zj-t-005-authority-pressure-${{ github.sha }}
+          path: v2/zj001/artifacts/zj-t-005-report.json
+          if-no-files-found: error
+          retention-days: 30
