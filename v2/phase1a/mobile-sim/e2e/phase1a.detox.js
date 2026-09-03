@@ -17,6 +17,9 @@ describe('ZENZY Phase 1A gate', () => {
     await element(by.id('login-password')).replaceText(password);
     await element(by.id('login-submit')).tap();
 
+    await waitFor(element(by.id('zenzy-dashboard')))
+      .toBeVisible()
+      .withTimeout(30000);
     await waitFor(element(by.id('input-textarea')))
       .toBeVisible()
       .withTimeout(30000);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -112,6 +113,7 @@ function ZenzyApp() {
       const nextResult = await runTransformation(input);
       setResult(nextResult);
       setDashboard(createDashboardSnapshot('clarity'));
+      setShowDashboard(false);
     } catch (requestError) {
       const message =
         requestError instanceof Error
@@ -264,6 +266,11 @@ function ZenzyApp() {
         {showDashboard ? (
           <DashboardScreen
             snapshot={dashboard}
+            loading={loading}
+            error={error}
+            remoteAuthenticated={isRemoteMode}
+            canContinue={result !== null}
+            onStart={handleStart}
             onContinue={() => setShowDashboard(false)}
           />
         ) : !result ? (
@@ -327,6 +334,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.surface,
+    paddingTop: Platform.OS === 'android' ? spacing.lg : 0,
   },
   homeLink: { color: colors.blue, fontWeight: '900' },
   homeLabel: { color: colors.text, fontSize: 12, fontWeight: '900' },
