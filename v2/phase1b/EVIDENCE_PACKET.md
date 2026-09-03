@@ -23,7 +23,9 @@ The Phase 1A Android APK build was proven by CI but the binary was not retained.
 
 - [ ] `FOUNDER_SMOKE_TEST.md` completed
 - [ ] exact tested source SHA recorded
+- [ ] Node.js 22 runtime confirmed
 - [ ] MOCK mode confirmed
+- [ ] production API/Supabase/EAS runtime values cleared for the local session
 - [ ] screenshots/notes attached or referenced where useful
 - [ ] blocking defects resolved and retested
 - [ ] FST GREEN recorded
@@ -34,17 +36,23 @@ The Phase 1A Android APK build was proven by CI but the binary was not retained.
 - [ ] `EXPO_TOKEN` configured for CI authentication
 - [ ] preview environment used
 - [ ] internal distribution confirmed
+- [ ] production build profile absent
+- [ ] submit profile absent
+- [ ] EAS Update channel not provisioned in Phase 1B
 - [ ] `EXPO_PUBLIC_ZENZY_AI_MODE=mock` confirmed
 - [ ] Android APK build completed
 - [ ] EAS build ID recorded
-- [ ] exact source SHA recorded
+- [ ] exact merged-main source SHA recorded
 - [ ] APK retained
 - [ ] APK SHA-256 retained
 - [ ] provenance JSON retained
+- [ ] provenance records `eas_update_channel=NONE_NOT_PROVISIONED`
 - [ ] Founder/internal tester installation confirmed
 - [ ] installed preview launches successfully
 
 ### 1B-DEV — Defect remediation, if invoked
+
+The authoritative fix-lane rules are in `DEV_LANE.md`.
 
 For each blocking defect:
 
@@ -56,7 +64,26 @@ For each blocking defect:
 - [ ] affected FST/EAS gates rerun
 - [ ] resolution evidence recorded
 
-If no code defect is found, record `1B-DEV: NOT INVOKED`.
+If no code/configuration defect is found, record `1B-DEV: NOT INVOKED`.
+
+## Phase 1B contract evidence
+
+Before EAS execution, the secret-free Phase 1B contract workflow must establish that the proposed lane is fail-closed:
+
+- [ ] preview is the only EAS build profile
+- [ ] Android output is APK
+- [ ] internal distribution only
+- [ ] Node.js 22 is pinned
+- [ ] MOCK mode is forced
+- [ ] no production profile exists
+- [ ] no submit profile exists
+- [ ] no EAS Update channel exists
+- [ ] `expo-updates` has not been admitted
+- [ ] separate Zenzy Preview app identifiers resolve correctly
+- [ ] repository verification passes
+- [ ] Founder Test Pack artifact is retained
+
+Passing this contract check proves configuration/evidence readiness only. It does not make Phase 1B GREEN.
 
 ## Retained preview artifact set
 
@@ -90,6 +117,8 @@ The GitHub Actions artifact name binds the evidence bundle to the candidate sour
 
 No production deployment authorized.
 No production release authorized.
+No app-store submission authorized.
+No EAS Update publication authorized.
 No external commercial operation authorized.
 No RFTO certification granted.
 No PRIME inheritance granted.
