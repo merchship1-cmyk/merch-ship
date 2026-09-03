@@ -23,7 +23,6 @@ jobs:
     env:
       ZENZY_PHASE1B_PREVIEW: "1"
       EXPO_PUBLIC_ZENZY_AI_MODE: mock
-      ZENZY_EAS_PROJECT_ID: 00000000-0000-0000-0000-000000000000
     steps:
       - uses: actions/checkout@v4
 
@@ -57,12 +56,20 @@ jobs:
           # No EAS Update runtime has been admitted into this preview lane.
           jq -e '.dependencies["expo-updates"] == null' package.json >/dev/null
 
+          test -f eas-project.json
+          repo_project_id="$(jq -r '.projectId // empty' eas-project.json)"
+          test -n "$repo_project_id"
+          if ! [[ "$repo_project_id" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]]; then
+            echo "Invalid repository EAS project ID format."
+            exit 1
+          fi
+
           npx expo config --type public --json > phase1b-contract-config.json
           jq -e '.name == "Zenzy Preview"' phase1b-contract-config.json >/dev/null
           jq -e '.scheme == "zenzy-preview"' phase1b-contract-config.json >/dev/null
           jq -e '.android.package == "com.merchship.zenzy.phase1b.preview"' phase1b-contract-config.json >/dev/null
           jq -e '.ios.bundleIdentifier == "com.merchship.zenzy.phase1b.preview"' phase1b-contract-config.json >/dev/null
-          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' phase1b-contract-config.json >/dev/null
+          jq -e --arg projectId "$repo_project_id" '.extra.eas.projectId == $projectId' phase1b-contract-config.json >/dev/null
 
           grep -q 'EXPO_PUBLIC_ZENZY_AI_MODE = "mock"' phase1b/founder-smoke.ps1
           grep -q 'Node.js 22 is required' phase1b/founder-smoke.ps1
@@ -82,6 +89,7 @@ jobs:
             echo "- internal Android APK"
             echo "- MOCK AI mode"
             echo "- Node 22 pinned"
+            echo "- EAS project ID sourced from repository config"
             echo "- no production build profile"
             echo "- no submit profile"
             echo "- no EAS Update channel"
