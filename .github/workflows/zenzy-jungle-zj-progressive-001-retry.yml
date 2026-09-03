@@ -1,0 +1,82 @@
+name: ZENZY / JUNGLE ZJ-PROGRESSIVE-001 Retry Diagnostic
+
+on:
+  push:
+    branches:
+      - zenzy/jungle-zj-progressive-001-retry-diagnostic
+    paths:
+      - .github/workflows/zenzy-jungle-zj-progressive-001-retry.yml
+      - v2/jungle-diagnostic/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: eaa2d65550eed1f4f95b52c151c2c0610ce35241
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
+jobs:
+  retry-diagnostic:
+    name: One bounded retry after 20-concurrency 503
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Confirm dedicated staging credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TEST_USER_B_EMAIL:-}"
+          test -n "${TEST_USER_B_PASSWORD:-}"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce test-only diagnostic diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$BASE_SHA")" = "$BASE_SHA"
+          invalid=0
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            case "$path" in
+              .github/workflows/zenzy-jungle-zj-progressive-001-retry.yml|v2/jungle-diagnostic/*)
+                ;;
+              *)
+                echo "Blocked: non-diagnostic file changed from governed base: $path"
+                invalid=1
+                ;;
+            esac
+          done < <(git diff --name-only "$BASE_SHA"...HEAD)
+          test "$invalid" = "0"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Execute one bounded retry only
+        working-directory: v2
+        run: node --import tsx jungle-diagnostic/zj-progressive-001-retry.ts
+
+      - name: Upload retry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zj-progressive-001-retry-${{ github.sha }}
+          path: v2/jungle-diagnostic/artifacts/zj-progressive-001-retry-report.json
+          if-no-files-found: error
+          retention-days: 30
