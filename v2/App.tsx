@@ -16,6 +16,7 @@ import {
   markDashboardBlocked,
   type DashboardSnapshot,
 } from './src/domain/dashboard';
+import { createResumeState } from './src/domain/resume';
 import type {
   TransformationAcceptance,
   TransformationEvidence,
@@ -36,6 +37,10 @@ import {
   recordTransformationEvidence,
 } from './src/services/phase1aClient';
 import {
+  loadResumeState,
+  saveResumeState,
+} from './src/services/resumeStore';
+import {
   isRemoteMode,
   runTransformation,
 } from './src/services/transformationClient';
@@ -50,7 +55,12 @@ function ZenzyApp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(true);
-  const [dashboardHydrated, setDashboardHydrated] = useState(false);
+  const [dashboardHydratedFor, setDashboardHydratedFor] = useState<
+    string | null
+  >(null);
+  const [resumeHydratedFor, setResumeHydratedFor] = useState<string | null>(
+    null,
+  );
   const [dashboard, setDashboard] = useState<DashboardSnapshot>(() =>
     createDashboardSnapshot('start'),
   );
@@ -58,6 +68,8 @@ function ZenzyApp() {
   const dashboardOwnerKey = isRemoteMode
     ? (auth.session?.user.id ?? null)
     : 'local-preview';
+  const dashboardHydrated = dashboardHydratedFor === dashboardOwnerKey;
+  const resumeHydrated = resumeHydratedFor === dashboardOwnerKey;
 
   useEffect(() => {
     setResult(null);
@@ -69,25 +81,26 @@ function ZenzyApp() {
 
   useEffect(() => {
     if (isRemoteMode && (!auth.ready || !auth.configured || !auth.session)) {
-      setDashboardHydrated(false);
+      setDashboardHydratedFor(null);
       return;
     }
 
     if (!dashboardOwnerKey) return;
 
+    const ownerKey = dashboardOwnerKey;
     let cancelled = false;
-    setDashboardHydrated(false);
+    setDashboardHydratedFor(null);
 
-    void loadDashboardSnapshot(dashboardOwnerKey)
+    void loadDashboardSnapshot(ownerKey)
       .then((saved) => {
         if (cancelled) return;
         setDashboard(saved ?? createDashboardSnapshot('start'));
-        setDashboardHydrated(true);
+        setDashboardHydratedFor(ownerKey);
       })
       .catch(() => {
         if (cancelled) return;
         setDashboard(createDashboardSnapshot('start'));
-        setDashboardHydrated(true);
+        setDashboardHydratedFor(ownerKey);
       });
 
     return () => {
@@ -96,12 +109,64 @@ function ZenzyApp() {
   }, [auth.configured, auth.ready, auth.session?.user.id, dashboardOwnerKey]);
 
   useEffect(() => {
-    if (!dashboardHydrated || !dashboardOwnerKey) return;
+    if (isRemoteMode && (!auth.ready || !auth.configured || !auth.session)) {
+      setResumeHydratedFor(null);
+      return;
+    }
+
+    if (!dashboardOwnerKey) return;
+
+    const ownerKey = dashboardOwnerKey;
+    let cancelled = false;
+    setResumeHydratedFor(null);
+
+    void loadResumeState(ownerKey)
+      .then((saved) => {
+        if (cancelled) return;
+        setResult(saved?.result ?? null);
+        setAcceptance(saved?.acceptance ?? null);
+        setEvidence(saved?.evidence ?? null);
+        setResumeHydratedFor(ownerKey);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setResult(null);
+        setAcceptance(null);
+        setEvidence(null);
+        setResumeHydratedFor(ownerKey);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [auth.configured, auth.ready, auth.session?.user.id, dashboardOwnerKey]);
+
+  useEffect(() => {
+    if (!dashboardOwnerKey || dashboardHydratedFor !== dashboardOwnerKey) return;
 
     void saveDashboardSnapshot(dashboardOwnerKey, dashboard).catch(() => {
       // Dashboard memory must never block the core transformation flow.
     });
-  }, [dashboard, dashboardHydrated, dashboardOwnerKey]);
+  }, [dashboard, dashboardHydratedFor, dashboardOwnerKey]);
+
+  useEffect(() => {
+    if (!dashboardOwnerKey || resumeHydratedFor !== dashboardOwnerKey) return;
+
+    try {
+      const resumeState = createResumeState(result, acceptance, evidence);
+      void saveResumeState(dashboardOwnerKey, resumeState).catch(() => {
+        // Resume memory must never block the core transformation flow.
+      });
+    } catch {
+      // Invalid transitional state is never persisted.
+    }
+  }, [
+    acceptance,
+    dashboardOwnerKey,
+    evidence,
+    result,
+    resumeHydratedFor,
+  ]);
 
   const handleStart = async (input: string) => {
     setLoading(true);
@@ -216,7 +281,7 @@ function ZenzyApp() {
     );
   }
 
-  if (!dashboardHydrated) {
+  if (!dashboardHydrated || !resumeHydrated) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
         <StatusBar style="light" />
