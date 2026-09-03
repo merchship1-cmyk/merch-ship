@@ -1,6 +1,6 @@
 # ZENZY Phase 1B-EVP — Evidence Packet
 
-Lifecycle status: OPEN / NOT GREEN
+Lifecycle status: TECHNICAL EVIDENCE COMPLETE / FOUNDER GREEN DECISION PENDING
 Boundary: internal founder/tester preview only
 
 ## Phase 1A lineage references
@@ -15,7 +15,7 @@ Boundary: internal founder/tester preview only
 - V2 Component Pipeline: PASS
 - ZENZY Phase 1A Gate: PASS
 
-The Phase 1A Android APK build was proven by CI but the binary was not retained. That is not a Phase 1A failure; retained installable distribution evidence begins in Phase 1B.
+The Phase 1A Android APK build was proven by CI but the binary was not retained. Retained installable distribution evidence begins in Phase 1B.
 
 ## Required Phase 1B evidence
 
@@ -26,60 +26,69 @@ The Phase 1A Android APK build was proven by CI but the binary was not retained.
 - [x] Node.js 22 runtime confirmed by fail-closed Founder launcher reaching Expo runtime
 - [x] MOCK mode confirmed
 - [x] production API/Supabase/EAS runtime values cleared for the local session by the governed launcher
-- [x] screenshots/notes captured and referenced where useful; repository-retained screenshot attachment remains separate
+- [x] screenshots/notes captured and referenced where useful
 - [x] blocking defects resolved and retested — no blocking defect observed
 - [x] FST GREEN recorded
 
 `1B-FST: GREEN`
 
-Retained non-blocking FST defects:
+Retained non-blocking FST findings:
 
 - `FST-04-001` — Android system Back exits from PLAN instead of stepping backward; reopening restores the same PLAN state with no run loss.
 - `FST-09-001` — Expo surfaced a visible `SafeAreaView has been deprecated...` development warning during long-input editing; app remained usable and keyboard behavior passed.
 
-Both are `FAIL-NONBLOCKING` findings and remain open for the controlled fix lane or a later governed UX increment. Neither grants release authority or changes the Phase 1B boundary.
+Both remain non-blocking UX/development findings. Neither expands authority.
 
-### 1B-EAS — EAS Preview Build
+### 1B-EAS — Retained Internal Android Preview
 
-- [ ] EAS project linked through `ZENZY_EAS_PROJECT_ID`
-- [ ] `EXPO_TOKEN` configured for CI authentication
-- [ ] preview environment used
-- [ ] internal distribution confirmed
-- [ ] production build profile absent
-- [ ] submit profile absent
-- [ ] EAS Update channel not provisioned in Phase 1B
-- [ ] `EXPO_PUBLIC_ZENZY_AI_MODE=mock` confirmed
-- [ ] Android APK build completed
-- [ ] EAS build ID recorded
-- [ ] exact merged-main source SHA recorded
-- [ ] APK retained
-- [ ] APK SHA-256 retained
-- [ ] provenance JSON retained
-- [ ] provenance records `eas_update_channel=NONE_NOT_PROVISIONED`
-- [ ] Founder/internal tester installation confirmed
-- [ ] installed preview launches successfully
+Authoritative retained evidence: `PR34_PREVIEW_EVIDENCE.md`.
 
-### 1B-DEV — Defect remediation, if invoked
+- [x] EAS project linked through repository-owned `eas-project.json`
+- [x] `EXPO_TOKEN` CI authentication proven
+- [x] preview environment used
+- [x] internal distribution confirmed
+- [x] production build profile absent
+- [x] submit profile absent
+- [x] EAS Update channel not provisioned in Phase 1B
+- [x] `EXPO_PUBLIC_ZENZY_AI_MODE=mock` confirmed
+- [x] Android APK build completed
+- [x] EAS build ID recorded — `32b0642e-4b22-4c2e-97ac-6cca46156333`
+- [x] final merged-main source recorded — `5a99d90050b25e10bdd7230c2a4ffd85ca182d21`
+- [x] tested merge candidate recorded — `9690b4ef1a03eb0d9256913c207e88d93018f747`
+- [x] tested candidate and final merged main proven tree-identical — `0f9c61fdbfc3132723d80c58a732d5dc5678c338`
+- [x] APK retained in GitHub Actions artifact `9889097019`
+- [x] APK SHA-256 retained — `1c6929faadba48501097036f945b6d44a4f806622f15f9e09ee7b04a272ea4b7`
+- [x] EAS metadata retained
+- [x] provenance JSON retained
+- [x] supplemental provenance records `eas_update_channel=NONE_NOT_PROVISIONED` against the identical tested/final source tree
+- [x] Founder/internal tester installation confirmed
+- [x] installed preview launches successfully
+- [x] Founder real-device resume acceptance target passed
+- [x] governed mock PFU route passed on physical Android
 
-The authoritative fix-lane rules are in `DEV_LANE.md`.
+`1B-EAS: GREEN — INTERNAL NON-PRODUCTION PREVIEW EVIDENCE`
 
-For each blocking defect:
+Retained workflow evidence:
 
-- [ ] defect ID
-- [ ] failing source SHA
-- [ ] affected gate
-- [ ] targeted fix branch/commit
-- [ ] relevant automated tests rerun
-- [ ] affected FST/EAS gates rerun
-- [ ] resolution evidence recorded
+- workflow run: `33742972511`
+- artifact: `zenzy-pr34-resume-preview-64a27db73ae1b78ddd13cc4b6d89584890e6ac21`
+- artifact ID: `9889097019`
+- artifact archive digest: `sha256:2ac0f1de04925e5307756cbb577e072f2973742b5b5916320b97ba2f873976e5`
+- retained until: `2026-10-03T10:29:59Z`
 
-Current state: no blocking defect requires 1B-DEV. The two open FST defects are non-blocking and are not being used to widen this lane.
+### 1B-DEV — Controlled Fix Lane
 
-If no code/configuration defect is found, record `1B-DEV: NOT INVOKED`.
+The authoritative fix-lane rules remain in `DEV_LANE.md`.
+
+No blocking Phase 1B defect required the controlled fix lane.
+
+`1B-DEV: NOT INVOKED FOR BLOCKING DEFECTS`
+
+The resume/dashboard increment was developed and validated separately in PR #34 and is now integrated into `main`. The two original FST findings remain non-blocking.
 
 ## Phase 1B contract evidence
 
-Before EAS execution, the secret-free Phase 1B contract workflow must establish that the proposed lane is fail-closed:
+The secret-free Phase 1B contract established the preview lane as fail-closed:
 
 - [x] preview is the only EAS build profile
 - [x] Android output is APK
@@ -91,46 +100,50 @@ Before EAS execution, the secret-free Phase 1B contract workflow must establish 
 - [x] no EAS Update channel exists
 - [x] `expo-updates` has not been admitted
 - [x] separate Zenzy Preview app identifiers resolve correctly
-- [x] repository verification passes on the previously validated Phase 1B contract head; the FST evidence-record updates must retain/reconfirm this status for the new head
-- [x] Founder Test Pack artifact is retained from the validated contract run
+- [x] repository verification passed on the retained preview candidate
+- [x] Founder Test Pack artifact retained
+- [x] current repository checks preserved the Phase 1B contract after PR #34 integration
 
-Passing this contract check proves configuration/evidence readiness only. It does not make Phase 1B GREEN.
+Passing this contract proves configuration/evidence readiness only. It does not grant production authority.
 
 ## Retained preview artifact set
 
-The Phase 1B preview workflow is designed to retain:
+The retained PR #34 preview artifact contains:
 
-- `zenzy-phase1b-preview.apk`
-- `zenzy-phase1b-preview.apk.sha256`
+- `ZENZY-PR34-Resume-Preview.apk`
+- `ZENZY-PR34-Resume-Preview.apk.sha256`
 - `eas-build-metadata.json`
 - `provenance.json`
 
-The GitHub Actions artifact name binds the evidence bundle to the candidate source SHA.
+The artifact, EAS build ID, APK hash, tested merge candidate, final merged-main commit and identical Git tree are cross-recorded in `PR34_PREVIEW_EVIDENCE.md`.
 
 ## Phase 1B GREEN decision checklist
 
 - [x] Phase 1A lineage remains valid
 - [x] 1B-FST GREEN
-- [x] preview configuration isolated from production — contract-proven configuration
-- [ ] retained installable Android preview exists
-- [ ] source/build/artifact provenance is unambiguous
-- [ ] SHA-256 recorded
-- [ ] internal installation succeeds
-- [ ] retained preview launches
-- [x] all blocking defects closed — none observed in FST
-- [ ] evidence packet complete
+- [x] preview configuration isolated from production
+- [x] retained installable Android preview exists
+- [x] source/build/artifact provenance is unambiguous
+- [x] APK SHA-256 recorded
+- [x] internal installation succeeds
+- [x] retained preview launches
+- [x] Founder real-device resume flow passes
+- [x] all blocking Phase 1B defects closed — none remain
+- [x] evidence packet reconciled and complete
 - [x] governance boundary confirmed
 - [ ] Founder/governance authority explicitly records Phase 1B GREEN
 
 ## Current Phase 1B state
 
 - Phase 1A lineage: GREEN
-- Phase 1B contract: GREEN on previously validated contract head; revalidation pending/required after evidence-only head updates
+- Phase 1B contract: GREEN
 - 1B-FST Founder Smoke: GREEN
-- 1B-EAS retained internal Android preview: OPEN
-- Phase 1B overall: OPEN / NOT GREEN
+- 1B-EAS retained internal Android preview: GREEN
+- 1B-DEV blocking-defect lane: NOT INVOKED
+- Phase 1B technical evidence: COMPLETE
+- Phase 1B overall: OPEN solely pending explicit Founder/governance GREEN decision
 
-The smallest remaining Phase 1B validation action is to prove the internal EAS preview lane: link/authenticate EAS with the governed secrets, run the preview-only workflow, retain the APK/provenance/hash evidence, install it on the Founder Android device, and record successful launch.
+The smallest remaining Phase 1B action is the separate Founder/governance decision. That decision may record Phase 1B GREEN for the bounded internal pre-release lane only; it must not be interpreted as production release, RFTO, PRIME/BMOS, live mesh, customer access, or authority transfer.
 
 ## Governance declaration
 
@@ -141,10 +154,12 @@ No production release authorized.
 No app-store submission authorized.
 No EAS Update publication authorized.
 No external commercial operation authorized.
+No live mesh attachment authorized.
+No production AI routing authorized.
 No RFTO certification granted.
 No PRIME inheritance granted.
 No BMOS attachment granted.
 No broader ZENZY admission granted.
 No authority transfer granted.
 
-Phase 1B GREEN, when eventually recorded, means only that the internal pre-release preview/evidence lane satisfied its defined gates.
+Phase 1B GREEN, if explicitly recorded by the Founder/governance authority, means only that the internal pre-release preview/evidence lane satisfied its defined gates.
