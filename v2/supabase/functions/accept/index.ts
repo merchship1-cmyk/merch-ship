@@ -1,3 +1,4 @@
+import { isUuid } from '../_shared/identifiers.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.111.0';
 
 const firstNamedKey = (value: string | undefined) => {
@@ -80,6 +81,7 @@ Deno.serve(async (request) => {
   }
 
   if (!runId) return json({ error: 'runId is required.' }, 400);
+  if (!isUuid(runId)) return json({ error: 'runId is invalid.' }, 400);
 
   const { data: run, error: runError } = await supabaseAdmin
     .from('zenzy_transformation_runs')

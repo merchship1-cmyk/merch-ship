@@ -1,3 +1,4 @@
+import { isUuid } from '../_shared/identifiers.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.111.0';
 
 const firstNamedKey = (value: string | undefined) => {
@@ -105,6 +106,7 @@ Deno.serve(async (request) => {
   const notes = typeof body.notes === 'string' ? body.notes.trim() : undefined;
 
   if (!runId) return json({ error: 'runId is required.' }, 400);
+  if (!isUuid(runId)) return json({ error: 'runId is invalid.' }, 400);
   if (timeSavedMinutes === null || timeSavedMinutes < 0 || timeSavedMinutes > 10080) {
     return json({ error: 'timeSavedMinutes is invalid.' }, 400);
   }

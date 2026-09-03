@@ -1,3 +1,5 @@
+import { isUuid } from '../_shared/identifiers.ts';
+
 const firstNamedKey = (value: string | undefined) => {
   if (!value) return undefined;
   try {
@@ -102,6 +104,7 @@ Deno.serve(async (request) => {
   if (!runId || !otherUserAccessToken) {
     return json({ error: 'runId and otherUserAccessToken are required.' }, 400);
   }
+  if (!isUuid(runId)) return json({ error: 'runId is invalid.' }, 400);
 
   try {
     const [run, acceptance, evidence] = await Promise.all([
