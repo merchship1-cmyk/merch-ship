@@ -2,7 +2,7 @@ import {
   type TransformationResult,
 } from '../domain/transformation';
 import { supabase } from '../lib/supabase';
-import { createMockTransformation } from './mockTransformation';
+import { executeMockMeshTransformation } from './meshClient';
 import { executeRemoteTransformation } from './transformationTransport';
 
 const mode = process.env.EXPO_PUBLIC_ZENZY_AI_MODE ?? 'mock';
@@ -53,5 +53,5 @@ export async function runTransformation(
 
   return isRemoteMode
     ? runRemoteTransformation(normalizedInput)
-    : createMockTransformation(normalizedInput);
+    : executeMockMeshTransformation(normalizedInput);
 }
