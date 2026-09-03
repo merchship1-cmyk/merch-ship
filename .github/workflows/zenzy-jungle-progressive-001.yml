@@ -1,0 +1,97 @@
+name: ZENZY / JUNGLE Progressive Pressure 001
+
+on:
+  push:
+    branches:
+      - zenzy/jungle-progressive-pressure-v1
+    paths:
+      - .github/workflows/zenzy-jungle-progressive-001.yml
+      - v2/jungle/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: eaa2d65550eed1f4f95b52c151c2c0610ce35241
+  SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+
+jobs:
+  progressive-pressure:
+    name: ZJ-PROGRESSIVE-001 / 1-2-5-10-20 Pressure
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TEST_USER_A_EMAIL: ${{ secrets.ZENZY_TEST_USER_A_EMAIL }}
+      TEST_USER_A_PASSWORD: ${{ secrets.ZENZY_TEST_USER_A_PASSWORD }}
+      TEST_USER_B_EMAIL: ${{ secrets.ZENZY_TEST_USER_B_EMAIL }}
+      TEST_USER_B_PASSWORD: ${{ secrets.ZENZY_TEST_USER_B_PASSWORD }}
+    steps:
+      - name: Confirm dedicated staging credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TEST_USER_A_EMAIL:-}"
+          test -n "${TEST_USER_A_PASSWORD:-}"
+          test -n "${TEST_USER_B_EMAIL:-}"
+          test -n "${TEST_USER_B_PASSWORD:-}"
+
+      - name: Checkout progressive test branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce current-main lineage and test-only diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$BASE_SHA")" = "$BASE_SHA"
+          invalid=0
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            case "$path" in
+              .github/workflows/zenzy-jungle-progressive-001.yml|v2/jungle/*)
+                ;;
+              *)
+                echo "Blocked: non-test file changed from governed base: $path"
+                invalid=1
+                ;;
+            esac
+          done < <(git diff --name-only "$BASE_SHA"...HEAD)
+          test "$invalid" = "0"
+
+          {
+            echo "## ZJ-PROGRESSIVE-001"
+            echo
+            echo "- Current subject: \`$BASE_SHA\`"
+            echo "- Prior frozen subject: \`d6d7aa7f29bc3dc3a689bcd3712e1decd612ae3b\`"
+            echo "- Reuse ZJ-T-005 through ZJ-T-008; no equivalent reruns"
+            echo "- Load progression: 1 -> 2 -> 5 -> 10 -> 20"
+            echo "- Provider-generating request ceiling: 39"
+            echo "- Max concurrency: 20"
+            echo "- No runtime-code mutation, deployment, production data, or merge authority"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Execute progressive pressure suite
+        working-directory: v2
+        run: node --import tsx jungle/zj-progressive-001.ts
+
+      - name: Upload retained progressive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zj-progressive-001-${{ github.sha }}
+          path: v2/jungle/artifacts/zj-progressive-001-report.json
+          if-no-files-found: error
+          retention-days: 30
