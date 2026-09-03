@@ -21,14 +21,16 @@ The Phase 1A Android APK build was proven by CI but the binary was not retained.
 
 ### 1B-FST — Founder Smoke Test
 
-- [ ] `FOUNDER_SMOKE_TEST.md` completed
-- [ ] exact tested source SHA recorded
-- [ ] Node.js 22 runtime confirmed
-- [ ] MOCK mode confirmed
-- [ ] production API/Supabase/EAS runtime values cleared for the local session
-- [ ] screenshots/notes attached or referenced where useful
-- [ ] blocking defects resolved and retested
+- [ ] `FOUNDER_SMOKE_TEST.md` completed — core path completed; FST-05 long/edit/keyboard subchecks remain
+- [x] exact tested source SHA recorded
+- [x] Node.js 22 runtime confirmed by fail-closed Founder launcher reaching Expo runtime
+- [x] MOCK mode confirmed
+- [x] production API/Supabase/EAS runtime values cleared for the local session by the governed launcher
+- [x] screenshots/notes captured and referenced where useful; repository-retained screenshot attachment remains separate
+- [x] blocking defects resolved and retested — no blocking defect observed
 - [ ] FST GREEN recorded
+
+Current retained FST defect: `FST-04-001` — Android system Back exits from PLAN instead of stepping backward; reopening restores the same PLAN state. Classified `FAIL-NONBLOCKING`.
 
 ### 1B-EAS — EAS Preview Build
 
@@ -64,24 +66,26 @@ For each blocking defect:
 - [ ] affected FST/EAS gates rerun
 - [ ] resolution evidence recorded
 
+Current state: no blocking defect requires 1B-DEV. The open Android Back behavior is non-blocking and is not being used to widen this lane.
+
 If no code/configuration defect is found, record `1B-DEV: NOT INVOKED`.
 
 ## Phase 1B contract evidence
 
 Before EAS execution, the secret-free Phase 1B contract workflow must establish that the proposed lane is fail-closed:
 
-- [ ] preview is the only EAS build profile
-- [ ] Android output is APK
-- [ ] internal distribution only
-- [ ] Node.js 22 is pinned
-- [ ] MOCK mode is forced
-- [ ] no production profile exists
-- [ ] no submit profile exists
-- [ ] no EAS Update channel exists
-- [ ] `expo-updates` has not been admitted
-- [ ] separate Zenzy Preview app identifiers resolve correctly
-- [ ] repository verification passes
-- [ ] Founder Test Pack artifact is retained
+- [x] preview is the only EAS build profile
+- [x] Android output is APK
+- [x] internal distribution only
+- [x] Node.js 22 is pinned
+- [x] MOCK mode is forced
+- [x] no production profile exists
+- [x] no submit profile exists
+- [x] no EAS Update channel exists
+- [x] `expo-updates` has not been admitted
+- [x] separate Zenzy Preview app identifiers resolve correctly
+- [x] repository verification passes on the previously validated Phase 1B contract head; the evidence-record update must retain/reconfirm this status for its new head
+- [x] Founder Test Pack artifact is retained from the validated contract run
 
 Passing this contract check proves configuration/evidence readiness only. It does not make Phase 1B GREEN.
 
@@ -98,17 +102,17 @@ The GitHub Actions artifact name binds the evidence bundle to the candidate sour
 
 ## Phase 1B GREEN decision checklist
 
-- [ ] Phase 1A lineage remains valid
+- [x] Phase 1A lineage remains valid
 - [ ] 1B-FST GREEN
-- [ ] preview configuration isolated from production
+- [x] preview configuration isolated from production — contract-proven configuration
 - [ ] retained installable Android preview exists
 - [ ] source/build/artifact provenance is unambiguous
 - [ ] SHA-256 recorded
 - [ ] internal installation succeeds
 - [ ] retained preview launches
-- [ ] all blocking defects closed
+- [x] all blocking defects closed — none currently observed in FST
 - [ ] evidence packet complete
-- [ ] governance boundary confirmed
+- [x] governance boundary confirmed
 - [ ] Founder/governance authority explicitly records Phase 1B GREEN
 
 ## Governance declaration
