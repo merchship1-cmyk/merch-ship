@@ -1,6 +1,6 @@
 schema_version: "1.0"
 system_id: PFU-FULLSTACK-AGENTIC-STACK
-system_version: "1.1.0"
+system_version: "1.2.0"
 status: CANON_CANDIDATE
 owner: Ryan Richard Levack-Carr
 purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
@@ -54,6 +54,18 @@ registered_domains:
   - domain_id: PFU-DOMAIN-MERCH-SHIP
     profile: manifests/pfu/domains/merch-ship-runtime-profile.yaml
     status: STRUCTURAL_ONLY
+registered_subsystems:
+  - system_id: MERCH-SHIP-OS
+    domain_id: PFU-DOMAIN-MERCH-SHIP
+    registration: registrations/pfu/merch-ship-os.system.yaml
+    operating_spec: docs/pfu/merch-ship/merch-ship-os-v1.md
+    product_catalog: manifests/pfu/merch-ship/q4-product-catalog-v1.yaml
+    delivery_flow: flows/pfu/merch-ship/delivery-rail-v1.yaml
+    asset_vault: manifests/pfu/merch-ship/asset-vault-v1.yaml
+    runtime_policy: policies/pfu/merch-ship/commercial-runtime-policy.yaml
+    acceptance: evals/pfu/merch-ship-os-acceptance-checklist.md
+    status: REGISTERED_BLUE
+    activation_state: STRUCTURAL_ONLY
 kernel:
   specification: docs/pfu/kernel/pfu-os-kernel-spec-v1.md
   constitutional_authorization: ACTIVE_GOVERNANCE_ONLY
@@ -66,8 +78,8 @@ kernel:
   ratification_evidence: evidence/pfu/pfu-constitution-ratification.event.yaml
   compliance_evaluation: evals/pfu/kernel-compliance-checklist.md
 machine_layer:
-  version: "1.0.0"
-  status: GENERATED_VALIDATED
+  version: "1.1.0"
+  status: GENERATED_VALIDATED_BASE_WITH_REGISTERED_EXTENSION
   validation_standard: JSON_SCHEMA_DRAFT_2020_12
   validation_evidence: evidence/pfu/machine-layer-schema-validation-2026-08-05.event.json
   schemas:
@@ -77,6 +89,8 @@ machine_layer:
     evidence_event: contracts/pfu/machine/evidence-event.schema.json
     mutation_request: contracts/pfu/machine/mutation-request.schema.json
     release_verdict: contracts/pfu/machine/release-verdict.schema.json
+    merch_ship_product_object: contracts/pfu/merch-ship/product-object.schema.yaml
+    merch_ship_delivery_evidence: contracts/pfu/merch-ship/delivery-evidence.schema.yaml
 protected_boundaries:
   - todo-app/
 release_policy: policies/pfu/release-policy.yaml
@@ -85,7 +99,7 @@ evidence_contract: evidence/pfu/evidence-record.schema.yaml
 claim_boundaries:
   feature_branch_structure: allowed
   constitutional_ratification: recorded_on_governed_branch_and_notion
-  machine_layer: generated_and_validated_on_governed_feature_branch
+  machine_layer: base_generated_validated_extension_registered_on_feature_branch
   merge: explicit_founder_authority_required
   deployment: not_authorized
   runtime_activation: not_authorized
