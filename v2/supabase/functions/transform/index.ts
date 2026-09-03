@@ -3,6 +3,13 @@ import {
   modelTransformationJsonSchema,
   type ModelTransformation,
 } from '../../../contracts/transformation-contract.ts';
+import { isUuid } from '../_shared/identifiers.ts';
+import {
+  classifyTransformRequest,
+  MAX_TRANSFORM_PROVIDER_ATTEMPTS,
+  nextTransformLeaseIso,
+  type TransformRequestLedgerRow,
+} from '../_shared/zenzy-transform-request.ts';
 import { evaluateZenzyGovernanceInput } from '../_shared/zenzy-governance.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.111.0';
 
@@ -11,6 +18,11 @@ type OpenAIResponse = {
   output?: Array<{
     content?: Array<{ type?: string; text?: string }>;
   }>;
+};
+
+type CanonicalRunRow = {
+  id: string;
+  result: unknown;
 };
 
 const apiKey = Deno.env.get('OPENAI_API_KEY');
@@ -96,6 +108,7 @@ Deno.serve(async (request) => {
   }
 
   let input = '';
+  let requestId: string | null = null;
   try {
     const parsed: unknown = await request.json();
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
@@ -109,6 +122,15 @@ Deno.serve(async (request) => {
       return json({ error: 'Ownership is derived from the access token.' }, 400);
     }
     input = typeof body.input === 'string' ? body.input.trim() : '';
+    if (Object.prototype.hasOwnProperty.call(body, 'requestId')) {
+      if (typeof body.requestId !== 'string') {
+        return json({ error: 'requestId must be a UUID string.' }, 400);
+      }
+      requestId = body.requestId.trim();
+      if (!isUuid(requestId)) {
+        return json({ error: 'requestId is invalid.' }, 400);
+      }
+    }
   } catch {
     return json({ error: 'Request body must be valid JSON.' }, 400);
   }
@@ -148,6 +170,221 @@ Deno.serve(async (request) => {
     }, 403);
   }
 
+  const readCanonicalByRequest = async (): Promise<CanonicalRunRow | null> => {
+    if (!requestId) return null;
+    const { data, error } = await supabaseAdmin
+      .from('zenzy_transformation_runs')
+      .select('id,result')
+      .eq('user_id', user.id)
+      .eq('request_id', requestId)
+      .maybeSingle();
+    if (error) throw new Error(`canonical_request_lookup:${error.code}`);
+    return data as CanonicalRunRow | null;
+  };
+
+  const readCanonicalByRunId = async (runId: string): Promise<CanonicalRunRow | null> => {
+    const { data, error } = await supabaseAdmin
+      .from('zenzy_transformation_runs')
+      .select('id,result')
+      .eq('id', runId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (error) throw new Error(`canonical_run_lookup:${error.code}`);
+    return data as CanonicalRunRow | null;
+  };
+
+  const readRequestLedger = async (): Promise<TransformRequestLedgerRow | null> => {
+    if (!requestId) return null;
+    const { data, error } = await supabaseAdmin
+      .from('zenzy_transformation_requests')
+      .select('request_id,user_id,input_hash,state,attempt_count,lease_expires_at,run_id,last_error_code')
+      .eq('user_id', user.id)
+      .eq('request_id', requestId)
+      .maybeSingle();
+    if (error) throw new Error(`request_ledger_lookup:${error.code}`);
+    return data as TransformRequestLedgerRow | null;
+  };
+
+  const completeRequest = async (runId: string) => {
+    if (!requestId) return;
+    const { error } = await supabaseAdmin
+      .from('zenzy_transformation_requests')
+      .update({
+        state: 'completed',
+        run_id: runId,
+        last_error_code: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id)
+      .eq('request_id', requestId);
+    if (error) {
+      console.error('ZENZY request completion ledger update failed:', error.code);
+    }
+  };
+
+  let providerAttempt = 1;
+  const inputHash = requestId ? await sha256(input) : null;
+
+  if (requestId && inputHash) {
+    try {
+      let ledger = await readRequestLedger();
+      if (ledger && ledger.input_hash !== inputHash) {
+        return json({
+          error: 'requestId is already bound to different input.',
+          code: 'IDEMPOTENCY_INPUT_MISMATCH',
+          requestId,
+        }, 409);
+      }
+
+      const canonical = await readCanonicalByRequest();
+      if (canonical) {
+        await completeRequest(canonical.id);
+        return json(canonical.result);
+      }
+
+      if (!ledger) {
+        const { error: claimError } = await supabaseAdmin
+          .from('zenzy_transformation_requests')
+          .insert({
+            request_id: requestId,
+            user_id: user.id,
+            input_hash: inputHash,
+            state: 'processing',
+            attempt_count: 1,
+            lease_expires_at: nextTransformLeaseIso(),
+          });
+
+        if (claimError) {
+          if (claimError.code === '23505') {
+            ledger = await readRequestLedger();
+          } else {
+            console.error('ZENZY request claim failed:', claimError.code);
+            return json({
+              error: 'Transformation request could not be claimed.',
+              code: 'REQUEST_CLAIM_FAILED',
+              requestId,
+            }, 500);
+          }
+        }
+      }
+
+      if (ledger) {
+        if (ledger.input_hash !== inputHash) {
+          return json({
+            error: 'requestId is already bound to different input.',
+            code: 'IDEMPOTENCY_INPUT_MISMATCH',
+            requestId,
+          }, 409);
+        }
+
+        const canonicalAfterClaim = await readCanonicalByRequest();
+        if (canonicalAfterClaim) {
+          await completeRequest(canonicalAfterClaim.id);
+          return json(canonicalAfterClaim.result);
+        }
+
+        const decision = classifyTransformRequest(ledger);
+        if (decision === 'RETURN_COMPLETED') {
+          if (ledger.run_id) {
+            const completed = await readCanonicalByRunId(ledger.run_id);
+            if (completed) return json(completed.result);
+          }
+          return json({
+            error: 'Completed transformation request is missing its canonical run.',
+            code: 'REQUEST_LEDGER_INCONSISTENT',
+            requestId,
+          }, 500);
+        }
+
+        if (decision === 'WAIT_FOR_ACTIVE_LEASE') {
+          return json({
+            error: 'Transformation request is still processing.',
+            code: 'REQUEST_IN_PROGRESS',
+            requestId,
+            retryAfterMs: 1000,
+          }, 409);
+        }
+
+        if (decision === 'RETRY_EXHAUSTED') {
+          if (ledger.state !== 'exhausted') {
+            await supabaseAdmin
+              .from('zenzy_transformation_requests')
+              .update({ state: 'exhausted', updated_at: new Date().toISOString() })
+              .eq('user_id', user.id)
+              .eq('request_id', requestId);
+          }
+          return json({
+            error: 'Transformation retry budget is exhausted.',
+            code: 'REQUEST_RETRY_EXHAUSTED',
+            requestId,
+            retryable: false,
+          }, 503);
+        }
+
+        const nextAttempt = ledger.attempt_count + 1;
+        const { data: reclaimed, error: reclaimError } = await supabaseAdmin
+          .from('zenzy_transformation_requests')
+          .update({
+            state: 'processing',
+            attempt_count: nextAttempt,
+            lease_expires_at: nextTransformLeaseIso(),
+            last_error_code: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+          .eq('request_id', requestId)
+          .eq('state', ledger.state)
+          .eq('attempt_count', ledger.attempt_count)
+          .select('attempt_count')
+          .maybeSingle();
+
+        if (reclaimError) {
+          console.error('ZENZY request reclaim failed:', reclaimError.code);
+          return json({
+            error: 'Transformation request could not be reclaimed.',
+            code: 'REQUEST_RECLAIM_FAILED',
+            requestId,
+          }, 500);
+        }
+        if (!reclaimed) {
+          return json({
+            error: 'Transformation request state changed; retry with the same requestId.',
+            code: 'REQUEST_STATE_CHANGED',
+            requestId,
+            retryAfterMs: 1000,
+          }, 409);
+        }
+        providerAttempt = nextAttempt;
+      }
+    } catch (error) {
+      console.error('ZENZY idempotency lookup failed:', error instanceof Error ? error.message : error);
+      return json({
+        error: 'Transformation request state could not be resolved.',
+        code: 'REQUEST_STATE_LOOKUP_FAILED',
+        requestId,
+      }, 500);
+    }
+  }
+
+  const markProviderFailure = async (errorCode: string) => {
+    if (!requestId) return;
+    const exhausted = providerAttempt >= MAX_TRANSFORM_PROVIDER_ATTEMPTS;
+    const { error } = await supabaseAdmin
+      .from('zenzy_transformation_requests')
+      .update({
+        state: exhausted ? 'exhausted' : 'retryable_failure',
+        lease_expires_at: new Date().toISOString(),
+        last_error_code: errorCode,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id)
+      .eq('request_id', requestId)
+      .eq('attempt_count', providerAttempt);
+    if (error) {
+      console.error('ZENZY provider failure ledger update failed:', error.code);
+    }
+  };
+
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -173,13 +410,23 @@ Deno.serve(async (request) => {
 
   const payload = (await response.json()) as OpenAIResponse;
   if (!response.ok) {
+    await markProviderFailure(`OPENAI_HTTP_${response.status}`);
     console.error('OpenAI request failed:', payload.error?.message ?? response.status);
-    return json({ error: 'Transformation generation failed.' }, 502);
+    return json({
+      error: 'Transformation generation failed.',
+      code: 'PROVIDER_FAILURE',
+      ...(requestId ? { requestId, retryable: providerAttempt < MAX_TRANSFORM_PROVIDER_ATTEMPTS } : {}),
+    }, 502);
   }
 
   const outputText = extractOutputText(payload);
   if (!outputText) {
-    return json({ error: 'Transformation output was empty.' }, 502);
+    await markProviderFailure('OPENAI_EMPTY_OUTPUT');
+    return json({
+      error: 'Transformation output was empty.',
+      code: 'PROVIDER_EMPTY_OUTPUT',
+      ...(requestId ? { requestId, retryable: providerAttempt < MAX_TRANSFORM_PROVIDER_ATTEMPTS } : {}),
+    }, 502);
   }
 
   let transformation: ModelTransformation;
@@ -188,7 +435,12 @@ Deno.serve(async (request) => {
     if (!isModelTransformation(parsed)) throw new Error('Schema mismatch');
     transformation = parsed;
   } catch {
-    return json({ error: 'Transformation output failed validation.' }, 502);
+    await markProviderFailure('OPENAI_SCHEMA_INVALID');
+    return json({
+      error: 'Transformation output failed validation.',
+      code: 'PROVIDER_SCHEMA_INVALID',
+      ...(requestId ? { requestId, retryable: providerAttempt < MAX_TRANSFORM_PROVIDER_ATTEMPTS } : {}),
+    }, 502);
   }
 
   const runId = crypto.randomUUID();
@@ -210,12 +462,33 @@ Deno.serve(async (request) => {
       provider: 'openai',
       model,
       status: 'generated',
+      ...(requestId ? { request_id: requestId } : {}),
     });
 
   if (persistenceError) {
+    if (requestId && persistenceError.code === '23505') {
+      try {
+        const canonical = await readCanonicalByRequest();
+        if (canonical) {
+          await completeRequest(canonical.id);
+          return json(canonical.result);
+        }
+      } catch (error) {
+        console.error('ZENZY duplicate persistence recovery failed:', error instanceof Error ? error.message : error);
+      }
+    }
+
+    if (requestId) {
+      await markProviderFailure(`PERSISTENCE_${persistenceError.code}`);
+    }
     console.error('Transformation persistence failed:', persistenceError.code);
-    return json({ error: 'Transformation could not be stored.' }, 500);
+    return json({
+      error: 'Transformation could not be stored.',
+      code: 'PERSISTENCE_FAILURE',
+      ...(requestId ? { requestId, retryable: providerAttempt < MAX_TRANSFORM_PROVIDER_ATTEMPTS } : {}),
+    }, 500);
   }
 
+  await completeRequest(runId);
   return json(result);
 });

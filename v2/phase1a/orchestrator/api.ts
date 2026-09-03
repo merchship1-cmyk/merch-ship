@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 import {
@@ -70,9 +71,13 @@ export async function login(email: string, password: string): Promise<SignedInUs
   return { client, accessToken: data.session.access_token };
 }
 
-export async function createTransformation(token: string, input: string) {
+export async function createTransformation(
+  token: string,
+  input: string,
+  requestId = randomUUID(),
+) {
   return transformationResultSchema.parse(
-    await postJson(endpoints.transform, token, { input }),
+    await postJson(endpoints.transform, token, { input, requestId }),
   );
 }
 
