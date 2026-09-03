@@ -240,10 +240,9 @@ jobs:
           disable-animations: true
           disable-linux-hw-accel: ${{ steps.kvm.outputs.available != 'true' }}
           script: |
-            cd v2
-            adb install -r -g -t android/app/build/outputs/apk/release/app-release.apk
-            adb install -r -g -t android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
-            npx detox test --config-path ./phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --reuse --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
+            cd v2 && adb install -r -g -t android/app/build/outputs/apk/release/app-release.apk
+            cd v2 && adb install -r -g -t android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
+            cd v2 && npx detox test --config-path ./phase1a/mobile-sim/.detoxrc.cjs -c android.emu.release --reuse --cleanup --record-logs all --take-screenshots failing --artifacts-location phase1a/artifacts/detox
       - name: Upload mobile evidence
         if: always()
         uses: actions/upload-artifact@v4
