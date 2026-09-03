@@ -74,6 +74,29 @@ describe('Zenzy active-run resume model', () => {
     expect(session.evidence).toBeNull();
   });
 
+  it('stores completed evidence only when it belongs to the same run', () => {
+    const session = createActiveRunSession(
+      result,
+      {
+        runId: result.id,
+        accepted: true,
+        acceptedAt: '2026-09-03T04:05:00.000Z',
+      },
+      {
+        runId: result.id,
+        timeSavedMinutes: 20,
+        stepsRemoved: 2,
+        clarityGain: 4,
+        outputProduced: true,
+        wouldUseAgain: true,
+        recordedAt: '2026-09-03T04:20:00.000Z',
+      },
+    );
+
+    expect(activeRunSessionSchema.safeParse(session).success).toBe(true);
+    expect(session.evidence?.runId).toBe(result.id);
+  });
+
   it('rejects acceptance from a different run', () => {
     const parsed = activeRunSessionSchema.safeParse({
       version: 1,
