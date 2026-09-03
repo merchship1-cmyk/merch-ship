@@ -1,0 +1,190 @@
+{
+  "name": "SJI Sync Machine Workflow Suite",
+  "version": "2.0",
+  "status": "implementation-spec",
+  "enabled_default": false,
+  "deployment_boundary": {
+    "credentials": "Inject Notion, GHL, webhook, and adapter credentials per environment.",
+    "idempotency_key": "{{system_id}}:{{agent_id}}:{{event_id}}",
+    "retry_policy_seconds": [5, 30, 120],
+    "max_attempts": 3,
+    "partial_state_advance": false,
+    "dead_letter_registry": "SJI Drift & Escalation Registry"
+  },
+  "shared": {
+    "primary_data_source": "collection://5b15738e-824b-465c-9947-36050b9e0ed1",
+    "score_formula": "(throughput + complexity + dependencies + latency + load + autonomy + recovery) / 7",
+    "gate_thresholds": {
+      "APEX": ">= 4.50",
+      "STRONG": ">= 3.75 and < 4.50",
+      "FRAGILE": ">= 3.00 and < 3.75",
+      "WEAK": ">= 1.50 and < 3.00",
+      "FAILURE": "< 1.50"
+    },
+    "drift_thresholds": {
+      "Major Degradation": "delta <= -0.30",
+      "Minor Degradation": "delta <= -0.10",
+      "Stable": "-0.10 < delta < 0.10",
+      "Minor Improvement": "delta >= 0.10",
+      "Major Improvement": "delta >= 0.30"
+    },
+    "workflow_spine": [
+      "TRIGGER",
+      "FETCH_RECORD",
+      "GUARD",
+      "EXECUTE_ORDERED_STEPS",
+      "ATOMIC_WRITE",
+      "APPEND_AUDIT"
+    ]
+  },
+  "workflows": [
+    {
+      "workflow_id": "SJI-A01",
+      "name": "Intake Agent",
+      "trigger": "New System Jungle record created",
+      "guards": ["System Name present", "Jungle Type present", "Owner present", "Environment present"],
+      "steps": [
+        "Validate required identity fields",
+        "Missing field -> Current State = INPUT REQUIRED and stop",
+        "Complete -> Current State = REGISTERED",
+        "Create unlocked Baseline Evidence Packet stub",
+        "Append assessment initialized audit event"
+      ],
+      "writes": ["Current State", "Evidence Packets", "Pressure Notes"]
+    },
+    {
+      "workflow_id": "SJI-A02",
+      "name": "Pressure Test Agent",
+      "trigger": "Test Approval changes to Approved",
+      "guards": ["Authority State = Granted", "Rollback Verified = true"],
+      "steps": [
+        "Authority failure -> AUTHORITY DENIED",
+        "Rollback failure -> ROLLBACK REQUIRED",
+        "Set TESTING and Test Status = Running",
+        "Execute Jungle Type pressure model",
+        "Write pressure notes, metrics, and failure modes",
+        "Set Test Status = Complete and Current State = SCORING"
+      ],
+      "writes": ["Current State", "Test Status", "Pressure Notes", "Failure Modes", "Test Records"]
+    },
+    {
+      "workflow_id": "SJI-A03",
+      "name": "Scoring Agent",
+      "trigger": "Test Status changes to Complete",
+      "guards": ["All seven vectors are present", "Every vector is between 1 and 5"],
+      "steps": [
+        "Calculate SJI",
+        "Calculate Capability Score and Evidence Confidence",
+        "Load previous verified SJI",
+        "First assessment -> Previous SJI = current SJI",
+        "Compute delta, degradation, improvement, gate, and drift",
+        "Mirror Gate formula into Gate State",
+        "Set Current State = EVIDENCE REVIEW"
+      ],
+      "writes": ["Previous SJI", "Capability Score", "Evidence Confidence", "Gate State", "Current State"]
+    },
+    {
+      "workflow_id": "SJI-A04",
+      "name": "Drift Detection Agent",
+      "trigger": "SJI vectors updated and Previous SJI exists",
+      "guards": ["Previous SJI is numeric"],
+      "steps": [
+        "Read delta, degradation, and improvement",
+        "Classify drift using locked thresholds",
+        "Create Drift record",
+        "Stable -> update Last Stable State"
+      ],
+      "writes": ["Drift & Escalation Records", "Last Stable State"]
+    },
+    {
+      "workflow_id": "SJI-A05",
+      "name": "Routing Agent",
+      "trigger": "Gate formula or Gate State changes",
+      "guards": ["Gate State matches Gate formula"],
+      "steps": [
+        "APEX -> Scale",
+        "STRONG -> Optimize",
+        "FRAGILE -> Stabilize",
+        "WEAK -> Repair",
+        "FAILURE -> Rebuild",
+        "Set Current State = ROUTED"
+      ],
+      "writes": ["Lane", "Current State"]
+    },
+    {
+      "workflow_id": "SJI-A06",
+      "name": "Evidence Agent",
+      "trigger": "Evidence Packet Submitted = true",
+      "guards": ["Evidence packet linked to a system"],
+      "steps": [
+        "Check logs, metrics, screenshots, and applicable recovery notes",
+        "Assign Evidence Confidence 0-3",
+        "Incomplete -> EVIDENCE INCOMPLETE and keep unlocked",
+        "Complete -> generate integrity hash, lock packet, return to EVIDENCE REVIEW or ROUTED"
+      ],
+      "writes": ["Evidence Confidence", "Current State", "Evidence packet Locked", "Integrity Hash"]
+    },
+    {
+      "workflow_id": "SJI-A07",
+      "name": "Recovery Agent",
+      "trigger": "SJI < 3.0 OR Degradation Drift >= 0.10",
+      "guards": ["Lane is Stabilize, Repair, or Rebuild"],
+      "steps": [
+        "Select lane playbook",
+        "Generate bounded, measurable, reversible action",
+        "Assign owner and due date",
+        "Create Recovery Intervention record",
+        "Set Recovery Status = Active and Current State = RECOVERY ACTIVE"
+      ],
+      "writes": ["Recovery Records", "Owner", "Owner Action", "Next Action", "Recovery Status", "Current State"]
+    },
+    {
+      "workflow_id": "SJI-A08",
+      "name": "Escalation Agent",
+      "trigger": "SJI < 2.0 OR Degradation Drift >= 0.30",
+      "guards": ["Escalation State != Active"],
+      "steps": [
+        "Freeze Permission State",
+        "Escalate Authority State and Escalation State",
+        "Create Escalation record and evidence packet",
+        "SJI < 1.5 -> Quarantined and QUARANTINED"
+      ],
+      "writes": ["Permission State", "Authority State", "Escalation State", "Quarantine State", "Current State"]
+    },
+    {
+      "workflow_id": "SJI-A09",
+      "name": "Failure Protocol Agent",
+      "trigger": "SJI < 1.5",
+      "guards": ["Quarantine State != Rebuilding"],
+      "steps": [
+        "Set Quarantine State = Quarantined",
+        "Block mutation and freeze permission",
+        "Set Lane = Rebuild",
+        "Set Current State = REBUILDING and Quarantine State = Rebuilding",
+        "Require verified recovery before re-entry"
+      ],
+      "writes": ["Quarantine State", "Mutation Permission", "Permission State", "Lane", "Current State"]
+    },
+    {
+      "workflow_id": "SJI-A10",
+      "name": "Release Verification Agent",
+      "trigger": "Recovery Status = Complete AND verification requested",
+      "guards": ["Authority State = Granted", "Rollback Verified = true"],
+      "steps": [
+        "Compare baseline and post-intervention SJI",
+        "Compare baseline and post-intervention Capability Score",
+        "Validate Evidence Confidence",
+        "Issue RED, BLUE, or GREEN under the release contract",
+        "Create Verification / Release record",
+        "Set Current State = MONITORING"
+      ],
+      "writes": ["Verification & Release Records", "Release Decision", "Verification Status", "Current State"]
+    }
+  ],
+  "error_path": [
+    "Capture node error and input payload",
+    "Do not partially advance Current State",
+    "Write escalation/dead-letter record",
+    "Notify Engine Owner for High/Critical risk"
+  ]
+}
