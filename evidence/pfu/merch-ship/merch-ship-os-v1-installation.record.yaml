@@ -1,0 +1,57 @@
+record_id: MERCH-SHIP-OS-V1-INSTALL-2026-09-03
+system_id: MERCH-SHIP-OS
+domain_id: PFU-DOMAIN-MERCH-SHIP
+actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
+requested_action: Install the governed MERCH SHIP OS product-family, delivery-rail, asset-vault, and operational SSOT architecture without merging, deploying, or activating live commerce.
+repository: merchship1-cmyk/merch-ship
+base_branch: main
+base_sha: f5d4b3c6eb15b5ef5f7e5e2cd7a31aeaded0ad25
+installation_branch: merchship/os-q4-governed-subsystem-v1
+head_before_evidence_record: 480b80bdb3af730dcbc84af3a74fd1b3de72f197
+installed_artifacts:
+  - registrations/pfu/merch-ship-os.system.yaml
+  - docs/pfu/merch-ship/merch-ship-os-v1.md
+  - manifests/pfu/merch-ship/q4-product-catalog-v1.yaml
+  - manifests/pfu/merch-ship/asset-vault-v1.yaml
+  - contracts/pfu/merch-ship/product-object.schema.yaml
+  - contracts/pfu/merch-ship/delivery-evidence.schema.yaml
+  - flows/pfu/merch-ship/delivery-rail-v1.yaml
+  - policies/pfu/merch-ship/commercial-runtime-policy.yaml
+  - evals/pfu/merch-ship-os-acceptance-checklist.md
+modified_bindings:
+  - pfu-system.manifest.yaml
+  - manifests/pfu/domains/merch-ship-runtime-profile.yaml
+catalog:
+  governed_product_objects: 12
+  commercial_sku_identities: 13
+  engines: 3
+  family_set_resolution: The final limited object contains two sellable commercial SKU components and remains one governed lifecycle object.
+gates:
+  repository_structure: INSTALLED
+  root_pfu_binding: INSTALLED
+  merch_ship_domain_binding: INSTALLED
+  product_contract: INSTALLED
+  delivery_contract: INSTALLED
+  asset_vault_contract: INSTALLED
+  commercial_runtime_policy: INSTALLED
+  acceptance_checklist: INSTALLED
+  shopify_runtime: NOT_ATTACHED
+  printify_runtime: NOT_ATTACHED
+  gelato_runtime: NOT_ATTACHED
+  drive_vault: NOT_CREATED_BY_THIS_REPOSITORY_INSTALL
+  operational_airtable_or_notion_registry: NOT_CREATED_BY_THIS_REPOSITORY_INSTALL
+  production_runtime: NOT_AUTHORIZED
+  merge: NOT_AUTHORIZED
+verdict: STRUCTURAL_INSTALLATION_COMPLETE_ON_FEATURE_BRANCH
+release_state: BLUE
+claim_boundaries:
+  live_commerce: false
+  products_created_in_shopify: false
+  provider_products_created: false
+  auto_fulfillment_active: false
+  public_release: false
+  production_authority: false
+notes:
+  - PR #38 was not modified.
+  - WREAS was not modified.
+  - The ZENZY JUNGLE post-merge proof lane was not modified or rerun.
