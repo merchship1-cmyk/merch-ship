@@ -1,8 +1,32 @@
 vault_id: MERCH-SHIP-ASSET-VAULT-Q4
 version: "1.0.0"
 parent_system: MERCH-SHIP-OS
-status: STRUCTURAL_ONLY
+status: STRUCTURAL_PROJECTION_ACTIVE
 root_folder: MERCH SHIP VAULT Q4
+external_projection:
+  google_drive:
+    state: CREATED_AND_VERIFIED
+    root_folder_id: 1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+    root_folder_url: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+    visibility_at_creation: private_not_shared
+    verified_children:
+      - 01_DESIGNS
+      - 02_MOCKUPS
+      - 03_LISTINGS
+      - 04_ARCHIVE
+    verified_design_children:
+      - ENGINE_1_SHIP
+      - ENGINE_2_FACTORY
+      - ENGINE_3_FULFILL
+    verified_mockup_children:
+      - FRONT
+      - BACK
+      - LIFESTYLE
+  notion:
+    state: CREATED_AND_POPULATED
+    system_registry_page: https://app.notion.com/p/3d013e5cbb9f81738bfdd1c0f110011a?pvs=204
+    product_registry_database: https://app.notion.com/p/7eeaf72d5f5e45518cb1da79bb6ae7c5
+    governed_product_rows: 12
 folders:
   - path: 01_DESIGNS/ENGINE_1_SHIP
     purpose: Source design assets for Ship While You Create.
@@ -44,10 +68,10 @@ status_lifecycle:
   - HOLD
   - RETIRED
 ssot_chain:
-  identity: PFU product object registry
-  operations: MERCH SHIP operational registry projection
-  commerce: Shopify implementation
-  assets: governed Drive vault projection
+  identity: PFU product object registry in GitHub
+  operations: MERCH SHIP Notion operational registry projection
+  commerce: Shopify implementation after separate runtime authorization
+  assets: governed Google Drive vault projection
 governance:
   default: DENY
   public_asset_publish: false
@@ -56,7 +80,10 @@ governance:
   secrets_allowed: false
 claim_boundaries:
   vault_contract_installed: true
-  google_drive_folders_created: false
+  google_drive_folders_created: true
+  google_drive_structure_verified: true
   airtable_base_created: false
-  notion_registry_created: false
+  notion_registry_created: true
+  notion_registry_populated: true
   product_assets_rendered: false
+  shopify_products_created: false
