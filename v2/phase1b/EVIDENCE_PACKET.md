@@ -21,16 +21,23 @@ The Phase 1A Android APK build was proven by CI but the binary was not retained.
 
 ### 1B-FST — Founder Smoke Test
 
-- [ ] `FOUNDER_SMOKE_TEST.md` completed — core path completed; FST-05 long/edit/keyboard subchecks remain
+- [x] `FOUNDER_SMOKE_TEST.md` completed
 - [x] exact tested source SHA recorded
 - [x] Node.js 22 runtime confirmed by fail-closed Founder launcher reaching Expo runtime
 - [x] MOCK mode confirmed
 - [x] production API/Supabase/EAS runtime values cleared for the local session by the governed launcher
 - [x] screenshots/notes captured and referenced where useful; repository-retained screenshot attachment remains separate
 - [x] blocking defects resolved and retested — no blocking defect observed
-- [ ] FST GREEN recorded
+- [x] FST GREEN recorded
 
-Current retained FST defect: `FST-04-001` — Android system Back exits from PLAN instead of stepping backward; reopening restores the same PLAN state. Classified `FAIL-NONBLOCKING`; this does not by itself block FST GREEN under the defined no-blocking-defect rule.
+`1B-FST: GREEN`
+
+Retained non-blocking FST defects:
+
+- `FST-04-001` — Android system Back exits from PLAN instead of stepping backward; reopening restores the same PLAN state with no run loss.
+- `FST-09-001` — Expo surfaced a visible `SafeAreaView has been deprecated...` development warning during long-input editing; app remained usable and keyboard behavior passed.
+
+Both are `FAIL-NONBLOCKING` findings and remain open for the controlled fix lane or a later governed UX increment. Neither grants release authority or changes the Phase 1B boundary.
 
 ### 1B-EAS — EAS Preview Build
 
@@ -66,7 +73,7 @@ For each blocking defect:
 - [ ] affected FST/EAS gates rerun
 - [ ] resolution evidence recorded
 
-Current state: no blocking defect requires 1B-DEV. The open Android Back behavior is non-blocking and is not being used to widen this lane.
+Current state: no blocking defect requires 1B-DEV. The two open FST defects are non-blocking and are not being used to widen this lane.
 
 If no code/configuration defect is found, record `1B-DEV: NOT INVOKED`.
 
@@ -84,7 +91,7 @@ Before EAS execution, the secret-free Phase 1B contract workflow must establish 
 - [x] no EAS Update channel exists
 - [x] `expo-updates` has not been admitted
 - [x] separate Zenzy Preview app identifiers resolve correctly
-- [x] repository verification passes on the previously validated Phase 1B contract head; the evidence-record update must retain/reconfirm this status for its new head
+- [x] repository verification passes on the previously validated Phase 1B contract head; the FST evidence-record updates must retain/reconfirm this status for the new head
 - [x] Founder Test Pack artifact is retained from the validated contract run
 
 Passing this contract check proves configuration/evidence readiness only. It does not make Phase 1B GREEN.
@@ -103,17 +110,27 @@ The GitHub Actions artifact name binds the evidence bundle to the candidate sour
 ## Phase 1B GREEN decision checklist
 
 - [x] Phase 1A lineage remains valid
-- [ ] 1B-FST GREEN
+- [x] 1B-FST GREEN
 - [x] preview configuration isolated from production — contract-proven configuration
 - [ ] retained installable Android preview exists
 - [ ] source/build/artifact provenance is unambiguous
 - [ ] SHA-256 recorded
 - [ ] internal installation succeeds
 - [ ] retained preview launches
-- [x] all blocking defects closed — none currently observed in FST
+- [x] all blocking defects closed — none observed in FST
 - [ ] evidence packet complete
 - [x] governance boundary confirmed
 - [ ] Founder/governance authority explicitly records Phase 1B GREEN
+
+## Current Phase 1B state
+
+- Phase 1A lineage: GREEN
+- Phase 1B contract: GREEN on previously validated contract head; revalidation pending/required after evidence-only head updates
+- 1B-FST Founder Smoke: GREEN
+- 1B-EAS retained internal Android preview: OPEN
+- Phase 1B overall: OPEN / NOT GREEN
+
+The smallest remaining Phase 1B validation action is to prove the internal EAS preview lane: link/authenticate EAS with the governed secrets, run the preview-only workflow, retain the APK/provenance/hash evidence, install it on the Founder Android device, and record successful launch.
 
 ## Governance declaration
 
