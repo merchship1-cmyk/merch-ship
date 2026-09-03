@@ -1,0 +1,23 @@
+schema_version: 1
+record_id: PFU-COPILOT-ORG-REFERENCE-001
+status: inventory_required
+organization_slug:
+organization_membership_verified: false
+repository_owner:
+  login: merchship1-cmyk
+  account_type: user
+  is_organization: false
+mode:
+  when_enterprise_teams_mode_unverified: conditional_reference
+  when_enterprise_teams_mode_disabled: organization_controlled
+  when_enterprise_teams_mode_enabled: deactivated
+observed_policy:
+  default_model_availability: unverified
+  enabled_models: []
+  disabled_models: []
+  optional_models: []
+evidence:
+  observed_at:
+  observed_by:
+  source_url:
+  snapshot_sha256:

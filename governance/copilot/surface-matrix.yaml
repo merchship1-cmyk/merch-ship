@@ -1,0 +1,24 @@
+schema_version: 1
+matrix_id: PFU-COPILOT-SURFACES-001
+status: inventory_required
+surfaces:
+  - id: ide
+    observed_state: unverified
+    observed_at:
+    evidence_url:
+  - id: copilot_cli
+    observed_state: unverified
+    observed_at:
+    evidence_url:
+  - id: github_web
+    observed_state: unverified
+    observed_at:
+    evidence_url:
+  - id: github_mobile
+    observed_state: unverified
+    observed_at:
+    evidence_url:
+  - id: copilot_app
+    observed_state: unverified
+    observed_at:
+    evidence_url:
