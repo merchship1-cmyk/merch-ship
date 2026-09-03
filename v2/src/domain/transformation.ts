@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { meshExecutionTraceSchema } from './mesh';
+
 const planStepSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -32,6 +34,7 @@ export const transformationResultSchema = z.object({
     successCriteria: z.array(z.string().min(1)).min(2).max(5),
   }),
   generatedAt: z.string().datetime(),
+  mesh: meshExecutionTraceSchema.optional(),
 });
 
 export const transformationAcceptanceSchema = z.object({

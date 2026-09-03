@@ -17,6 +17,9 @@ describe('ZENZY Phase 1A gate', () => {
     await element(by.id('login-password')).replaceText(password);
     await element(by.id('login-submit')).tap();
 
+    await waitFor(element(by.id('zenzy-dashboard')))
+      .toBeVisible()
+      .withTimeout(30000);
     await waitFor(element(by.id('input-textarea')))
       .toBeVisible()
       .withTimeout(30000);
@@ -32,6 +35,23 @@ describe('ZENZY Phase 1A gate', () => {
     await element(by.id('clarity-screen')).scrollTo('bottom');
     await expect(element(by.id('accept-next-move'))).toBeVisible();
     await expect(element(by.id('execution-screen'))).not.toBeVisible();
+
+    await device.terminateApp();
+    await device.launchApp({ newInstance: true });
+
+    await waitFor(element(by.id('zenzy-dashboard')))
+      .toBeVisible()
+      .withTimeout(30000);
+    await waitFor(element(by.id('dashboard-continue')))
+      .toBeVisible()
+      .withTimeout(30000);
+    await element(by.id('dashboard-continue')).tap();
+
+    await waitFor(element(by.id('clarity-screen')))
+      .toBeVisible()
+      .withTimeout(30000);
+    await element(by.id('clarity-screen')).scrollTo('bottom');
+    await expect(element(by.id('accept-next-move'))).toBeVisible();
 
     await element(by.id('accept-next-move')).tap();
 
