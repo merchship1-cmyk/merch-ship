@@ -3,10 +3,6 @@ name: ZENZY Phase 1B Preview Build
 on:
   workflow_dispatch:
     inputs:
-      source_ref:
-        description: Exact ref to package as an internal Phase 1B preview
-        required: true
-        default: main
       authorization:
         description: Type PHASE1B_PREVIEW_ONLY to acknowledge the non-production boundary
         required: true
@@ -19,7 +15,7 @@ env:
   ZENZY_PHASE1B_PREVIEW: "1"
 
 concurrency:
-  group: zenzy-phase1b-preview-${{ inputs.source_ref }}
+  group: zenzy-phase1b-preview-main
   cancel-in-progress: false
 
 jobs:
@@ -28,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
+      PHASE1B_AUTHORIZATION: ${{ inputs.authorization }}
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       ZENZY_EAS_PROJECT_ID: ${{ secrets.ZENZY_EAS_PROJECT_ID }}
     steps:
@@ -35,7 +32,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "${{ inputs.authorization }}" != "PHASE1B_PREVIEW_ONLY" ]]; then
+          if [[ "${PHASE1B_AUTHORIZATION:-}" != "PHASE1B_PREVIEW_ONLY" ]]; then
             echo "Blocked: Phase 1B preview acknowledgement was not supplied."
             exit 1
           fi
@@ -51,16 +48,17 @@ jobs:
             echo "## ZENZY Phase 1B governance guard"
             echo
             echo "- Internal preview only"
+            echo "- Source lane locked to merged main"
             echo "- MOCK AI mode enforced"
             echo "- No production build profile"
             echo "- No submit/release action"
             echo "- No RFTO / PRIME / BMOS authority"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Checkout candidate
+      - name: Checkout merged main candidate
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.source_ref }}
+          ref: main
           fetch-depth: 0
 
       - name: Record candidate source
@@ -69,8 +67,13 @@ jobs:
         run: |
           set -euo pipefail
           sha="$(git rev-parse HEAD)"
+          main_sha="$(git rev-parse origin/main)"
+          if [[ "$sha" != "$main_sha" ]]; then
+            echo "Blocked: checked-out candidate does not match origin/main."
+            exit 1
+          fi
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
-          echo "Candidate source: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Candidate merged-main source: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/setup-node@v4
         with:
