@@ -39,12 +39,13 @@
     "build:check": "expo export --platform android --output-dir dist",
     "validate:schema": "node --import tsx scripts/validate-schema.ts",
     "validate:structured-outputs": "node --import tsx scripts/validate-structured-outputs.ts",
+    "validate:sync-machine": "node --import tsx scripts/validate-sync-machine-migration.ts",
     "api:smoke": "node --import tsx scripts/api-smoke.ts",
     "governance:verify": "node --import tsx scripts/verify-governance.ts",
     "lineage:verify": "node --import tsx scripts/verify-lineage.ts",
     "security:scan": "node --import tsx scripts/scan-client-secrets.ts",
     "phase1a:static": "node --import tsx phase1a/verify-contract.ts",
     "phase1a:e2e": "node --import tsx phase1a/orchestrator/run.ts",
-    "verify": "npm run validate:schema && npm run validate:structured-outputs && npm run test && npm run typecheck && npm run lint && npm run security:scan && npm run governance:verify && npm run lineage:verify && npm run build:check"
+    "verify": "npm run validate:schema && npm run validate:structured-outputs && npm run validate:sync-machine && npm run test && npm run typecheck && npm run lint && npm run security:scan && npm run governance:verify && npm run lineage:verify && npm run build:check"
   }
 }

@@ -53,6 +53,10 @@ jobs:
         working-directory: v2
         run: npm run validate:structured-outputs
 
+      - name: Validate Sync Machine migration
+        working-directory: v2
+        run: npm run validate:sync-machine
+
       - name: Type check
         working-directory: v2
         run: npm run typecheck
