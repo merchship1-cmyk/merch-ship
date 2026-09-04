@@ -42,7 +42,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          jq -e '.build | keys == ["preview"]' eas.json >/dev/null
+          # Phase 1B remains immutable by invariant, not by forbidding all future profiles.
+          jq -e '.build.preview != null' eas.json >/dev/null
           jq -e '.build.preview.node == "22.23.2"' eas.json >/dev/null
           jq -e '.build.preview.environment == "preview"' eas.json >/dev/null
           jq -e '.build.preview.distribution == "internal"' eas.json >/dev/null
@@ -83,9 +84,10 @@ jobs:
           {
             echo "## ZENZY Phase 1B contract"
             echo
-            echo "Status: configuration boundary validated."
+            echo "Status: Phase 1B preview invariants validated."
             echo
-            echo "- preview profile only"
+            echo "- Phase 1B preview profile present and unchanged in purpose"
+            echo "- adjacent later-phase profiles do not inherit Phase 1B authority"
             echo "- internal Android APK"
             echo "- MOCK AI mode"
             echo "- Node 22 pinned"
@@ -96,7 +98,7 @@ jobs:
             echo "- Founder pack targets exact Phase 1A merged baseline"
             echo "- FST / installation / DEV / EVP evidence records present"
             echo
-            echo "This check does not make Phase 1B GREEN."
+            echo "This check preserves Phase 1B; it does not make any later lane GREEN."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Run repository verification
