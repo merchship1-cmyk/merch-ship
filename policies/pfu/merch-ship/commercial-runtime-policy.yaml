@@ -1,0 +1,75 @@
+policy_id: MERCH-SHIP-COMMERCIAL-RUNTIME-POLICY
+version: "1.0.0"
+parent_system: MERCH-SHIP-OS
+default_decision: DENY
+runtime_state: DORMANT
+rules:
+  - rule_id: MS-CRP-001
+    subject: product_activation
+    allow_when:
+      - product_status_is_ACTIVE
+      - provider_mapping_is_VERIFIED
+      - commercial_mapping_is_VERIFIED
+      - release_verdict_is_APPROVED
+      - founder_runtime_authority_present
+    otherwise: DENY
+  - rule_id: MS-CRP-002
+    subject: external_fulfillment_write
+    allow_when:
+      - order_payment_is_CONFIRMED
+      - order_risk_is_LOW
+      - inventory_is_AVAILABLE
+      - provider_mapping_is_VERIFIED
+      - idempotency_key_present
+      - external_write_authority_present
+    otherwise: HOLD_REVIEW
+  - rule_id: MS-CRP-003
+    subject: high_risk_or_stock_exception
+    deny_when:
+      - risk_is_HIGH
+      - inventory_is_OUT_OF_STOCK
+      - inventory_is_NEGATIVE
+      - provider_mapping_is_UNKNOWN
+    action: HOLD_REVIEW
+  - rule_id: MS-CRP-004
+    subject: customer_message
+    allow_when:
+      - message_template_is_APPROVED
+      - commercial_event_is_VERIFIED
+      - messaging_authority_present
+    otherwise: DENY
+  - rule_id: MS-CRP-005
+    subject: secrets
+    deny_when:
+      - target_is_repository
+      - target_is_evidence_record
+      - target_is_governance_page
+    action: DENY
+  - rule_id: MS-CRP-006
+    subject: cross_domain_authority
+    allow_when:
+      - explicit_contract_present
+      - source_authority_present
+      - destination_authority_present
+    otherwise: DENY
+required_evidence:
+  product_activation:
+    - product_object_id
+    - commercial_sku
+    - provider_mapping_reference
+    - asset_reference
+    - release_verdict
+    - authority_reference
+  fulfillment:
+    - order_reference
+    - decision
+    - reason_code
+    - idempotency_reference
+    - provider_resolution
+    - next_state
+prohibited_claims:
+  - structural_installation_means_live_runtime
+  - provider_preference_means_provider_mapping_verified
+  - catalog_registration_means_shopify_product_created
+  - workflow_contract_means_shopify_flow_imported
+  - delivery_evidence_means_customer_entitlement_without_contract

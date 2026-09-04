@@ -1,0 +1,37 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: pfu/merch-ship/delivery-evidence.schema.yaml
+title: MERCH SHIP Delivery Evidence Event
+version: "1.0.0"
+type: object
+additionalProperties: false
+required:
+  - evidence_id
+  - order_reference
+  - event_type
+  - decision
+  - reason_code
+  - previous_state
+  - next_state
+  - occurred_at
+properties:
+  evidence_id: {type: string, minLength: 3}
+  order_reference: {type: string, minLength: 1}
+  event_type:
+    enum: [ORDER_PAID, FULFILLMENT_REQUEST, FULFILLMENT_HOLD, TRACKING_CONFIRMED, DELIVERY_CONFIRMED, FAILURE]
+  decision:
+    enum: [ALLOW, DENY, HOLD, RECOVER]
+  reason_code: {type: string, minLength: 1}
+  provider:
+    enum: [PRINTIFY, GELATO, NONE, OTHER_APPROVED]
+  provider_reference: {type: [string, 'null']}
+  commercial_sku: {type: [string, 'null']}
+  previous_state:
+    enum: [ORDER_OBSERVED, DELIVERY_READY, FULFILLMENT_REQUESTED, DELIVERY_CONFIRMED, HOLD_REVIEW, FAILED_RECOVERABLE]
+  next_state:
+    enum: [ORDER_OBSERVED, DELIVERY_READY, FULFILLMENT_REQUESTED, DELIVERY_CONFIRMED, HOLD_REVIEW, FAILED_RECOVERABLE]
+  source_reference: {type: [string, 'null']}
+  authority_reference: {type: [string, 'null']}
+  occurred_at: {type: string, format: date-time}
+  metadata:
+    type: object
+    additionalProperties: true

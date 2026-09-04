@@ -1,0 +1,92 @@
+flow_id: MERCH-SHIP-DELIVERY-RAIL-V1
+version: "1.0.0"
+parent_system: MERCH-SHIP-OS
+status: STRUCTURAL_ONLY
+commercial_source_of_truth: Shopify
+provider_policy:
+  selection_mode: REGION_AND_CAPABILITY
+  preferences:
+    CA: GELATO
+    US: PRINTIFY
+    EU: GELATO
+  closest_facility_preference: true
+  lasalle_ontario_preference: GELATO_DOMESTIC_CANADA
+  fallback: HOLD_REVIEW
+  live_mapping_state: NOT_VERIFIED
+idempotency:
+  required: true
+  key_source: order_id_plus_fulfillment_generation
+  duplicate_external_mutation: DENY
+states:
+  - ORDER_OBSERVED
+  - DELIVERY_READY
+  - FULFILLMENT_REQUESTED
+  - DELIVERY_CONFIRMED
+  - HOLD_REVIEW
+  - FAILED_RECOVERABLE
+flows:
+  - flow_id: MS-DELIVERY-01-PAID-LOW-RISK
+    trigger:
+      all:
+        - order_paid: true
+        - risk_state: LOW
+        - inventory_state: AVAILABLE
+    decision: ALLOW_PREPARE_FULFILLMENT
+    action_when_runtime_authorized:
+      - resolve_region_and_provider_capability
+      - resolve_verified_provider_variant_mapping
+      - submit_idempotent_fulfillment_request
+      - retain_commercial_event_reference
+    next_state: DELIVERY_READY
+    deny_if:
+      - provider_mapping_unknown
+      - external_write_authority_missing
+      - inventory_unknown
+  - flow_id: MS-DELIVERY-02-FULFILLED-TRACKING
+    trigger:
+      all:
+        - fulfillment_status: FULFILLED
+        - tracking_number_present: true
+    decision: ALLOW_PREPARE_DELIVERY_CONFIRMATION
+    action_when_runtime_authorized:
+      - retain_tracking_reference
+      - prepare_branded_customer_message
+      - record_delivery_evidence
+    next_state: DELIVERY_CONFIRMED
+    branded_message_template: "Order confirmed — we’re printing your item at the closest available approved facility. You’ll receive tracking when the provider confirms shipment. Thank you for supporting the build."
+  - flow_id: MS-DELIVERY-03-RISK-OR-STOCK-HOLD
+    trigger:
+      any:
+        - risk_state: HIGH
+        - inventory_state: OUT_OF_STOCK
+        - inventory_state: NEGATIVE
+        - provider_mapping_unknown: true
+    decision: DENY_AUTO_FULFILLMENT
+    actions:
+      - tag_for_review
+      - record_hold_reason
+      - prohibit_external_fulfillment_mutation
+    next_state: HOLD_REVIEW
+governance:
+  authority_system: BMOS-CONSTITUTIONAL-OS
+  default: DENY
+  auto_fulfillment_runtime_active: false
+  customer_message_runtime_active: false
+  live_provider_credentials_allowed_in_repository: false
+  production_activation_requires_founder_authority: true
+evidence:
+  required_fields:
+    - order_reference
+    - decision
+    - reason_code
+    - provider_resolution
+    - previous_state
+    - next_state
+    - occurred_at
+  destination: evidence/pfu/merch-ship/runtime
+claim_boundaries:
+  workflow_contract_installed: true
+  shopify_flow_imported: false
+  provider_api_attached: false
+  live_orders_processed: false
+  production_execution: false

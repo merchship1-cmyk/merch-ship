@@ -1,0 +1,97 @@
+catalog_id: MERCH-SHIP-Q4-PRODUCT-CATALOG
+version: "1.0.0"
+owner: Ryan Richard Levack-Carr
+parent_system: MERCH-SHIP-OS
+parent_domain: PFU-DOMAIN-MERCH-SHIP
+status: STRUCTURAL_CANDIDATE
+naming_contract:
+  commercial_sku_pattern: ENGINE-PRODUCT-DESIGN-VERSION-Q4
+  identity_rule: The governed commercial SKU is reused across Shopify, fulfillment-provider title mapping, asset filenames, and operational registry keys unless an external platform contract requires an explicit mapped alias.
+  design_asset_pattern: ENGINE-PRODUCT-DESIGN-VERSION
+product_object_count: 12
+commercial_sku_count: 13
+count_note: Product object 12 is one governed limited family-drop object with two sellable fulfillment components; therefore 12 governed product objects produce 13 commercial SKU identities.
+engines:
+  - engine_id: MERCH-ENGINE-01-SHIP-WHILE-YOU-CREATE
+    name: Ship While You Create
+    product_family: creator_shipping_systems
+    objects:
+      - product_object_id: PFU-PRODUCT-001
+        lifecycle_class: HERO
+        commercial_skus: [SHIP-HOODIE-SHIPMODE-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-002
+        lifecycle_class: EVERGREEN
+        commercial_skus: [SHIP-TEE-SYSTEMOVERHUSTLE-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-003
+        lifecycle_class: EVERGREEN
+        commercial_skus: [SHIP-DADHAT-BUILDOVERTALK-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-004
+        lifecycle_class: LIMITED
+        commercial_skus: [SHIP-CREWNECK-BUILTINQ4-V1-Q4]
+        status: CANDIDATE
+  - engine_id: MERCH-ENGINE-02-PRODUCT-FACTORY-UNIVERSE
+    name: Product Factory Universe
+    product_family: product_factory_systems
+    objects:
+      - product_object_id: PFU-PRODUCT-005
+        lifecycle_class: HERO
+        commercial_skus: [FACTORY-CREWNECK-FACTORYLOGO-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-006
+        lifecycle_class: EVERGREEN
+        commercial_skus: [FACTORY-TOTE-PRODUCTFACTORY-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-007
+        lifecycle_class: EVERGREEN
+        commercial_skus: [FACTORY-TUMBLER-PFUWRAP-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-008
+        lifecycle_class: LIMITED
+        commercial_skus: [FACTORY-BLANKET-OFFERBLUEPRINT-V1-Q4]
+        status: CANDIDATE
+  - engine_id: MERCH-ENGINE-03-FULFILLMENT-THAT-DOES-NOT-BREAK
+    name: Fulfillment That Does Not Break
+    product_family: fulfillment_reliability_systems
+    objects:
+      - product_object_id: PFU-PRODUCT-009
+        lifecycle_class: HERO
+        commercial_skus: [FULFILL-BEANIE-AUTOSHIP-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-010
+        lifecycle_class: EVERGREEN
+        commercial_skus: [FULFILL-MUG-SHIPWHILEYOUCREATE-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-011
+        lifecycle_class: EVERGREEN
+        commercial_skus: [FULFILL-DESKMAT-FLOWDIAGRAM-V1-Q4]
+        status: CANDIDATE
+      - product_object_id: PFU-PRODUCT-012
+        lifecycle_class: LIMITED_FAMILY_SET
+        commercial_skus:
+          - FULFILL-ORNAMENT-2025SHIPYEAR-V1-Q4
+          - FULFILL-TEESET-FAMILYMATCH-V1-Q4
+        status: CANDIDATE
+        family_set_rule: Both commercial SKUs are governed as one limited product object for lifecycle, offer, release, and evidence decisions; fulfillment remains SKU-addressable.
+status_lifecycle:
+  - CANDIDATE
+  - PACKAGE_READY
+  - OFFER_DEFINED
+  - ACTIVE
+  - HOLD
+  - RETIRED
+activation_requirements:
+  - provider_variant_mapping_verified
+  - cost_and_retail_recorded
+  - mockup_assets_linked
+  - release_gate_passed
+  - live_commerce_runtime_separately_authorized
+claim_boundaries:
+  listed_in_catalog: true
+  sellable_now: false
+  provider_products_created: false
+  shopify_products_created: false
+  live_inventory_verified: false
+  production_authority: false

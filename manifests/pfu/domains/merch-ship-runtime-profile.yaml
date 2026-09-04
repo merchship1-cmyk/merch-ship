@@ -1,6 +1,6 @@
 domain_id: PFU-DOMAIN-MERCH-SHIP
 canonical_name: MERCH SHIP
-version: "1.0.0"
+version: "1.1.0"
 owner:
   actor_id: FOUNDER-RYAN-RICHARD-LEVACK-CARR
   actor_type: HUMAN
@@ -16,6 +16,11 @@ constitution:
   ratification_event_id: PFU-CONST-RAT-2026-08-05-001
   enforcement_scope: GOVERNANCE_ONLY
 status: VALIDATED_GREEN
+registered_subsystems:
+  - system_id: MERCH-SHIP-OS
+    registration: registrations/pfu/merch-ship-os.system.yaml
+    status: REGISTERED_BLUE
+    activation_state: STRUCTURAL_ONLY
 runtime_boundary:
   environments:
     - repository_structural
@@ -33,6 +38,9 @@ data_boundary:
   owned_data:
     - MERCH_SHIP_domain_state
     - MERCH_SHIP_governance_records
+    - MERCH_SHIP_product_registry
+    - MERCH_SHIP_delivery_evidence
+    - MERCH_SHIP_asset_registry_metadata
     - authorized_v2_application_state
   prohibited_access:
     - other_domain_protected_state_without_contract
@@ -122,6 +130,7 @@ implementation_scope:
     - flows/pfu/
     - evidence/pfu/
     - evals/pfu/
+    - registrations/pfu/
   excluded:
     - application_runtime_mutation
     - infrastructure_mutation
@@ -130,6 +139,8 @@ implementation_scope:
     - public_release
 claim_boundaries:
   kernel_governed_structure: installed_on_feature_branch
+  merch_ship_os_structure: installed_on_feature_branch
+  merch_ship_os_live_commerce: false
   merged_to_main: false
   runtime_active: false
   production_ready: false

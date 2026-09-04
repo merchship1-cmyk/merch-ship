@@ -1,0 +1,139 @@
+system_id: MERCH-SHIP-OS
+system_version: "1.0.0"
+owner: Ryan Richard Levack-Carr
+purpose: Operate governed MERCH SHIP product-family, delivery-rail, asset-vault, and commercial evidence contracts under PFU and BMOS authority.
+models:
+  - provider: deterministic_policy_first
+    model_id: none_required_for_commercial_routing_contracts
+    purpose: Product, routing, state, and authority decisions are deterministic unless a separately authorized workflow declares a model.
+    data_boundary: No model receives credential, payment, production-release, or universal commerce authority.
+    fallback: founder_review
+tools:
+  - tool_id: GitHub
+    purpose: Executable source of truth for MERCH SHIP OS contracts, manifests, flows, evidence, and release history.
+    permissions: [read, feature_branch_write, draft_pr]
+    environments: [repository]
+    secret_boundary: Secrets forbidden in repository and evidence.
+  - tool_id: Notion
+    purpose: Human control plane for the MERCH SHIP operational registry.
+    permissions: [read, governed_page_write, governed_registry_write]
+    environments: [workspace]
+    runtime_state: STRUCTURAL_PROJECTION_ACTIVE
+    projection_reference: https://app.notion.com/p/3d013e5cbb9f81738bfdd1c0f110011a?pvs=204
+    secret_boundary: Secrets forbidden in governance pages and registry records.
+  - tool_id: Shopify
+    purpose: Commercial event log and order source of truth when a live adapter is separately authorized.
+    permissions: [declared_runtime_only]
+    environments: [external_commerce]
+    runtime_state: NOT_ATTACHED
+  - tool_id: Printify
+    purpose: US-preferred print-on-demand fulfillment provider when a live adapter is separately authorized.
+    permissions: [declared_runtime_only]
+    environments: [external_fulfillment]
+    runtime_state: NOT_ATTACHED
+  - tool_id: Gelato
+    purpose: Canada/EU-preferred print-on-demand fulfillment provider when a live adapter is separately authorized.
+    permissions: [declared_runtime_only]
+    environments: [external_fulfillment]
+    runtime_state: NOT_ATTACHED
+  - tool_id: Google_Drive
+    purpose: Governed design, mockup, listing, and archive asset vault.
+    permissions: [declared_workspace_write]
+    environments: [workspace]
+    runtime_state: STRUCTURAL_ASSET_VAULT_ACTIVE
+    projection_reference: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+  - tool_id: Airtable_or_Notion
+    purpose: Operational SKU registry projection beneath PFU product identity.
+    permissions: [declared_workspace_write]
+    environments: [workspace]
+    runtime_state: NOTION_PROJECTION_ACTIVE_AIRTABLE_NOT_ATTACHED
+    projection_reference: https://app.notion.com/p/7eeaf72d5f5e45518cb1da79bb6ae7c5
+agents:
+  - agent_id: PFU-AUTHORIZED-IMPLEMENTOR
+    role: bounded_implementation
+    capabilities: [create_governed_artifacts, validate_structure, prepare_evidence]
+    permitted_systems: [MERCH-SHIP-OS, PFU-DOMAIN-MERCH-SHIP]
+    permitted_tools: [GitHub, Notion]
+    memory_scope: task_and_governance_context_only
+    escalation: Founder or explicitly delegated authority
+  - agent_id: MERCH-SHIP-OPERATIONS-COORDINATOR
+    role: bounded_commercial_operations
+    capabilities: [read_product_registry, evaluate_delivery_state, prepare_fulfillment_request, prepare_customer_message]
+    permitted_systems: [MERCH-SHIP-OS]
+    permitted_tools: [Shopify, Printify, Gelato, Google_Drive, Airtable_or_Notion]
+    runtime_state: DORMANT_UNTIL_AUTHORIZED
+    escalation: Founder or explicitly delegated authority
+surfaces:
+  - surface_id: GitHub
+    type: executable_source_of_truth
+    audience: Founder, reviewers, and authorized implementors
+    permissions: feature_branch_and_review_bounded
+  - surface_id: Notion
+    type: human_control_plane
+    audience: Founder and authorized operators
+    permissions: governed_read_write
+  - surface_id: Shopify
+    type: commercial_event_log
+    audience: authorized commerce operators
+    permissions: runtime_contract_bounded
+memory:
+  - store_id: MERCH-SHIP-PRODUCT-REGISTRY
+    data_classification: commercial_governance
+    retention: permanent_until_deprecated_by_authority
+    access_policy: authorized_operators
+    projection_reference: https://app.notion.com/p/7eeaf72d5f5e45518cb1da79bb6ae7c5
+  - store_id: MERCH-SHIP-ASSET-VAULT
+    data_classification: commercial_assets
+    retention: lifecycle_managed
+    access_policy: authorized_operators
+    projection_reference: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+  - store_id: GitHub-History
+    data_classification: versioned_governance_and_evidence
+    retention: repository_history
+    access_policy: repository_permissions
+runtime:
+  runtime_id: MERCH-SHIP-OS-RUNTIME
+  orchestrator: dormant_until_explicit_activation
+  state_model: product_registry_plus_commercial_events_plus_delivery_evidence
+  retry_policy: bounded_and_idempotent_for_mutations
+  rollback_policy: required_when_reversible
+  activation_state: STRUCTURAL_ONLY
+permissions:
+  default: deny
+  auto_publish: false
+  auto_release: false
+  auto_fulfillment: false
+  external_write_requires_runtime_authorization: true
+  high_risk_order_requires_hold: true
+  merge_requires_founder_authority: true
+  runtime_activation_requires_founder_authority: true
+inputs:
+  - type: product_object
+    required_fields: [product_object_id, engine_id, lifecycle_class, commercial_skus, status]
+  - type: commercial_event
+    required_fields: [event_id, event_type, source, occurred_at]
+  - type: fulfillment_candidate
+    required_fields: [order_id, payment_state, risk_state, inventory_state, region]
+outputs:
+  - type: delivery_decision
+    required_fields: [decision, reason_code, next_state]
+  - type: fulfillment_request
+    required_fields: [order_id, provider, commercial_sku, authority_reference]
+  - type: evidence_record
+    required_fields: [evidence_id, event_type, source_reference, state]
+evidence_destination:
+  notion: https://app.notion.com/p/3d013e5cbb9f81738bfdd1c0f110011a?pvs=204
+  github: evidence/pfu/merch-ship and pull-request history
+  drive: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+  commerce: Shopify event references only after runtime authorization
+failure_policy:
+  timeout: required_before_runtime_activation
+  retry: bounded
+  idempotency: required_for_external_mutations
+  escalation: Founder or explicitly delegated authority
+  rollback: required_when_reversible
+  unknown_provider_state: HOLD_REVIEW
+release_authority:
+  authority: Founder
+  policy: policies/pfu/release-policy.yaml
+  prohibited_without_explicit_authority: [merge, deploy, production_secret_change, public_release, destructive_migration, runtime_activation, live_fulfillment, live_customer_message]

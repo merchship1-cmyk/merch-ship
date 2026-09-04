@@ -1,0 +1,133 @@
+vault_id: MERCH-SHIP-ASSET-VAULT-Q4
+version: "1.1.0"
+parent_system: MERCH-SHIP-OS
+status: STRUCTURAL_PROJECTION_ACTIVE
+root_folder: MERCH SHIP VAULT Q4
+external_projection:
+  google_drive:
+    state: CREATED_AND_VERIFIED
+    root_folder_id: 1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+    root_folder_url: https://drive.google.com/drive/folders/1HMqQpZLH-IM1BAZ6VOwAcLCRYpELg4Uj
+    visibility_at_creation: private_not_shared
+    verified_children:
+      - 00_INBOX_REVIEW
+      - 01_DESIGNS
+      - 02_MOCKUPS
+      - 03_LISTINGS
+      - 04_ARCHIVE
+      - 05_OPERATIONS
+      - 06_EVIDENCE
+    verified_design_children:
+      - ENGINE_1_SHIP
+      - ENGINE_2_FACTORY
+      - ENGINE_3_FULFILL
+    verified_mockup_children:
+      - FRONT
+      - BACK
+      - LIFESTYLE
+    verified_operations_children:
+      - CATALOG
+      - AUTOMATIONS
+    verified_listing_children:
+      - COPY
+  notion:
+    state: CREATED_AND_POPULATED
+    system_registry_page: https://app.notion.com/p/3d013e5cbb9f81738bfdd1c0f110011a?pvs=204
+    product_registry_database: https://app.notion.com/p/7eeaf72d5f5e45518cb1da79bb6ae7c5
+    governed_product_rows: 12
+folders:
+  - path: 00_INBOX_REVIEW
+    purpose: Quarantine/import lane for discovered assets and artifacts until identity, freshness, authority, and canonical naming are verified.
+  - path: 01_DESIGNS/ENGINE_1_SHIP
+    purpose: Approved source design assets for Ship While You Create.
+  - path: 01_DESIGNS/ENGINE_2_FACTORY
+    purpose: Approved source design assets for Product Factory Universe.
+  - path: 01_DESIGNS/ENGINE_3_FULFILL
+    purpose: Approved source design assets for Fulfillment That Does Not Break.
+  - path: 02_MOCKUPS/FRONT
+    purpose: Approved front product mockups.
+  - path: 02_MOCKUPS/BACK
+    purpose: Approved back product mockups.
+  - path: 02_MOCKUPS/LIFESTYLE
+    purpose: Approved lifestyle product mockups.
+  - path: 03_LISTINGS/COPY
+    purpose: Approved commerce-ready product copy and listing text.
+  - path: 03_LISTINGS
+    purpose: Final commerce-ready listing images and approved listing assets.
+  - path: 04_ARCHIVE
+    purpose: Superseded, retired, or legacy governed reference artifacts.
+  - path: 05_OPERATIONS/CATALOG
+    purpose: Current operational catalog projections derived from the canonical PFU product registry.
+  - path: 05_OPERATIONS/AUTOMATIONS
+    purpose: Validated automation packages, build guides, mappings, and runtime instructions.
+  - path: 06_EVIDENCE
+    purpose: Retained provider, order, test, fulfillment, tracking, proof, and validation evidence.
+ingestion_policy:
+  discovery_sources:
+    - ChatGPT_Library
+    - Google_Drive
+    - GitHub
+    - Notion
+  default_destination: 00_INBOX_REVIEW
+  promote_only_when:
+    - canonical_identity_matches_current_ssot
+    - duplicate_and_version_check_complete
+    - authority_and_release_state_known
+    - provider_or_platform_claims_verified_when_applicable
+  stale_or_conflicting_artifact_action: retain_in_inbox_or_archive_and_never_silently_promote
+  destructive_move_or_delete: false
+  preserve_originals: true
+current_ingested_candidates:
+  - file: CANDIDATE_LEGACY__MERCH_SHIP_Q4_12_SKU_Airtable.csv
+    state: INBOX_REVIEW_CONFLICTING_SKU_IDENTITIES
+  - file: CANDIDATE_LEGACY__MERCH_SHIP_Black_Friday_12_Product_Descriptions.docx
+    state: INBOX_REVIEW_CONFLICTING_SKU_IDENTITIES
+  - file: CANDIDATE_LEGACY__MERCH_SHIP_Shopify_Flow_Q4.txt
+    state: INBOX_REVIEW_BUILD_GUIDE_NOT_IMPORT_PACKAGE_AND_CONFLICTING_SKU_MAP
+naming:
+  design_asset_pattern: ENGINE-PRODUCT-DESIGN-VERSION
+  commercial_sku_pattern: ENGINE-PRODUCT-DESIGN-VERSION-Q4
+  q4_rule: Q4 appears at commercial SKU/product-object level and is not required on reusable design-source files.
+  alias_policy: No silent renaming. Any platform-constrained alias must be explicitly mapped to the canonical SKU.
+operational_registry_fields:
+  - Engine
+  - Product Type
+  - Winner Category
+  - Design Name
+  - SKU Name
+  - Print Provider
+  - Cost
+  - Retail
+  - Mockup Link
+  - Status
+status_lifecycle:
+  - CANDIDATE
+  - PACKAGE_READY
+  - OFFER_DEFINED
+  - ACTIVE
+  - HOLD
+  - RETIRED
+ssot_chain:
+  identity: PFU product object registry in GitHub
+  operations: MERCH SHIP Notion operational registry projection
+  commerce: Shopify implementation after separate runtime authorization
+  assets: governed Google Drive vault projection
+governance:
+  default: DENY
+  public_asset_publish: false
+  destructive_delete: false
+  external_workspace_write_requires_authorization: true
+  secrets_allowed: false
+  autonomous_promotion_from_inbox: false
+claim_boundaries:
+  vault_contract_installed: true
+  google_drive_folders_created: true
+  google_drive_structure_verified: true
+  ingestion_lane_active: true
+  legacy_candidates_loaded: true
+  airtable_base_created: false
+  notion_registry_created: true
+  notion_registry_populated: true
+  product_assets_rendered: false
+  shopify_products_created: false
+  autonomous_commerce_runtime_active: false
