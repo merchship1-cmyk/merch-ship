@@ -29,7 +29,7 @@ export const autonomousCapabilitySchema = z.enum([
 ]);
 export type AutonomousCapability = z.infer<typeof autonomousCapabilitySchema>;
 
-export const autonomousProhibitedActionSchema = z.enum([
+export const AUTONOMOUS_PROHIBITED_ACTIONS = [
   ...AUTONOMOUS_OS_LAWS,
   'PUBLIC_PUBLISH',
   'PRICE_CHANGE',
@@ -37,7 +37,10 @@ export const autonomousProhibitedActionSchema = z.enum([
   'PRODUCTION_DEPLOY',
   'CUSTOMER_FINANCIAL_EXECUTION',
   'UNBOUNDED_EXTERNAL_WRITE',
-]);
+] as const;
+export const autonomousProhibitedActionSchema = z.enum(
+  AUTONOMOUS_PROHIBITED_ACTIONS,
+);
 export type AutonomousProhibitedAction = z.infer<
   typeof autonomousProhibitedActionSchema
 >;
