@@ -1,0 +1,291 @@
+name: ZENZY Remote Internal Beta
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "v2/**"
+      - ".github/workflows/zenzy-remote-internal-beta.yml"
+  workflow_dispatch:
+    inputs:
+      authorization:
+        description: Type REMOTE_INTERNAL_BETA_ONLY to acknowledge the non-production boundary
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zenzy-remote-internal-beta-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ZENZY_REMOTE_INTERNAL_BETA: "1"
+  EXPO_PUBLIC_ZENZY_AI_MODE: remote
+  EXPO_PUBLIC_SUPABASE_URL: https://dlliijieyppljpxbweib.supabase.co
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4
+  EXPO_PUBLIC_ZENZY_API_URL: https://dlliijieyppljpxbweib.supabase.co/functions/v1/transform
+
+jobs:
+  contract:
+    name: Remote Beta / Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Load repository EAS project ID
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f eas-project.json
+          project_id="$(jq -r '.projectId // empty' eas-project.json)"
+          if [[ -z "$project_id" || "$project_id" == "00000000-0000-0000-0000-000000000000" ]]; then
+            echo "Blocked: repository EAS project ID is not linked."
+            exit 1
+          fi
+          if ! [[ "$project_id" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]]; then
+            echo "Blocked: repository EAS project ID is not a valid UUID."
+            exit 1
+          fi
+          echo "ZENZY_EAS_PROJECT_ID=$project_id" >> "$GITHUB_ENV"
+
+      - name: Verify remote-beta configuration is isolated and fail-closed
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f eas.json
+
+          # Preserve the already-proven Phase 1B mock profile.
+          jq -e '.build.preview.distribution == "internal"' eas.json >/dev/null
+          jq -e '.build.preview.environment == "preview"' eas.json >/dev/null
+          jq -e '.build.preview.android.buildType == "apk"' eas.json >/dev/null
+          jq -e '.build.preview.env.EXPO_PUBLIC_ZENZY_AI_MODE == "mock"' eas.json >/dev/null
+          jq -e '.build.preview.env.ZENZY_PHASE1B_PREVIEW == "1"' eas.json >/dev/null
+
+          # Require a separate remote internal lane.
+          jq -e '.build["remote-beta"].distribution == "internal"' eas.json >/dev/null
+          jq -e '.build["remote-beta"].environment == "preview"' eas.json >/dev/null
+          jq -e '.build["remote-beta"].android.buildType == "apk"' eas.json >/dev/null
+          jq -e '.build["remote-beta"].node == "22.23.2"' eas.json >/dev/null
+          jq -e '.build["remote-beta"].env.ZENZY_REMOTE_INTERNAL_BETA == "1"' eas.json >/dev/null
+          jq -e '.build["remote-beta"].env.EXPO_PUBLIC_ZENZY_AI_MODE == "remote"' eas.json >/dev/null
+          jq -e '.build["remote-beta"].env.EXPO_PUBLIC_SUPABASE_URL | startswith("https://")' eas.json >/dev/null
+          jq -e '.build["remote-beta"].env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY | startswith("sb_publishable_")' eas.json >/dev/null
+          jq -e '.build["remote-beta"].env.EXPO_PUBLIC_ZENZY_API_URL | endswith("/functions/v1/transform")' eas.json >/dev/null
+          jq -e '.build["remote-beta"].channel == null' eas.json >/dev/null
+          jq -e '.build.production == null' eas.json >/dev/null
+          jq -e '.submit == null' eas.json >/dev/null
+
+          expo_config="$RUNNER_TEMP/remote-beta-expo-config.json"
+          npx expo config --type public --json > "$expo_config"
+          jq -e '.name == "Zenzy Internal Beta"' "$expo_config" >/dev/null
+          jq -e '.scheme == "zenzy-internal-beta"' "$expo_config" >/dev/null
+          jq -e '.android.package == "com.merchship.zenzy.internalbeta"' "$expo_config" >/dev/null
+          jq -e '.ios.bundleIdentifier == "com.merchship.zenzy.internalbeta"' "$expo_config" >/dev/null
+          jq -e '.extra.eas.projectId == env.ZENZY_EAS_PROJECT_ID' "$expo_config" >/dev/null
+
+          {
+            echo "## ZENZY Remote Internal Beta contract"
+            echo
+            echo "- Separate app identity: enforced"
+            echo "- Internal distribution only: enforced"
+            echo "- Remote authenticated mode: enforced"
+            echo "- Original Phase 1B mock profile: preserved"
+            echo "- Production profile: absent"
+            echo "- Submit profile: absent"
+            echo "- EAS Update channel: absent"
+            echo "- Cloud build on PR: disabled"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run repository verification
+        working-directory: v2
+        run: npm run verify
+
+      - name: Verify Phase 1A static spine
+        working-directory: v2
+        run: npm run phase1a:static
+
+  build:
+    name: Remote Beta / Android Internal APK
+    if: github.event_name == 'workflow_dispatch'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      REMOTE_BETA_AUTHORIZATION: ${{ inputs.authorization }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Governance guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${REMOTE_BETA_AUTHORIZATION:-}" != "REMOTE_INTERNAL_BETA_ONLY" ]]; then
+            echo "Blocked: remote internal beta acknowledgement was not supplied."
+            exit 1
+          fi
+          if [[ -z "${EXPO_TOKEN:-}" ]]; then
+            echo "Blocked: EXPO_TOKEN is not configured."
+            exit 1
+          fi
+          {
+            echo "## ZENZY Remote Internal Beta governance guard"
+            echo
+            echo "- Internal founder/tester beta only"
+            echo "- Source locked to merged main"
+            echo "- Remote authenticated mode"
+            echo "- No production profile"
+            echo "- No submit/release action"
+            echo "- No EAS Update channel"
+            echo "- No customer production data"
+            echo "- No PR #38 / WREAS advancement"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout merged main candidate
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Record candidate source
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+          main_sha="$(git rev-parse origin/main)"
+          if [[ "$sha" != "$main_sha" ]]; then
+            echo "Blocked: checked-out candidate does not match origin/main."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Candidate merged-main source: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Load repository EAS project ID
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          project_id="$(jq -r '.projectId // empty' eas-project.json)"
+          if [[ -z "$project_id" ]]; then
+            echo "Blocked: repository EAS project ID is not linked."
+            exit 1
+          fi
+          echo "ZENZY_EAS_PROJECT_ID=$project_id" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install locked dependencies
+        working-directory: v2
+        run: npm ci
+
+      - name: Re-verify source before cloud packaging
+        working-directory: v2
+        run: |
+          npm run verify
+          npm run phase1a:static
+
+      - name: Build remote internal Android beta on EAS
+        working-directory: v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_json="$RUNNER_TEMP/remote-beta-build.json"
+          eas build \
+            --platform android \
+            --profile remote-beta \
+            --non-interactive \
+            --wait \
+            --json > "$build_json"
+
+      - name: Retain APK and provenance
+        working-directory: v2
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p remote-beta/artifacts
+          build_json="$RUNNER_TEMP/remote-beta-build.json"
+          test -f "$build_json"
+
+          build_id="$(jq -r 'if type == "array" then .[0].id else .id end' "$build_json")"
+          build_url="$(jq -r 'if type == "array" then (.[0].artifacts.buildUrl // .[0].artifacts.applicationArchiveUrl // empty) else (.artifacts.buildUrl // .artifacts.applicationArchiveUrl // empty) end' "$build_json")"
+
+          if [[ -z "$build_id" || "$build_id" == "null" ]]; then
+            echo "Blocked: EAS build ID was not returned."
+            exit 1
+          fi
+          if [[ -z "$build_url" ]]; then
+            echo "Blocked: EAS APK URL was not returned."
+            exit 1
+          fi
+
+          cp "$build_json" remote-beta/artifacts/eas-build-metadata.json
+          curl --fail --location --retry 3 "$build_url" --output remote-beta/artifacts/zenzy-remote-internal-beta.apk
+          unzip -tq remote-beta/artifacts/zenzy-remote-internal-beta.apk >/dev/null
+          sha256sum remote-beta/artifacts/zenzy-remote-internal-beta.apk | tee remote-beta/artifacts/zenzy-remote-internal-beta.apk.sha256
+
+          digest="$(cut -d' ' -f1 remote-beta/artifacts/zenzy-remote-internal-beta.apk.sha256)"
+          jq -n \
+            --arg lifecycle "ZENZY_REMOTE_INTERNAL_BETA" \
+            --arg sourceSha "$SOURCE_SHA" \
+            --arg easProjectId "$ZENZY_EAS_PROJECT_ID" \
+            --arg buildId "$build_id" \
+            --arg profile "remote-beta" \
+            --arg environment "preview" \
+            --arg aiMode "remote" \
+            --arg updateChannel "NONE_NOT_PROVISIONED" \
+            --arg artifact "zenzy-remote-internal-beta.apk" \
+            --arg sha256 "$digest" \
+            --arg boundary "INTERNAL_FOUNDER_TESTER_ONLY_NO_PRODUCTION_NO_STORE_NO_RFTO_NO_PRIME_NO_BMOS_NO_PR38_WREAS" \
+            '{lifecycle:$lifecycle,source_sha:$sourceSha,eas_project_id:$easProjectId,eas_build_id:$buildId,profile:$profile,environment:$environment,ai_mode:$aiMode,eas_update_channel:$updateChannel,artifact:$artifact,sha256:$sha256,boundary:$boundary}' \
+            > remote-beta/artifacts/provenance.json
+
+          {
+            echo
+            echo "## Remote Internal Beta artifact"
+            echo
+            echo "- EAS build: \`$build_id\`"
+            echo "- Source: \`$SOURCE_SHA\`"
+            echo "- Artifact: \`zenzy-remote-internal-beta.apk\`"
+            echo "- SHA-256: \`$digest\`"
+            echo "- AI mode: remote"
+            echo "- Distribution: internal"
+            echo "- EAS Update channel: not provisioned"
+            echo "- Boundary: internal beta only; no production/release authority"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload retained remote-beta evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenzy-remote-internal-beta-${{ steps.source.outputs.sha }}
+          path: |
+            v2/remote-beta/artifacts/zenzy-remote-internal-beta.apk
+            v2/remote-beta/artifacts/zenzy-remote-internal-beta.apk.sha256
+            v2/remote-beta/artifacts/eas-build-metadata.json
+            v2/remote-beta/artifacts/provenance.json
+          if-no-files-found: error
+          retention-days: 90
