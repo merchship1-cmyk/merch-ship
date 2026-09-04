@@ -14,21 +14,6 @@
       "android": {
         "buildType": "apk"
       }
-    },
-    "remote-beta": {
-      "node": "22.23.2",
-      "environment": "preview",
-      "distribution": "internal",
-      "env": {
-        "ZENZY_REMOTE_INTERNAL_BETA": "1",
-        "EXPO_PUBLIC_ZENZY_AI_MODE": "remote",
-        "EXPO_PUBLIC_SUPABASE_URL": "https://dlliijieyppljpxbweib.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_OlROeVxb5I1z6LpamAgSyQ_hffY8Zs4",
-        "EXPO_PUBLIC_ZENZY_API_URL": "https://dlliijieyppljpxbweib.supabase.co/functions/v1/transform"
-      },
-      "android": {
-        "buildType": "apk"
-      }
     }
   }
 }
