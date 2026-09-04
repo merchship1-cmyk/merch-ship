@@ -3,24 +3,45 @@ const { projectId: repositoryEasProjectId } = require('./eas-project.json');
 module.exports = ({ config }) => {
   const detoxMode = process.env.ZENZY_DETOX === '1';
   const phase1bPreview = process.env.ZENZY_PHASE1B_PREVIEW === '1';
+  const remoteInternalBeta = process.env.ZENZY_REMOTE_INTERNAL_BETA === '1';
 
-  if (!detoxMode && !phase1bPreview) return config;
+  const activeModes = [detoxMode, phase1bPreview, remoteInternalBeta].filter(Boolean).length;
+  if (activeModes > 1) {
+    throw new Error('ZENZY build modes are mutually exclusive.');
+  }
 
+  if (activeModes === 0) return config;
+
+  const internalPreviewMode = phase1bPreview || remoteInternalBeta;
   const androidPackage = detoxMode
     ? process.env.ZENZY_ANDROID_PACKAGE?.trim() ?? 'com.merchship.zenzy.phase1a.test'
-    : 'com.merchship.zenzy.phase1b.preview';
+    : remoteInternalBeta
+      ? 'com.merchship.zenzy.internalbeta'
+      : 'com.merchship.zenzy.phase1b.preview';
 
   const easProjectId =
-    phase1bPreview && typeof repositoryEasProjectId === 'string'
+    internalPreviewMode && typeof repositoryEasProjectId === 'string'
       ? repositoryEasProjectId.trim()
       : undefined;
 
+  const internalIdentity = remoteInternalBeta
+    ? {
+        name: 'Zenzy Internal Beta',
+        scheme: 'zenzy-internal-beta',
+        bundleIdentifier: 'com.merchship.zenzy.internalbeta',
+      }
+    : {
+        name: 'Zenzy Preview',
+        scheme: 'zenzy-preview',
+        bundleIdentifier: 'com.merchship.zenzy.phase1b.preview',
+      };
+
   return {
     ...config,
-    ...(phase1bPreview
+    ...(internalPreviewMode
       ? {
-          name: 'Zenzy Preview',
-          scheme: 'zenzy-preview',
+          name: internalIdentity.name,
+          scheme: internalIdentity.scheme,
           extra: {
             ...(config.extra ?? {}),
             ...(easProjectId
@@ -34,7 +55,7 @@ module.exports = ({ config }) => {
           },
           ios: {
             ...config.ios,
-            bundleIdentifier: 'com.merchship.zenzy.phase1b.preview',
+            bundleIdentifier: internalIdentity.bundleIdentifier,
           },
         }
       : {}),
