@@ -1,0 +1,71 @@
+registry_id: BMAZING-PFR-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+parent_system: BMAZING-FIVE-MODULE-PACK
+source_of_truth:
+  human: Notion
+  executable: GitHub
+required_family_fields:
+  - family_id
+  - family_name
+  - family_type
+  - purpose
+  - audience
+  - owner
+  - lifecycle_state
+  - default_tier
+  - permitted_surfaces
+  - lore_binding
+  - template_bindings
+  - pricing_record
+  - distribution_record
+  - evidence_destination
+required_sku_fields:
+  - sku_id
+  - family_id
+  - sku_name
+  - version
+  - format
+  - delivery_assets
+  - fulfillment_mode
+  - price_record
+  - channel_bindings
+  - activation_flags
+  - release_verdict
+family_types:
+  - id: STARTER
+    intent: Low-friction entry product for first activation.
+  - id: BUILDER
+    intent: Structured creation system for repeatable output.
+  - id: PRO
+    intent: Advanced operating pack for established creators or operators.
+  - id: UNIVERSE
+    intent: Multi-module ecosystem product with governed expansion paths.
+  - id: LIFETIME
+    intent: Long-duration access product requiring explicit entitlement rules.
+  - id: BUNDLE
+    intent: Governed collection of multiple approved SKUs.
+lifecycle_states:
+  - DRAFT
+  - REGISTERED
+  - VALIDATED
+  - RELEASE_READY
+  - ACTIVE
+  - PAUSED
+  - RETIRED
+activation_flags:
+  runtime: false
+  deployment: false
+  production: false
+  public_release: false
+  gumroad_sync: false
+  shopify_sync: false
+invariants:
+  - every_sku_belongs_to_one_registered_family
+  - no_sku_release_without_approved_price_record
+  - no_distribution_binding_without_delivery_assets
+  - no_bundle_may_reference_unapproved_skus
+  - no_activation_flag_is_inferred_from_another_flag
+  - all_live_channel_ids_are_recorded_after_creation
+release_policy: policies/pfu/release-policy.yaml

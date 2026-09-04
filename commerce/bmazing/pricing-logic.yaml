@@ -1,0 +1,73 @@
+logic_id: BMAZING-PRC-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+parent_system: BMAZING-FIVE-MODULE-PACK
+purpose: Govern B.MAZING tier relationships, price records, bundles, discounts, currencies, and channel synchronization without inventing commercial amounts.
+tiers:
+  - tier_id: STARTER
+    role: Entry product
+    price_record_required: true
+  - tier_id: BUILDER
+    role: Repeatable creation system
+    price_record_required: true
+  - tier_id: PRO
+    role: Advanced creator or operator system
+    price_record_required: true
+  - tier_id: UNIVERSE
+    role: Multi-module ecosystem offer
+    price_record_required: true
+  - tier_id: LIFETIME
+    role: Long-duration entitlement offer
+    price_record_required: true
+  - tier_id: BUNDLE
+    role: Multi-SKU packaged offer
+    price_record_required: true
+required_price_record_fields:
+  - price_record_id
+  - sku_id
+  - tier_id
+  - currency
+  - base_amount
+  - tax_behavior
+  - channel_amounts
+  - effective_date
+  - expiry_date
+  - approval_actor
+  - approval_timestamp
+  - evidence_destination
+amount_policy:
+  default_amount: null
+  rule: No price amount may be inferred from another PFU or MERCH SHIP product. Every B.MAZING amount requires an explicit approved price record.
+bundle_logic:
+  require_registered_component_skus: true
+  require_component_release_eligibility: true
+  permit_bundle_discount: true
+  require_discount_approval: true
+  prohibit_negative_price: true
+  prohibit_hidden_required_addons: true
+discount_logic:
+  permitted_types:
+    - FIXED_AMOUNT
+    - PERCENTAGE
+    - LAUNCH_WINDOW
+    - COHORT
+    - ENTITLEMENT
+  require_start_and_end: true
+  require_approval: true
+  stackable_by_default: false
+channel_sync:
+  gumroad: disabled
+  shopify: disabled
+  pfu_commerce_plane: disabled
+  rule: Channel price writes require matching SKU, currency, approved amount, channel identifier, and explicit mutation authority.
+validation:
+  - currency_is_supported
+  - amount_is_approved
+  - sku_is_registered
+  - bundle_components_are_eligible
+  - channel_totals_match_approved_logic
+  - customer_facing_terms_are_clear
+release:
+  verdict: BLUE
+  production_pricing_authorized: false
