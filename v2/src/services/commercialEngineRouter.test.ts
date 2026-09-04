@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
   COMMERCIAL_ENGINE_REGISTRY,
   QTCE,
