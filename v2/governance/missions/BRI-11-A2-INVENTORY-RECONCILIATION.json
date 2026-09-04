@@ -1,0 +1,73 @@
+{
+  "missionId": "b11a2000-0000-4000-8000-000000000011",
+  "objective": "Reconcile the 50-product MERCHSHIP inventory against actual deliverables and retain an authoritative evidence-ready inventory-to-deliverable mapping without changing any inventory lifecycle, verification, publication, pricing, or sellability state.",
+  "desiredState": "Every inventory record is mapped to available deliverable evidence or explicitly classified as partial, draft-only, missing, or unmatched, while every source inventory status remains exactly unchanged.",
+  "target": {
+    "system": "MERCHSHIP",
+    "objectType": "INVENTORY_RECONCILIATION",
+    "objectId": "BRI-11"
+  },
+  "autonomyLevel": "A2",
+  "authorityRequest": {
+    "authoritySource": "Founder explicit bounded authorization",
+    "policyVersion": "AUTONOMOUS_OS_POLICY_1_0",
+    "environment": "STAGING",
+    "allowedCapabilities": [
+      "OBSERVE",
+      "RECOMMEND",
+      "PREPARE",
+      "EVIDENCE_WRITE",
+      "ESCALATE"
+    ],
+    "prohibitedActions": [
+      "NO_SELF_CREATED_AUTHORITY",
+      "NO_SILENT_SCOPE_EXPANSION",
+      "NO_STATE_PROMOTION_WITHOUT_EVIDENCE",
+      "NO_PRODUCTION_TRANSITION_WITHOUT_AUTHORITY",
+      "NO_POLICY_MODIFICATION_THROUGH_LEARNING",
+      "NO_DESTRUCTIVE_ACTION_WITHOUT_RECOVERY_AUTHORITY",
+      "NO_CONCEALMENT_OF_FAILURE_OR_UNCERTAINTY",
+      "PUBLIC_PUBLISH",
+      "PRICE_CHANGE",
+      "LEGAL_TERMS_CHANGE",
+      "PRODUCTION_DEPLOY",
+      "CUSTOMER_FINANCIAL_EXECUTION",
+      "UNBOUNDED_EXTERNAL_WRITE"
+    ]
+  },
+  "constraints": {
+    "riskCeiling": "LOW",
+    "maxAttempts": 3,
+    "maxSpendCad": 0
+  },
+  "evidenceRequirements": [
+    {
+      "requirementId": "inventory-map",
+      "description": "Retain an inventory-to-deliverable mapping covering all authoritative inventory records, with evidence provenance for each classification.",
+      "requiredBeforeCompletion": true
+    },
+    {
+      "requirementId": "status-preservation",
+      "description": "Retain evidence that source inventory lifecycle, verification, publication, pricing, and sellability states were not changed by this mission.",
+      "requiredBeforeCompletion": true
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "any-inventory-state-mutation",
+      "description": "Stop before any inventory record would change lifecycle or commercial state, including DRAFT to VERIFIED, SELLABLE, PUBLIC, ACTIVE, PUBLISHED, or any equivalent promotion.",
+      "action": "STOP"
+    },
+    {
+      "conditionId": "any-commercial-write",
+      "description": "Stop before any publishing, pricing, legal-term, checkout, payment, customer, production, or other commercial write would occur.",
+      "action": "STOP"
+    },
+    {
+      "conditionId": "insufficient-provenance",
+      "description": "Escalate rather than infer a deliverable classification when authoritative inventory identity or deliverable provenance cannot be established read-only.",
+      "action": "ESCALATE"
+    }
+  ],
+  "completionDefinition": "An evidence-ready reconciliation covering all authoritative inventory records is retained, every classification is traceable to read-only evidence, missing or uncertain mappings are explicitly identified, and all source inventory lifecycle, verification, publication, pricing, and sellability states remain exactly unchanged. Completion does not verify, publish, activate, price, or make any product sellable."
+}
