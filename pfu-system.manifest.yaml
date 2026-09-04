@@ -1,9 +1,9 @@
 schema_version: "1.0"
 system_id: PFU-FULLSTACK-AGENTIC-STACK
-system_version: "1.1.0"
+system_version: "1.2.0"
 status: CANON_CANDIDATE
 owner: Ryan Richard Levack-Carr
-purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, and release authority.
+purpose: Govern and route every PFU subsystem through declared models, tools, agents, surfaces, memory, runtime, workflows, evidence, constitutional capability, domain contracts, federated evidence boundaries, and release authority.
 constitution:
   constitution_id: PFU-CONSTITUTION
   version: "1.0.0"
@@ -45,6 +45,31 @@ runtime_loop:
   - validate_output
   - record_evidence
   - apply_release_gate
+execution_doctrine:
+  doctrine_id: SPLITPARLALUNIFEDEEXECUTIOM
+  version: "1.0.0"
+  status: CANON_CANDIDATE_BLUE
+  document: docs/pfu/doctrines/splitparlalunifedeexecutiom-v1.md
+  formula:
+    - split_domains
+    - parallel_operation
+    - unified_evidence_view
+    - federated_execution_instances
+    - execution_first_proof
+  unified_authority: false
+  founder_release_gate_required: true
+federated_evidence:
+  policy: policies/pfu/federated-evidence-policy.yaml
+  envelope_contract: contracts/pfu/federated-evidence-envelope.schema.json
+  acceptance_checklist: evals/pfu/federated-execution-acceptance-checklist.md
+  bridge_default: deny
+  architecture_inheritance: forbidden
+  shared_backend_authority: forbidden
+  shared_database_trust: forbidden
+  automatic_role_propagation: forbidden
+  cross_domain_ssot_authority: forbidden
+  auto_publish: false
+  auto_approval: false
 constitutional_subsystems:
   - system_id: BMOS-CONSTITUTIONAL-OS
     registration: registrations/pfu/bmos.system.yaml
@@ -86,6 +111,8 @@ claim_boundaries:
   feature_branch_structure: allowed
   constitutional_ratification: recorded_on_governed_branch_and_notion
   machine_layer: generated_and_validated_on_governed_feature_branch
+  federated_execution_doctrine: architecture_and_policy_only_until_validated
+  cross_domain_runtime: not_authorized_by_doctrine_installation
   merge: explicit_founder_authority_required
   deployment: not_authorized
   runtime_activation: not_authorized

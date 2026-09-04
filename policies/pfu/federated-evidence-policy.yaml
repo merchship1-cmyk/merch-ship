@@ -1,0 +1,67 @@
+policy_id: PFU-FEDERATED-EVIDENCE-001
+version: "1.0.0"
+status: CANON_CANDIDATE
+owner: Ryan Richard Levack-Carr
+doctrine: docs/pfu/doctrines/splitparlalunifedeexecutiom-v1.md
+
+principles:
+  split_domains: true
+  parallel_operation: true
+  unified_evidence_view: true
+  unified_authority: false
+  federated_execution: true
+  execution_first: true
+
+boundaries:
+  bmazing_merchship:
+    governance: independent
+    architecture_inheritance: forbidden
+    shared_backend_authority: forbidden
+    shared_database_trust: forbidden
+    automatic_role_propagation: forbidden
+    cross_domain_ssot_authority: forbidden
+
+bridge:
+  default: deny
+  required_controls:
+    - explicit_scope
+    - authenticated_actor_or_service
+    - declared_source_domain
+    - declared_destination_domain
+    - declared_evidence_type
+    - provenance
+    - revocability
+    - execution_id
+  fail_closed_on_uncertainty: true
+  authority_escalation: forbidden
+  silent_ssot_mutation: forbidden
+
+comparison_layer:
+  permitted_outputs:
+    - alignment
+    - contradiction
+    - uncertainty
+    - change
+    - insufficient_evidence
+  may_mutate_source_domain: false
+  may_mutate_destination_domain: false
+  may_grant_release_authority: false
+
+release_controls:
+  founder_release_gate_required: true
+  auto_publish: false
+  auto_approval: false
+  safety_gate_bypass: false
+  rights_gate_bypass: false
+  quality_gate_bypass: false
+
+execution_physics:
+  deterministic_handoffs: required
+  predictable_schemas: required
+  source_attribution: required
+  bounded_permissions: required
+  logging: required
+  evidence_recording: required
+  reversibility_when_possible: required
+  idempotency_for_mutations: required
+  retry_safety_when_applicable: required
